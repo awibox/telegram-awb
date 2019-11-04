@@ -1,0 +1,22 @@
+{
+  "name": "telegram-awb",
+  "version": "1.0.0",
+  "description": "Telegram contest app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/awibox/telegram-awb.git"
+  },
+  "keywords": [
+    "telegram"
+  ],
+  "author": "awibox",
+  "license": "GNU GENERAL PUBLIC LICENSE",
+  "bugs": {
+    "url": "https://github.com/awibox/telegram-awb/issues"
+  },
+  "homepage": "https://github.com/awibox/telegram-awb#readme"
+}
