@@ -22,6 +22,7 @@
   "homepage": "https://github.com/awibox/telegram-awb#readme",
   "dependencies": {
     "jquery": "^3.4.1",
+    "tdweb": "^1.5.0",
     "telegram-api-js": "^1.2.9"
   },
   "devDependencies": {
