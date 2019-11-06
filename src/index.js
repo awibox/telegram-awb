@@ -1,14 +1,15 @@
 import {apiConfig} from 'config/api';
-require('telegram-api-js/dist/telegramApi');
-$( document ).ready(function() {
-  telegramApi.setConfig(apiConfig);
-  telegramApi.getUserInfo().then(function(user) {
-    if (user.id) {
-      // You have already signed in
-    } else {
-      // Log in
-    }
-  });
-  console.log('Worked')
-});
+import TdClient from 'tdweb';
 
+const client = new TdClient(apiConfig);
+client.send({
+  '@type': 'setTdlibParameters',
+  api_id: apiConfig.app.id,
+  api_hash: apiConfig.app.hash,
+  system_language_code: navigator.language || 'en',
+  use_secret_chats: false,
+  use_message_database: true,
+  use_file_database: false,
+  database_directory: '/db',
+  files_directory: '/'
+});
