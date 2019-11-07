@@ -1,0 +1,64 @@
+$confirmWidth: 360px;
+$descWidth: 230px;
+$imgSize: 160px;
+$titleSize: 32px;
+
+.confirm {
+  width: $confirmWidth;
+  min-width: 320px;
+  max-width: $confirmWidth;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  &-container {
+    display: flex;
+    flex-flow: column;
+    //justify-content: center;
+    align-items: center;
+    height: 100%;
+  }
+  &__img {
+    height: $imgSize;
+    min-height: $imgSize;
+    width: $imgSize;
+    min-width: $imgSize;
+    background-image: url(img/confirm__img@1x.png);
+    background-size: contain;
+    border-radius: 50%;
+    margin-bottom: 45px;
+  }
+  &__title {
+    font-size: $titleSize;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  &__desc {
+    width: $descWidth;
+    font-size: 16px;
+    line-height: 20.5px;
+    text-align: center;
+    color: #8c8c8c;
+    margin-bottom: 50px;
+  }
+  &__input {
+    width: 100%;
+    font-size: 16px;
+    outline: none;
+    box-sizing: border-box;
+    border-radius: 7px;
+    border: 2px solid #4ea4f7;
+    padding: 14px;
+  }
+}
+
+@media 	only screen and (-webkit-min-device-pixel-ratio: 1.5),
+only screen and (min--moz-device-pixel-ratio: 1.5),
+only screen and (-o-min-device-pixel-ratio: 3/2),
+only screen and (min-resolution: 1.5dppx),
+only screen and (min-resolution: 144dpi)  {
+  .confirm {
+    &__logo {
+      background-image: url(img/confirm__img@2x.png);
+    }
+  }
+}
