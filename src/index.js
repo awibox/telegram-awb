@@ -2,29 +2,49 @@ import {apiConfig, TdClientOptions} from 'config/api';
 import TdClient from 'tdweb';
 import Router from 'router/router';
 import Route from 'router/route';
+import 'styles/build.scss';
+import 'styles/login.scss';
 
 (function () {
   const client = new TdClient(TdClientOptions);
-  function init() {
-    const router = new Router([
+  let router;
+  function init(callback) {
+    console.log('callback', callback)
+    router = new Router([
       new Route('login', 'login.html', true),
       new Route('im', 'im.html')
     ]);
+    console.log('router', router)
+    router.hasChanged()
+
     client.send({
       '@type': 'setTdlibParameters',
       parameters: apiConfig
     });
-    // client.onUpdate(function())
+    client.send({
+      '@type': 'checkDatabaseEncryptionKey',
+    });
+
   }
+  function onLoad() {
+    const phoneNumberInput = document.getElementById('phoneNumber');
+    const phoneNumberSendButton = document.getElementById('phoneNumberButton');
+    phoneNumberSendButton.addEventListener('click', function() {
+      // client.send({
+      //   '@type': 'setAuthenticationPhoneNumber',
+      //   phone_number: phoneNumberInput.value,
+      // }).then(result => {
+      //   console.log('result', result);
+      // });
+      router.goToRoute('im')
+    });
+    phoneNumberInput.addEventListener('keyup', function () {
+      console.log('phoneNumberInput', phoneNumberInput.value);
+      if(phoneNumberInput.value.length > 9) {
+
+      }
+    })
+  };
   init();
-  client.send({
-    '@type': 'checkDatabaseEncryptionKey',
-  });
-  client.send({
-    '@type': 'setAuthenticationPhoneNumber',
-    phone_number: "0",
-  }).then(result => {
-    console.log('result', result);
-  });
-  console.log('client', client);
+  setTimeout(onLoad, 100);
 }());
