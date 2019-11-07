@@ -23,6 +23,8 @@ import Route from 'router/route';
   client.send({
     '@type': 'setAuthenticationPhoneNumber',
     phone_number: "0",
+  }).then(result => {
+    console.log('result', result);
   });
   console.log('client', client);
 }());
