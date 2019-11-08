@@ -80,10 +80,22 @@ import 'styles/confirm.scss';
 
       (async() => {
         const response = await client.send({
+          '@type': 'getChat',
+          chat_id: result.chat_ids[1],
+        }).finally(() => {
+          console.log('end!')
+        }).catch(error => {
+          console.error(error)
+        });
+        console.log('response.getChat', response);
+      })();
+
+      (async() => {
+        const response = await client.send({
           '@type': 'getChatHistory',
           chat_id: result.chat_ids[1],
           offset: 0,
-          limit: 300,
+          limit: 5,
         }).finally(() => {
           console.log('end!')
         }).catch(error => {
