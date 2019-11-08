@@ -23,7 +23,6 @@ import 'styles/confirm.scss';
     client.send({
       '@type': 'checkDatabaseEncryptionKey',
     });
-
   }
   function loginPage() {
     const phoneNumberInput = document.getElementById('phoneNumber');
@@ -59,13 +58,57 @@ import 'styles/confirm.scss';
           '@type': 'checkAuthenticationCode',
           code: confirmCodeInput.value,
         }).then(result => {
-          console.log('result', result)
+          console.log('result', result);
         }).catch(error => {
           console.error(error)
         });
       }
     })
   }
+  function imPage() {
+    let chats = [];
+    client.send({
+      '@type': 'getChats',
+      offset_order: '9223372036854775807',
+      offset_chat_id: 0,
+      limit: 30,
+    }).then(result => {
+      console.log('imPage', result)
+      result.chat_ids.forEach((item) => {
+        console.log('item', item);
+      });
+
+      (async() => {
+        const response = await client.send({
+          '@type': 'getChatHistory',
+          chat_id: result.chat_ids[1],
+          offset: 0,
+          limit: 300,
+        }).finally(() => {
+          console.log('end!')
+        }).catch(error => {
+          console.error(error)
+        });
+        console.log('response.messages', response.messages);
+      })();
+
+      (async() => {
+        const response = await client.send({
+          '@type': 'openChat',
+          chat_id: result.chat_ids[1],
+        }).finally(() => {
+          console.log('end!')
+        }).catch(error => {
+          console.error(error)
+        });
+        console.log('response.chat', response);
+      })();
+
+    }).catch(error => {
+      console.error(error)
+    });
+  }
   init();
   setTimeout(loginPage, 100);
+  setTimeout(imPage, 300);
 }());
