@@ -1,5 +1,6 @@
 import { apiConfig, TdClientOptions } from 'config/api';
 import { transformDate } from 'utils';
+import {EventEmitter} from 'events';
 import TdClient from 'tdweb';
 import Router from 'router/router';
 import Route from 'router/route';
@@ -8,37 +9,52 @@ import 'styles/login.scss';
 import 'styles/confirm.scss';
 import 'styles/im.scss';
 
-(function () {
-  const client = new TdClient(TdClientOptions);
-  let phoneNumber = '';
-  let router;
-
-  function init() {
-    router = new Router([
+class App extends EventEmitter{
+  constructor() {
+    super();
+    this.client = {};
+    this.router = {};
+    this.state = {
+      phoneNumber: ''
+    }
+  }
+  onUpdate(update) {
+    console.log('update[\'@type\']', update['@type'])
+  }
+  init() {
+    this.router = new Router([
       new Route('login', 'login.html', true),
       new Route('confirm', 'confirm.html'),
       new Route('im', 'im.html'),
     ]);
-    client.send({
+    this.client = new TdClient(TdClientOptions);
+    this.client.send({
       '@type': 'setTdlibParameters',
       parameters: apiConfig,
+    }).finally(() => {
+      console.log('Loaded imPage')
+      this.imPage()
     });
-    client.send({
+    this.client.send({
       '@type': 'checkDatabaseEncryptionKey',
     });
+    this.client.onUpdate = (update) => this.emit('update', update);
+    this.addListener('update', this.onUpdate);
+
+    setTimeout(this.loginPage, 100);
   }
 
-  function loginPage() {
+  loginPage() {
     const phoneNumberInput = document.getElementById('phoneNumber');
     const phoneNumberSendButton = document.getElementById('phoneNumberButton');
     phoneNumberSendButton.addEventListener('click', function () {
-      client.send({
+      this.client.send({
         '@type': 'setAuthenticationPhoneNumber',
         phone_number: phoneNumberInput.value,
       }).then(result => {
-        phoneNumber = phoneNumberInput.value;
-        router.goToRoute('confirm.html');
-        setTimeout(confirmPage, 100);
+        this.state.phoneNumber = phoneNumberInput.value;
+        this.router.goToRoute('confirm.html');
+        setTimeout(this.confirmPage, 100);
       }).catch(error => {
         console.error(error);
       });
@@ -51,15 +67,14 @@ import 'styles/im.scss';
       }
     });
   }
-
-  function confirmPage() {
+  confirmPage() {
     const confirmTitle = document.getElementById('confirmPhone');
     const confirmCodeInput = document.getElementById('confirmCode');
-    confirmTitle.innerText = phoneNumber;
+    confirmTitle.innerText = this.state.phoneNumber;
     confirmCodeInput.addEventListener('keyup', function () {
       if (confirmCodeInput.value.length == 5) {
         console.log('SENDD!!!', confirmCodeInput.value);
-        client.send({
+        this.client.send({
           '@type': 'checkAuthenticationCode',
           code: confirmCodeInput.value,
         }).then(result => {
@@ -70,12 +85,11 @@ import 'styles/im.scss';
       }
     });
   }
-
-  function imPage() {
+  imPage() {
     const chatsObj = document.getElementById('chats');
     const newChats = [];
     let chats = [];
-    client.send({
+    this.client.send({
       '@type': 'getChats',
       offset_order: '9223372036854775807',
       offset_chat_id: 0,
@@ -84,7 +98,7 @@ import 'styles/im.scss';
       console.log('imPage', result);
       result.chat_ids.forEach((item) => {
         (async () => {
-          const response = await client.send({
+          const response = await this.client.send({
             '@type': 'getChat',
             chat_id: item,
           }).finally(() => {
@@ -94,7 +108,7 @@ import 'styles/im.scss';
           });
           console.log('response', response);
           (async () => {
-            const photo = await client.send({
+            const photo = await this.client.send({
               '@type': 'getRemoteFile',
               remote_file_id: response.photo.small.remote.id
             }).finally(() => {
@@ -125,7 +139,7 @@ import 'styles/im.scss';
       setTimeout(() => chatsObj.innerHTML = newChats.join(''), 200);
 
       (async () => {
-        const response = await client.send({
+        const response = await this.client.send({
           '@type': 'getChatHistory',
           chat_id: result.chat_ids[1],
           offset: 0,
@@ -142,8 +156,10 @@ import 'styles/im.scss';
       console.error(error);
     });
   }
+}
 
-  init();
-  setTimeout(loginPage, 100);
-  setTimeout(imPage, 300);
+
+(function () {
+  const app = new App();
+  app.init();
 }());
