@@ -34,3 +34,28 @@ export function getBrowser() {
 
   return browser_name;
 }
+
+export function transformDate(date) {
+  const numberStabilization = (number) => +number < 10 ? '0' + number : number;
+  const chatDate = new Date(date*1000);
+  const currentDate = new Date();
+
+  let dateView = '';
+  // Day view
+  if(currentDate - chatDate < 86400000) {
+    dateView = `${numberStabilization(chatDate.getHours())}:${numberStabilization(chatDate.getMinutes())}`
+  }
+  // Week view
+  else if (currentDate - chatDate < 604800000) {
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    dateView = days[chatDate.getDay()];
+  }
+  // Another
+  else {
+    const month = numberStabilization(chatDate.getMonth()+1);
+    const day = numberStabilization(chatDate.getDate());
+    const year = ('' + chatDate.getFullYear()).replace('20','');
+    dateView = `${month}/${day}/${year}`
+  }
+  return dateView;
+}

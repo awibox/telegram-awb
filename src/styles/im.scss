@@ -1,0 +1,73 @@
+$avatarSize: 55px;
+$unreadSize: 20px;
+$defaultIndent: 15px;
+
+.im {
+  display: flex;
+  flex-flow: row;
+  &-left-bar {
+    width: 40%;
+    display: flex;
+    flex-flow: column;
+    border-right: 1px solid #DDDFE3;
+  }
+}
+.chats {
+  width: 100%;
+  display: flex;
+  flex-flow: column;
+  &__item {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 80px;
+    min-height: 75px;
+    position: relative;
+    &-avatar {
+      width: $avatarSize;
+      height: $avatarSize;
+      min-width: $avatarSize;
+      min-height: $avatarSize;
+      position: absolute;
+      top: 10px;
+      left: $defaultIndent;
+      background-color: #f2f2f2;
+      border-radius: 50%;
+    }
+    &-info {
+      width: auto;
+    }
+    &-title {
+      font-weight: bold;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding: 5px 0;
+    }
+    &-last {
+      //white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-height: 30px;
+    }
+    &-time {
+      position: absolute;
+      top: $defaultIndent;
+      right: $defaultIndent;
+    }
+    &-unread {
+      position: absolute;
+      bottom: $defaultIndent;
+      right: $defaultIndent;
+      min-width: $unreadSize;
+      line-height: $unreadSize;
+      color: #fff;
+      text-align: center;
+      height: $unreadSize;
+      background-color: #4DCD5E;
+      border-radius: $unreadSize/2;
+      box-sizing: border-box;
+      padding: 0 6px;
+    }
+  }
+}
+
