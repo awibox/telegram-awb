@@ -11,17 +11,21 @@ class Messenger {
   }
   addMessage(message) {
     const messageView = document.createElement('div');
+    messageView.className = 'messages__item';
     const isOutgoing = message.is_outgoing;
+    if(isOutgoing) {
+      messageView.className = 'messages__item messages__item_out';
+    }
     if(message.content['@type'] === 'messageText') {
       messageView.innerHTML = `
-          <div class="message__item">
-            <div class="message__item-avatar"></div>
-            <div class="message__item-text">${message.content.text.text}</div>
-            <div class="chats__item-time">
-                ${isOutgoing ? '+' : ''}
-                ${getTime(message.date)}
-            </div>
-          </div>`;
+        <div class="messages__item-avatar"></div>
+        <div class="messages__item-text">
+        ${message.content.text.text}
+        <div class="messages__item-time">
+          ${isOutgoing ? '+' : ''}
+          ${getTime(message.date)}
+        </div>
+        </div>`;
     }
     this.messageObj.append(messageView)
   }
@@ -67,8 +71,8 @@ class Messenger {
           const isOutgoing = response.last_message.is_outgoing;
           const containsUnreadMention = response.last_message.contains_unread_mention;
           const chatView = document.createElement('div');
+          chatView.className = 'chats__item';
           chatView.innerHTML = `
-          <div class="chats__item">
             <div class="chats__item-avatar"></div>
             <div class="chats__item-title">${response.title}</div>
             <div class="chats__item-last">${response.last_message.content.text.text}</div>
@@ -77,8 +81,7 @@ class Messenger {
                 ${isOutgoing && containsUnreadMention ? '-' : ''}
                 ${transformDate(response.last_message.date)}
             </div>
-            ${response.unread_count > 0 ? `<div class="chats__item-unread">${response.unread_count}</div>` : ''}
-          </div>`;
+            ${response.unread_count > 0 ? `<div class="chats__item-unread">${response.unread_count}</div>` : ''}`;
           chatView.addEventListener('click', () => this.messageList(item, response.last_message));
           chatsObj.append(chatView);
           this.chats.push(item);
