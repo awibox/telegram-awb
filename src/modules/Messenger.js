@@ -1,4 +1,4 @@
-import { transformDate } from 'utils';
+import { transformDate, getTime } from 'utils';
 import 'styles/messenger.scss';
 
 class Messenger {
@@ -7,22 +7,44 @@ class Messenger {
     this.router = router;
     this.state = state;
     this.chats = [];
+    this.messages = [];
   }
-  chatClick(chatId, lastMessageId) {
+  addMessage(message) {
+    const messageView = document.createElement('div');
+    const isOutgoing = message.is_outgoing;
+    if(message.content['@type'] === 'messageText') {
+      messageView.innerHTML = `
+          <div class="message__item">
+            <div class="message__item-avatar"></div>
+            <div class="message__item-text">${message.content.text.text}</div>
+            <div class="chats__item-time">
+                ${isOutgoing ? '+' : ''}
+                ${getTime(message.date)}
+            </div>
+          </div>`;
+    }
+    this.messageObj.append(messageView)
+  }
+  messageList(chatId, lastMessage) {
+    this.messageObj.innerHTML = '';
+    this.messages = [];
+    this.addMessage(lastMessage);
     (async () => {
       const response = await this.client.send({
         '@type': 'getChatHistory',
         chat_id: chatId,
-        from_message_id: lastMessageId,
+        from_message_id: lastMessage.id,
         offset: 0,
         limit: 50,
         only_local: false
-      }).finally(() => {
-        console.log('end!');
       }).catch(error => {
         console.error(error);
       });
       console.log('response.messages', response.messages);
+      response.messages.forEach((item) => {
+        this.addMessage(item);
+      });
+      console.log('this.messages', this.messages);
     })();
   }
   chatList() {
@@ -33,7 +55,6 @@ class Messenger {
       offset_chat_id: 0,
       limit: 30,
     }).then(result => {
-      this.chats = result.chat_ids;
       result.chat_ids.forEach((item) => {
         (async () => {
           const response = await this.client.send({
@@ -58,8 +79,9 @@ class Messenger {
             </div>
             ${response.unread_count > 0 ? `<div class="chats__item-unread">${response.unread_count}</div>` : ''}
           </div>`;
-          chatView.addEventListener('click', () => this.chatClick(item, response.last_message.id));
+          chatView.addEventListener('click', () => this.messageList(item, response.last_message));
           chatsObj.append(chatView);
+          this.chats.push(item);
         })();
       });
     }).catch(error => {
@@ -67,6 +89,7 @@ class Messenger {
     });
   }
   render() {
+    this.messageObj = document.getElementById('messages');
     this.chatList();
   }
 }
