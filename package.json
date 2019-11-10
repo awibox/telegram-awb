@@ -15,7 +15,7 @@
     "telegram"
   ],
   "author": "awibox",
-  "license": "GNU GENERAL PUBLIC LICENSE",
+  "license": "GPL-2.0",
   "bugs": {
     "url": "https://github.com/awibox/telegram-awb/issues"
   },

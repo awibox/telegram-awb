@@ -44,10 +44,9 @@ $defaultIndent: 15px;
       padding: 5px 0;
     }
     &-last {
-      //white-space: nowrap;
+      white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-height: 30px;
     }
     &-time {
       position: absolute;
