@@ -2,19 +2,27 @@ $avatarSize: 55px;
 $unreadSize: 20px;
 $defaultIndent: 15px;
 
+%layout {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-flow: column;
+}
 .im {
   display: flex;
   flex-flow: row;
   &__chats {
     width: 40%;
-    display: flex;
-    flex-flow: column;
     border-right: 1px solid #DDDFE3;
+    @extend %layout;
   }
   &__messages {
-    width: 40%;
-    display: flex;
-    flex-flow: column;
+    background: #E6EBEE;
+    width: 60%;
+    left: 40%;
+    @extend %layout;
   }
 }
 .chats {
@@ -74,4 +82,29 @@ $defaultIndent: 15px;
     }
   }
 }
-
+.messages {
+  display: flex;
+  flex-flow: column-reverse;
+  &__item {
+    padding: 10px;
+    position: relative;
+    display: flex;
+    &_out {
+      justify-content: flex-end;
+    }
+    &-text {
+      max-width: 75%;
+      width: auto;
+      background: #fff;
+      padding: 10px;
+      border-radius: 10px;
+      display: flex;
+      flex-flow: row;
+      align-items: flex-end;
+    }
+    &-time {
+      margin-left: 15px;
+      white-space: nowrap;
+    }
+  }
+}
