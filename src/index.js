@@ -23,23 +23,25 @@ class App extends EventEmitter{
   onUpdate(update) {
     // console.log('update[\'@type\']', update['@type'])
     if(update['@type'] == 'updateChatLastMessage') {
-      console.log('update', update)
+      // console.log('update', update)
     }
   }
   init() {
+    const isAuth = localStorage.getItem('dc2_auth_key');
     this.router = new Router([
-      new Route('login', 'login.html', true),
+      new Route('login', 'login.html', !isAuth),
       new Route('confirm', 'confirm.html'),
-      new Route('im', 'im.html'),
+      new Route('im', 'im.html', isAuth),
     ]);
     this.client = new TdClient(TdClientOptions);
     this.client.send({
       '@type': 'setTdlibParameters',
       parameters: apiConfig,
     }).finally(() => {
-      console.log('Loaded messenger');
-      const messenger = new Messenger(this.client, this.router, this.state, this.onUpdate);
-      messenger.render();
+      if(typeof isAuth !== 'undefined') {
+        const messenger = new Messenger(this.client, this.router, this.state);
+        messenger.render();
+      }
     });
     this.client.send({
       '@type': 'checkDatabaseEncryptionKey',
