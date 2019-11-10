@@ -5,11 +5,16 @@ $defaultIndent: 15px;
 .im {
   display: flex;
   flex-flow: row;
-  &-left-bar {
+  &__chats {
     width: 40%;
     display: flex;
     flex-flow: column;
     border-right: 1px solid #DDDFE3;
+  }
+  &__messages {
+    width: 40%;
+    display: flex;
+    flex-flow: column;
   }
 }
 .chats {
