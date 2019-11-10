@@ -1,4 +1,5 @@
 import { transformDate, getTime } from 'utils';
+import * as storage from 'utils/storage';
 import 'styles/messenger.scss';
 
 class Messenger {
@@ -6,8 +7,6 @@ class Messenger {
     this.client = client;
     this.router = router;
     this.state = state;
-    this.chats = [];
-    this.messages = [];
   }
   addMessage(message) {
     const messageView = document.createElement('div');
@@ -30,16 +29,17 @@ class Messenger {
     this.messageObj.append(messageView)
   }
   messageList(chatId, lastMessage) {
+    const MESSAGES_LIMIT = 20;
+    const MESSAGES_OFFSET = 0;
     this.messageObj.innerHTML = '';
-    this.messages = [];
     this.addMessage(lastMessage);
     (async () => {
       const response = await this.client.send({
         '@type': 'getChatHistory',
         chat_id: chatId,
         from_message_id: lastMessage.id,
-        offset: 0,
-        limit: 50,
+        offset: MESSAGES_OFFSET,
+        limit: MESSAGES_LIMIT,
         only_local: false
       }).catch(error => {
         console.error(error);
@@ -48,16 +48,19 @@ class Messenger {
       response.messages.forEach((item) => {
         this.addMessage(item);
       });
-      console.log('this.messages', this.messages);
     })();
+    storage.set('chatId', chatId);
+    storage.setObject('lastMessage', lastMessage);
   }
   chatList() {
+    const CHATS_LIMIT = 20;
+    const CHATS_OFFSET = 0;
     const chatsObj = document.getElementById('chats');
     this.client.send({
       '@type': 'getChats',
       offset_order: '9223372036854775807',
-      offset_chat_id: 0,
-      limit: 30,
+      offset_chat_id: CHATS_OFFSET,
+      limit: CHATS_LIMIT,
     }).then(result => {
       result.chat_ids.forEach((item) => {
         (async () => {
@@ -67,7 +70,6 @@ class Messenger {
           }).catch(error => {
             console.error(error);
           });
-          console.log('response', response);
           const isOutgoing = response.last_message.is_outgoing;
           const containsUnreadMention = response.last_message.contains_unread_mention;
           const chatView = document.createElement('div');
@@ -84,9 +86,14 @@ class Messenger {
             ${response.unread_count > 0 ? `<div class="chats__item-unread">${response.unread_count}</div>` : ''}`;
           chatView.addEventListener('click', () => this.messageList(item, response.last_message));
           chatsObj.append(chatView);
-          this.chats.push(item);
         })();
       });
+    }).finally(() => {
+      const chatId = storage.get('chatId');
+      const lastMessage = storage.getObject('lastMessage');
+      if(typeof chatId !== 'undefined' && typeof lastMessage !== 'undefined') {
+        this.messageList(chatId, lastMessage);
+      }
     }).catch(error => {
       console.error(error);
     });
