@@ -7,7 +7,9 @@ import Route from 'router/route';
 import 'styles/build.scss';
 import 'styles/login.scss';
 import 'styles/confirm.scss';
-import 'styles/im.scss';
+
+
+import Messenger from 'modules/Messenger'
 
 class App extends EventEmitter{
   constructor() {
@@ -19,7 +21,10 @@ class App extends EventEmitter{
     }
   }
   onUpdate(update) {
-    console.log('update[\'@type\']', update['@type'])
+    // console.log('update[\'@type\']', update['@type'])
+    if(update['@type'] == 'updateChatLastMessage') {
+      console.log('update', update)
+    }
   }
   init() {
     this.router = new Router([
@@ -32,8 +37,9 @@ class App extends EventEmitter{
       '@type': 'setTdlibParameters',
       parameters: apiConfig,
     }).finally(() => {
-      console.log('Loaded imPage')
-      this.imPage()
+      console.log('Loaded messenger');
+      const messenger = new Messenger(this.client, this.router, this.state, this.onUpdate);
+      messenger.render();
     });
     this.client.send({
       '@type': 'checkDatabaseEncryptionKey',
@@ -41,7 +47,7 @@ class App extends EventEmitter{
     this.client.onUpdate = (update) => this.emit('update', update);
     this.addListener('update', this.onUpdate);
 
-    setTimeout(this.loginPage, 100);
+    // setTimeout(this.loginPage, 100);
   }
 
   loginPage() {
@@ -83,77 +89,6 @@ class App extends EventEmitter{
           console.error(error);
         });
       }
-    });
-  }
-  imPage() {
-    const chatsObj = document.getElementById('chats');
-    const newChats = [];
-    let chats = [];
-    this.client.send({
-      '@type': 'getChats',
-      offset_order: '9223372036854775807',
-      offset_chat_id: 0,
-      limit: 30,
-    }).then(result => {
-      console.log('imPage', result);
-      result.chat_ids.forEach((item) => {
-        (async () => {
-          const response = await this.client.send({
-            '@type': 'getChat',
-            chat_id: item,
-          }).finally(() => {
-
-          }).catch(error => {
-            console.error(error);
-          });
-          console.log('response', response);
-          (async () => {
-            const photo = await this.client.send({
-              '@type': 'getRemoteFile',
-              remote_file_id: response.photo.small.remote.id
-            }).finally(() => {
-              console.log('end!');
-            }).catch(error => {
-              console.error(error);
-            });
-            console.log('response.photo', photo);
-          })();
-          const isOutgoing = response.last_message.is_outgoing;
-          const containsUnreadMention = response.last_message.contains_unread_mention;
-          newChats.push(`
-          <div class="chats__item">
-            <div class="chats__item-avatar"></div>
-            <div class="chats__item-title">${response.title}</div>
-            <div class="chats__item-last">${response.last_message.content.text.text}</div>
-            <div class="chats__item-time">
-                ${isOutgoing && !containsUnreadMention ? '+' : ''}
-                ${isOutgoing && containsUnreadMention ? '-' : ''}
-                ${transformDate(response.last_message.date)}
-            </div>
-            ${response.unread_count > 0 ? `<div class="chats__item-unread">${response.unread_count}</div>` : ''}
-          </div>
-          `);
-        })();
-      });
-      console.log('newChats', newChats);
-      setTimeout(() => chatsObj.innerHTML = newChats.join(''), 200);
-
-      (async () => {
-        const response = await this.client.send({
-          '@type': 'getChatHistory',
-          chat_id: result.chat_ids[1],
-          offset: 0,
-          limit: 5,
-        }).finally(() => {
-          console.log('end!');
-        }).catch(error => {
-          console.error(error);
-        });
-        console.log('response.messages', response.messages);
-      })();
-
-    }).catch(error => {
-      console.error(error);
     });
   }
 }

@@ -6,6 +6,7 @@ class Messenger {
     this.client = client;
     this.router = router;
     this.state = state;
+    this.chats = [];
   }
   chatClick(chatId, lastMessageId) {
     (async () => {
@@ -25,31 +26,26 @@ class Messenger {
     })();
   }
   chatList() {
-
-  }
-  render() {
     const chatsObj = document.getElementById('chats');
-    const chatClickFunction = () => this.chatClick();
     this.client.send({
       '@type': 'getChats',
       offset_order: '9223372036854775807',
       offset_chat_id: 0,
       limit: 30,
     }).then(result => {
+      this.chats = result.chat_ids;
       result.chat_ids.forEach((item) => {
         (async () => {
           const response = await this.client.send({
             '@type': 'getChat',
             chat_id: item,
-          }).finally(() => {
-
           }).catch(error => {
             console.error(error);
           });
           console.log('response', response);
           const isOutgoing = response.last_message.is_outgoing;
           const containsUnreadMention = response.last_message.contains_unread_mention;
-          const chatView = document.createElement('div')
+          const chatView = document.createElement('div');
           chatView.innerHTML = `
           <div class="chats__item">
             <div class="chats__item-avatar"></div>
@@ -69,6 +65,9 @@ class Messenger {
     }).catch(error => {
       console.error(error);
     });
+  }
+  render() {
+    this.chatList();
   }
 }
 export default Messenger;
