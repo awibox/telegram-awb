@@ -35,6 +35,7 @@ $defaultIndent: 15px;
     padding: 10px 80px;
     min-height: 75px;
     position: relative;
+    cursor: pointer;
     &-avatar {
       width: $avatarSize;
       height: $avatarSize;
