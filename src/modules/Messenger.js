@@ -3,10 +3,8 @@ import * as storage from 'utils/storage';
 import 'styles/messenger.scss';
 
 class Messenger {
-  constructor(client, router, state) {
+  constructor(client) {
     this.client = client;
-    this.router = router;
-    this.state = state;
   }
   addMessage(message) {
     const messageView = document.createElement('div');
