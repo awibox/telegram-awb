@@ -19,18 +19,22 @@ class Login {
       console.error(error);
     });
   }
+  onChangePhone(phoneNumber) {
+    console.log('phoneNumber', phoneNumber.value);
+    if (phoneNumber.value.length > 0) {
+      this.phoneNumberInput.className = `login__input login__input_active`;
+    } else {
+      this.phoneNumberInput.className = `login__input`;
+    }
+  }
   render() {
-    this.phoneNumberInput = document.getElementById('phoneNumber');
+    this.phoneNumberInput = document.getElementById('phoneInput');
+    const phoneNumber = document.getElementById('phoneNumber');
     console.log('this.phoneNumberInput', this.phoneNumberInput);
     const phoneNumberSendButton = document.getElementById('phoneNumberButton');
 
-    phoneNumberSendButton.addEventListener('click', () => this.sendPhoneNumber(this.phoneNumberInput.value));
-    this.phoneNumberInput.addEventListener('keyup', () => {
-      console.log('phoneNumberInput', this.phoneNumberInput.value);
-      if (this.phoneNumberInput.value.length > 9) {
-
-      }
-    });
+    phoneNumberSendButton.addEventListener('click', () => this.sendPhoneNumber(phoneNumber.value));
+    phoneNumber.addEventListener('keyup', () => this.onChangePhone(phoneNumber));
   }
 }
 export default Login;
