@@ -5,10 +5,16 @@
         <div class="confirm__desc">
             Please confirm your country and enter your phone number
         </div>
-        <input id="confirmCode"
-               autocomplete="off"
-               class="confirm__input"
-               name="confirm_code"
-               type="text">
+        <div id="confirmInput" class="confirm__input">
+            <div class="confirm__input-label">Code</div>
+            <input id="confirmCode"
+                   autocomplete="off"
+                   placeholder="Code"
+                   class="confirm__input-control"
+                   name="confirm_code"
+                   maxlength="5"
+                   type="text">
+        </div>
+
     </div>
 </div>
