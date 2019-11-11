@@ -12,13 +12,16 @@
 <!--               class="login__input"-->
 <!--               name="phone_number"-->
 <!--               type="tel">-->
-        <input id="phoneNumber"
-               autocomplete="off"
-               class="login__input"
-               name="phone_number"
-               type="tel">
-        <input id="phoneNumberButton"
-               type="button"
-               value="Next">
+        <div id="phoneInput" class="login__input">
+            <div class="login__input-label">Phone Number</div>
+            <input id="phoneNumber"
+                   autocomplete="off"
+                   placeholder="Phone Number"
+                   class="login__input-control"
+                   name="phone_number"
+                   type="tel">
+        </div>
+
+        <div id="phoneNumberButton" class="login__button">Next</div>
     </div>
 </div>

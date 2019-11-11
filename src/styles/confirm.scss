@@ -42,12 +42,9 @@ $titleSize: 32px;
   }
   &__input {
     width: 100%;
-
-    outline: none;
     box-sizing: border-box;
     border-radius: 7px;
     border: 2px solid #4ea4f7;
-    padding: 14px;
     position: relative;
     &-label {
       position: absolute;
@@ -69,6 +66,7 @@ $titleSize: 32px;
       outline: none;
       font-size: 16px;
       width: 100%;
+      padding: 14px;
     }
     &_active {
       border-color: #4ea4f7;
