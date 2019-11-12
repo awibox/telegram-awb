@@ -13,7 +13,7 @@ $titleSize: 32px;
   &-container {
     display: flex;
     flex-flow: column;
-    //justify-content: center;
+    justify-content: center;
     align-items: center;
     height: 100%;
   }
@@ -24,7 +24,6 @@ $titleSize: 32px;
     min-width: $imgSize;
     background-image: url(img/confirm__img@1x.png);
     background-size: contain;
-    border-radius: 50%;
     margin-bottom: 45px;
   }
   &__title {
@@ -67,6 +66,7 @@ $titleSize: 32px;
       font-size: 16px;
       width: 100%;
       padding: 14px;
+      box-sizing: border-box;
     }
     &_active {
       border-color: #4ea4f7;
@@ -93,7 +93,7 @@ only screen and (-o-min-device-pixel-ratio: 3/2),
 only screen and (min-resolution: 1.5dppx),
 only screen and (min-resolution: 144dpi)  {
   .confirm {
-    &__logo {
+    &__img {
       background-image: url(img/confirm__img@2x.png);
     }
   }
