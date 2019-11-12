@@ -5,11 +5,12 @@ import TdClient from 'tdweb';
 import Router from 'router/router';
 import Route from 'router/route';
 import 'styles/build.scss';
-import 'styles/confirm.scss';
+import 'styles/loader.scss';
 
 import Messenger from 'modules/Messenger';
 import Login from 'modules/Login';
 import Confirm from 'modules/Confirm';
+import Password from 'modules/Password';
 
 class App extends EventEmitter{
   constructor() {
@@ -32,24 +33,38 @@ class App extends EventEmitter{
         });
       }
       if(update.authorization_state['@type'] == 'authorizationStateWaitRegistration') {
-        console.log('authorizationStateWaitRegistration', update)
+        console.log('authorizationStateWaitRegistration', update);
       }
       if(update.authorization_state['@type'] == 'authorizationStateWaitPassword') {
-        console.log('authorizationStateWaitPassword', update)
+        console.log('authorizationStateWaitPassword', update);
+        this.router.goToRoute('password.html', () => {
+          const password = new Password(this.client, this.state);
+          password.render();
+        });
       }
       if(update.authorization_state['@type'] == 'authorizationStateReady') {
-        console.log('authorizationStateReady', update)
+        this.router.goToRoute('im.html', () => {
+          const messenger = new Messenger(this.client);
+          messenger.render();
+        });
       }
     }
   }
+  closeLoader(loader) {
+    loader.style.visibility = 'hidden';
+    loader.style.opacity = '0';
+  }
   init() {
+    const loader = document.getElementById('loader');
+    setTimeout(() => this.closeLoader(loader), 2000);
     const isAuth = storage.get('dc2_auth_key');
     this.router = new Router([
       new Route('login', 'login.html', !isAuth),
       new Route('confirm', 'confirm.html'),
+      new Route('registration', 'registration.html'),
+      new Route('password', 'password.html'),
       new Route('im', 'im.html', isAuth),
     ]);
-    this.router.goToRoute('login.html');
     this.client = new TdClient(TdClientOptions);
     this.client.send({
       '@type': 'setTdlibParameters',
@@ -62,6 +77,7 @@ class App extends EventEmitter{
         const login = new Login(this.client, this.state);
         login.render();
       }
+      this.closeLoader(loader)
     });
     this.client.send({
       '@type': 'checkDatabaseEncryptionKey',
