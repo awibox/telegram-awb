@@ -10,9 +10,9 @@ class Confirm {
   }
   sendConfirmCode(confirmCode) {
     if(confirmCode.length > 0) {
-      this.confirmCodeInput.className = `confirm__input confirm__input_active ${this.invalid && 'confirm__input_error'}`;
+      this.confirmCodeInput.className = `confirm__input confirm__input_active ${this.invalid ? 'confirm__input_error' : ''}`;
     } else {
-      this.confirmCodeInput.className = `confirm__input ${this.invalid && 'confirm__input_error'}`;
+      this.confirmCodeInput.className = `confirm__input ${this.invalid ? 'confirm__input_error' : ''}`;
     }
     if (confirmCode.length === 5) {
       console.log('SENDD!!!', confirmCode);
