@@ -22,10 +22,11 @@ class Password {
   setLabel(passwordCode, passwordCodeInput, passwordEye) {
     if(passwordCode.length > 0) {
       passwordCodeInput.className = `password__input password__input_active ${this.invalid && 'password__input_error'}`;
-      passwordEye.style.display = 'block';
+      passwordEye.style.visibility = 'visibility';
+      passwordEye.style.opacity = '0.5';
     } else {
       passwordCodeInput.className = `password__input ${this.invalid && 'password__input_error'}`;
-      passwordEye.style.display = 'none';
+      passwordEye.style.opacity = '0';
     }
   }
   showPasswordCode(passwordEye, passwordImg, passwordCode) {
