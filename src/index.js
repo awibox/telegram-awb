@@ -19,12 +19,34 @@ class App extends EventEmitter{
     this.router = {};
     this.state = {
       phoneNumber: ''
-    }
+    };
+    this.isAuth = storage.get('dc2_auth_key');
   }
   onUpdate(update) {
-    // console.log('update[\'@type\']', update['@type'])
+    console.log('update[\'@type\']', update['@type'], update);
     if(update['@type'] == 'updateAuthorizationState') {
       // console.log('updateAuthorizationState', update);
+      if(update.authorization_state['@type'] == 'authorizationStateWaitTdlibParameters') {
+        this.client.send({
+          '@type': 'setTdlibParameters',
+          parameters: apiConfig,
+        })
+      }
+      if(update.authorization_state['@type'] == 'authorizationStateWaitEncryptionKey') {
+        this.client.send({
+          '@type': 'checkDatabaseEncryptionKey',
+        }).finally(() => {
+          if (this.isAuth) {
+            const messenger = new Messenger(this.client);
+            messenger.render();
+          } else {
+            const login = new Login(this.client, this.state);
+            login.render();
+          }
+          this.closeLoader(loader)
+        });
+
+      }
       if(update.authorization_state['@type'] == 'authorizationStateWaitCode') {
         console.log('authorizationStateWaitCode', update);
         this.router.goToRoute('confirm.html', () => {
@@ -55,33 +77,17 @@ class App extends EventEmitter{
     loader.style.opacity = '0';
   }
   init() {
+    console.log('this.isAuth', this.isAuth);
     const loader = document.getElementById('loader');
     setTimeout(() => this.closeLoader(loader), 2000);
-    const isAuth = storage.get('dc2_auth_key');
     this.router = new Router([
-      new Route('login', 'login.html', !isAuth),
+      new Route('login', 'login.html', !this.isAuth),
       new Route('confirm', 'confirm.html'),
       new Route('registration', 'registration.html'),
       new Route('password', 'password.html'),
-      new Route('im', 'im.html', isAuth),
+      new Route('im', 'im.html', this.isAuth),
     ]);
     this.client = new TdClient(TdClientOptions);
-    this.client.send({
-      '@type': 'setTdlibParameters',
-      parameters: apiConfig,
-    }).finally(() => {
-      if(isAuth) {
-        const messenger = new Messenger(this.client);
-        messenger.render();
-      } else {
-        const login = new Login(this.client, this.state);
-        login.render();
-      }
-      this.closeLoader(loader)
-    });
-    this.client.send({
-      '@type': 'checkDatabaseEncryptionKey',
-    });
     this.client.onUpdate = (update) => this.emit('update', update);
     this.addListener('update', this.onUpdate);
   }
