@@ -1,5 +1,5 @@
 $confirmWidth: 360px;
-$descWidth: 230px;
+$descWidth: 220px;
 $imgSize: 160px;
 $titleSize: 32px;
 
@@ -45,6 +45,7 @@ $titleSize: 32px;
     border-radius: 7px;
     border: 2px solid #4ea4f7;
     position: relative;
+    margin-bottom: 25px;
     &-label {
       position: absolute;
       font-size: 12px;
