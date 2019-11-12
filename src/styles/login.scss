@@ -46,20 +46,18 @@ $titleSize: 32px;
     border-radius: 7px;
     border: 2px solid #4ea4f7;
     position: relative;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     &-label {
       position: absolute;
+      background: #ffffff;
       font-size: 12px;
-      top: -16px;
+      top: -8px;
       left: 15px;
       color: #4ea4f7;
       font-weight: 600;
-      background: #fff;
       padding: 0 3px;
       display: none;
-      transform-origin: 0 0;
-      transition: transform .4s cubic-bezier(.25,.8,.25,1),color .4s cubic-bezier(.25,.8,.25,1),width .4s cubic-bezier(.25,.8,.25,1);
-      transform: translateY(8px);
+      transition: display 0.4s, color 0.4s ease;
     }
     &-control {
       background: none;
@@ -76,6 +74,16 @@ $titleSize: 32px;
         display: block;
       }
     }
+    &_error {
+      border-color: #E53834;
+      .login__input-label {
+        display: block;
+        color: #E53834;
+        &:before {
+          content: "Invalid ";
+        }
+      }
+    }
   }
   &__button {
     width: 100%;
@@ -90,6 +98,8 @@ $titleSize: 32px;
     cursor: pointer;
     text-transform: uppercase;
     text-align: center;
+    user-select: none;
+    margin-bottom: 25px;
   }
 }
 
