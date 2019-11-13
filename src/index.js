@@ -21,9 +21,10 @@ class App extends EventEmitter{
       phoneNumber: ''
     };
     this.isAuth = storage.get('dc2_auth_key');
+    this.addMessage = () => {};
   }
   onUpdate(update) {
-    console.log('update[\'@type\']', update['@type'], update);
+    // console.log('update[\'@type\']', update['@type'], update);
     if(update['@type'] == 'updateAuthorizationState') {
       // console.log('updateAuthorizationState', update);
       if(update.authorization_state['@type'] == 'authorizationStateWaitTdlibParameters') {
@@ -35,17 +36,12 @@ class App extends EventEmitter{
       if(update.authorization_state['@type'] == 'authorizationStateWaitEncryptionKey') {
         this.client.send({
           '@type': 'checkDatabaseEncryptionKey',
-        }).finally(() => {
-          if (this.isAuth) {
-            const messenger = new Messenger(this.client);
-            messenger.render();
-          } else {
-            const login = new Login(this.client, this.state);
-            login.render();
-          }
-          this.closeLoader(loader)
-        });
-
+        })
+      }
+      if(update.authorization_state['@type'] == 'authorizationStateWaitPhoneNumber') {
+        const login = new Login(this.client, this.state);
+        login.render();
+        this.closeLoader(loader)
       }
       if(update.authorization_state['@type'] == 'authorizationStateWaitCode') {
         console.log('authorizationStateWaitCode', update);
@@ -65,11 +61,16 @@ class App extends EventEmitter{
         });
       }
       if(update.authorization_state['@type'] == 'authorizationStateReady') {
+
         this.router.goToRoute('im.html', () => {
           const messenger = new Messenger(this.client);
           messenger.render();
+          this.addMessage = messenger.addMessage;
+          console.log('this.addMessage', this.addMessage);
+          this.closeLoader(loader)
         });
       }
+
     }
   }
   closeLoader(loader) {
@@ -79,7 +80,7 @@ class App extends EventEmitter{
   init() {
     console.log('this.isAuth', this.isAuth);
     const loader = document.getElementById('loader');
-    setTimeout(() => this.closeLoader(loader), 2000);
+    setTimeout(() => this.closeLoader(loader), 10000);
     this.router = new Router([
       new Route('login', 'login.html', !this.isAuth),
       new Route('confirm', 'confirm.html'),

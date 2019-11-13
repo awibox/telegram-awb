@@ -6,20 +6,34 @@ class Messenger {
   constructor(client) {
     this.client = client;
   }
+  onUpdate(update) {
+    if(update['@type'] == 'updateChatLastMessage') {
+      const currentChatId = storage.get('chatId');
+      console.log('update.chat_id == currentChatId', update.chat_id == currentChatId, update.chat_id, currentChatId)
+      if(update.chat_id == currentChatId) {
+        console.log('this.addMessage', this.addMessage)
+        this.addMessage(update.last_message);
+      }
+    }
+  }
   addMessage(message) {
     const messageView = document.createElement('div');
     messageView.className = 'messages__item';
     const isOutgoing = message.is_outgoing;
+    const canBeEdited = message.can_be_edited;
+    console.log('addMessage', message, this.messageObj);
     if(isOutgoing) {
       messageView.className = 'messages__item messages__item_out';
     }
+    // console.log('message', message)
     if(message.content['@type'] === 'messageText') {
       messageView.innerHTML = `
         <div class="messages__item-avatar"></div>
         <div class="messages__item-text">
         ${message.content.text.text}
         <div class="messages__item-time">
-          ${isOutgoing ? '+' : ''}
+          ${canBeEdited ? '++' : '--'}
+          ${isOutgoing && !canBeEdited ? '+' : '-'}
           ${getTime(message.date)}
         </div>
         </div>`;
@@ -30,7 +44,6 @@ class Messenger {
     const MESSAGES_LIMIT = 20;
     const MESSAGES_OFFSET = 0;
     this.messageObj.innerHTML = '';
-    this.addMessage(lastMessage);
     (async () => {
       const response = await this.client.send({
         '@type': 'getChatHistory',
@@ -43,9 +56,10 @@ class Messenger {
         console.error(error);
       });
       console.log('response.messages', response.messages);
-      response.messages.forEach((item) => {
+      response.messages.reverse().forEach((item) => {
         this.addMessage(item);
       });
+      this.addMessage(lastMessage);
     })();
     storage.set('chatId', chatId);
     storage.setObject('lastMessage', lastMessage);
@@ -68,8 +82,9 @@ class Messenger {
           }).catch(error => {
             console.error(error);
           });
+          console.log('chatList', response);
           const isOutgoing = response.last_message.is_outgoing;
-          const containsUnreadMention = response.last_message.contains_unread_mention;
+          const canBeEdited = response.last_message.can_be_edited;
           const chatView = document.createElement('div');
           chatView.className = 'chats__item';
           chatView.innerHTML = `
@@ -77,8 +92,8 @@ class Messenger {
             <div class="chats__item-title">${response.title}</div>
             <div class="chats__item-last">${response.last_message.content.text.text}</div>
             <div class="chats__item-time">
-                ${isOutgoing && !containsUnreadMention ? '+' : ''}
-                ${isOutgoing && containsUnreadMention ? '-' : ''}
+                ${isOutgoing && !canBeEdited ? '+' : ''}
+                ${isOutgoing && canBeEdited ? '++' : ''}
                 ${transformDate(response.last_message.date)}
             </div>
             ${response.unread_count > 0 ? `<div class="chats__item-unread">${response.unread_count}</div>` : ''}`;
@@ -99,6 +114,7 @@ class Messenger {
   render() {
     this.messageObj = document.getElementById('messages');
     this.chatList();
+    this.client.onUpdate = (update) => this.onUpdate(update);
   }
 }
 export default Messenger;
