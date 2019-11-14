@@ -85,7 +85,7 @@ $defaultIndent: 15px;
 }
 .messages {
   display: flex;
-  flex-flow: column-reverse;
+  flex-flow: column;
   &__item {
     padding: 10px;
     position: relative;
