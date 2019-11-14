@@ -25,48 +25,47 @@ class App extends EventEmitter{
   }
   onUpdate(update) {
     // console.log('update[\'@type\']', update['@type'], update);
-    if(update['@type'] == 'updateAuthorizationState') {
+    if(update['@type'] === 'updateAuthorizationState') {
       // console.log('updateAuthorizationState', update);
-      if(update.authorization_state['@type'] == 'authorizationStateWaitTdlibParameters') {
+      if(update.authorization_state['@type'] === 'authorizationStateWaitTdlibParameters') {
         this.client.send({
           '@type': 'setTdlibParameters',
           parameters: apiConfig,
         })
       }
-      if(update.authorization_state['@type'] == 'authorizationStateWaitEncryptionKey') {
+      if(update.authorization_state['@type'] === 'authorizationStateWaitEncryptionKey') {
         this.client.send({
           '@type': 'checkDatabaseEncryptionKey',
         })
       }
-      if(update.authorization_state['@type'] == 'authorizationStateWaitPhoneNumber') {
+      if(update.authorization_state['@type'] === 'authorizationStateWaitPhoneNumber') {
         const login = new Login(this.client, this.state);
         login.render();
         this.closeLoader(loader)
       }
-      if(update.authorization_state['@type'] == 'authorizationStateWaitCode') {
+      if(update.authorization_state['@type'] === 'authorizationStateWaitCode') {
         console.log('authorizationStateWaitCode', update);
         this.router.goToRoute('confirm.html', () => {
           const confirm = new Confirm(this.client, this.state);
           confirm.render();
         });
       }
-      if(update.authorization_state['@type'] == 'authorizationStateWaitRegistration') {
+      if(update.authorization_state['@type'] === 'authorizationStateWaitRegistration') {
         console.log('authorizationStateWaitRegistration', update);
       }
-      if(update.authorization_state['@type'] == 'authorizationStateWaitPassword') {
+      if(update.authorization_state['@type'] === 'authorizationStateWaitPassword') {
         console.log('authorizationStateWaitPassword', update);
         this.router.goToRoute('password.html', () => {
           const password = new Password(this.client, this.state);
           password.render();
         });
       }
-      if(update.authorization_state['@type'] == 'authorizationStateReady') {
-
+      if(update.authorization_state['@type'] === 'authorizationStateReady') {
+        console.log('authorizationStateReady', update);
         this.router.goToRoute('im.html', () => {
           const messenger = new Messenger(this.client);
           messenger.render();
           this.addMessage = messenger.addMessage;
-          console.log('this.addMessage', this.addMessage);
           this.closeLoader(loader)
         });
       }
