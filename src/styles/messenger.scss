@@ -5,10 +5,11 @@ $defaultIndent: 15px;
 %layout {
   position: absolute;
   top: 0;
-  height: 100%;
+  bottom: 0;
   overflow-y: auto;
   display: flex;
   flex-flow: column;
+  box-sizing: border-box;
 }
 .im {
   display: flex;
@@ -22,6 +23,8 @@ $defaultIndent: 15px;
     background: #E6EBEE;
     width: 60%;
     left: 40%;
+    top: 50px;
+    bottom: 50px;
     @extend %layout;
   }
 }
@@ -86,6 +89,7 @@ $defaultIndent: 15px;
 .messages {
   display: flex;
   flex-flow: column;
+  justify-content: flex-end;
   &__item {
     padding: 10px;
     position: relative;
