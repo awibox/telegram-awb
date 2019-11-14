@@ -5,20 +5,23 @@ import 'styles/messenger.scss';
 class Messenger {
   constructor(client) {
     this.client = client;
+    this.LIMIT = 20;
+    this.messageObj = '';
+    this.messagesScroll = '';
+    this.chatId = null;
+    this.lastMessage = {};
   }
   onUpdate(update) {
-    if(update['@type'] == 'updateChatLastMessage') {
-      const currentChatId = storage.get('chatId');
-      console.log('update.chat_id == currentChatId', update.chat_id == currentChatId, update.chat_id, currentChatId)
-      if(update.chat_id == currentChatId) {
-        console.log('this.addMessage', this.addMessage)
+    if(update['@type'] === 'updateChatLastMessage') {
+      if(update.chat_id === this.chatId) {
         this.addMessage(update.last_message);
       }
     }
   }
-  addMessage(message) {
+  addMessage(message, history) {
     const messageView = document.createElement('div');
     messageView.className = 'messages__item';
+    messageView.id = `message-${message.id}`;
     const isOutgoing = message.is_outgoing;
     const canBeEdited = message.can_be_edited;
     console.log('addMessage', message, this.messageObj);
@@ -38,12 +41,21 @@ class Messenger {
         </div>
         </div>`;
     }
-    this.messageObj.append(messageView)
+    if(!history) {
+      this.messageObj.append(messageView);
+      this.messagesScroll.scrollTop = this.messagesScroll.scrollHeight;
+    } else {
+      this.messageObj.prepend(messageView);
+      this.messagesScroll.scrollTop = document.getElementById(`message-${this.lastMessage.id}`).offsetTop;
+    }
   }
-  messageList(chatId, lastMessage) {
-    const MESSAGES_LIMIT = 20;
+  messageList(chatId, lastMessage, getHistory) {
+    const MESSAGES_LIMIT = this.LIMIT;
     const MESSAGES_OFFSET = 0;
-    this.messageObj.innerHTML = '';
+    if(!getHistory) {
+      this.messageObj.innerHTML = '';
+      this.chatId = chatId;
+    }
     (async () => {
       const response = await this.client.send({
         '@type': 'getChatHistory',
@@ -56,16 +68,25 @@ class Messenger {
         console.error(error);
       });
       console.log('response.messages', response.messages);
-      response.messages.reverse().forEach((item) => {
-        this.addMessage(item);
+      response.messages.reverse().forEach((item, index) => {
+        this.addMessage(item, getHistory);
+        if(index === 0) {
+          this.lastMessage = item;
+        }
       });
-      this.addMessage(lastMessage);
+      !getHistory && this.addMessage(lastMessage, false);
     })();
     storage.set('chatId', chatId);
     storage.setObject('lastMessage', lastMessage);
   }
+  scrollMessages(messagesObj) {
+    console.log('messagesObj', messagesObj.scrollTop);
+    if(messagesObj.scrollTop === 0) {
+      this.messageList(this.chatId, this.lastMessage, true);
+    }
+  }
   chatList() {
-    const CHATS_LIMIT = 20;
+    const CHATS_LIMIT = this.LIMIT;
     const CHATS_OFFSET = 0;
     const chatsObj = document.getElementById('chats');
     this.client.send({
@@ -87,6 +108,7 @@ class Messenger {
           const canBeEdited = response.last_message.can_be_edited;
           const chatView = document.createElement('div');
           chatView.className = 'chats__item';
+          chatView.id = `chat-${item}`;
           chatView.innerHTML = `
             <div class="chats__item-avatar"></div>
             <div class="chats__item-title">${response.title}</div>
@@ -105,14 +127,16 @@ class Messenger {
       const chatId = storage.get('chatId');
       const lastMessage = storage.getObject('lastMessage');
       if(typeof chatId !== 'undefined' && typeof lastMessage !== 'undefined') {
-        this.messageList(chatId, lastMessage);
+        this.messageList(chatId, lastMessage, false);
       }
     }).catch(error => {
       console.error(error);
     });
   }
   render() {
+    this.messagesScroll = document.getElementById('messagesScroll');
     this.messageObj = document.getElementById('messages');
+    this.messagesScroll.onscroll = () => this.scrollMessages(this.messagesScroll);
     this.chatList();
     this.client.onUpdate = (update) => this.onUpdate(update);
   }

@@ -14,7 +14,7 @@ class Password {
       password: passwordCode,
     }).then(result => {
       console.log('result', result);
-    }).catch(error => {
+    }).catch(() => {
       passwordCodeInput.className = 'password__input password__input_error';
       this.invalid = true;
     });
