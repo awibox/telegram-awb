@@ -21,7 +21,7 @@ class Login {
         phone_number: phoneNumber,
       }).then(result => {
         console.log('______ setAuthenticationPhoneNumber _______', result);
-      }).catch(error => {
+      }).catch(() => {
         phoneNumberInput.className = 'login__input login__input_error';
         this.invalid = true;
       });

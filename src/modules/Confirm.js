@@ -21,7 +21,7 @@ class Confirm {
         code: confirmCode,
       }).then(result => {
         console.log('result', result);
-      }).catch(error => {
+      }).catch(() => {
         this.confirmCodeInput.className = 'confirm__input confirm__input_error';
         this.invalid = true;
       });
