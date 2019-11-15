@@ -1,6 +1,7 @@
 $avatarSize: 55px;
 $unreadSize: 20px;
 $defaultIndent: 15px;
+$chatListWidth: 360px;
 
 %layout {
   position: absolute;
@@ -15,14 +16,14 @@ $defaultIndent: 15px;
   display: flex;
   flex-flow: row;
   &__chats {
-    width: 40%;
+    width: $chatListWidth;
     border-right: 1px solid #DDDFE3;
     @extend %layout;
   }
   &__messages {
     background: #E6EBEE;
-    width: 60%;
-    left: 40%;
+    right: 0;
+    left: $chatListWidth;
     top: 50px;
     bottom: 50px;
     @extend %layout;
