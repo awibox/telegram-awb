@@ -14,14 +14,59 @@ class Messenger {
     this.chatId = null;
     this.chatsObj = '';
     this.lastMessage = {};
+    this.messageForScroll = null;
   }
   onUpdate(update) {
-    console.log('update', update);
+    // console.log('update', update);
     if(update['@type'] === 'updateNewMessage') {
       this.addChat(update.message.chat_id, true);
       if(update.message.chat_id === this.chatId) {
         this.addMessage(update.message);
       }
+    }
+  }
+  getChatContent(content) {
+    if(content['@type'] === 'messageText') {
+      return content.text.text;
+    }
+    if(content['@type'] === 'messagePhoto') {
+      return 'Photo';
+    }
+    if(content['@type'] === 'messageDocument') {
+      return 'Document';
+    }
+    if(content['@type'] === 'messageSticker') {
+      return `${content.sticker.emoji} Sticker`;
+    }
+    if(content['@type'] === 'messageCall') {
+      return `Call`;
+    }
+    if(content['@type'] === 'messageAnimation') {
+      return `Animation`;
+    }
+  }
+  getMessageContent(content) {
+    console.log('content[\'@type\']', content['@type'])
+    if(content['@type'] === 'messageText') {
+      return content.text.text;
+    }
+    if(content['@type'] === 'messagePhoto') {
+      return '[Photo]';
+    }
+    if(content['@type'] === 'messageDocument') {
+      return '[Document]';
+    }
+    if(content['@type'] === 'messageSticker') {
+      return `${content.sticker.emoji} [Sticker]`;
+    }
+    if(content['@type'] === 'messageCall') {
+      return `[Call]`;
+    }
+    if(content['@type'] === 'messageAnimation') {
+      return `[Animation]`;
+    }
+    if(content['@type'] === 'messageSupergroupChatCreate') {
+      return `Chat was created`;
     }
   }
   addMessage(message, history) {
@@ -33,25 +78,23 @@ class Messenger {
     if(isOutgoing) {
       messageView.className = 'messages__item messages__item_out';
     }
-    // console.log('message', message)
-    if(message.content['@type'] === 'messageText') {
-      messageView.innerHTML = `
-        <div class="messages__item-avatar"></div>
-        <div class="messages__item-text">
-        ${message.content.text.text}
-        <div class="messages__item-time">
-          ${canBeEdited ? '++' : '--'}
-          ${isOutgoing && !canBeEdited ? '+' : '-'}
-          ${getTime(message.date)}
-        </div>
-        </div>`;
-    }
+    // console.log('message', message);
+    messageView.innerHTML = `
+      <div class="messages__item-avatar"></div>
+      <div class="messages__item-text">
+      ${this.getMessageContent(message.content)}
+      <div class="messages__item-time">
+        ${canBeEdited ? '++' : '--'}
+        ${isOutgoing && !canBeEdited ? '+' : '-'}
+        ${getTime(message.date)}
+      </div>
+      </div>`;
     if(!history) {
       this.messageObj.append(messageView);
       this.messagesScroll.scrollTop = this.messagesScroll.scrollHeight;
     } else {
       this.messageObj.prepend(messageView);
-      this.messagesScroll.scrollTop = document.getElementById(`message-${this.lastMessage.id}`).offsetTop;
+      this.messagesScroll.scrollTop = document.getElementById(`message-${this.messageForScroll}`).offsetTop;
     }
   }
   messageList(chatId, lastMessage, getHistory) {
@@ -74,15 +117,16 @@ class Messenger {
         console.error(error);
       });
       const messagesArray = !getHistory ? response.messages.reverse() : response.messages;
-      messagesArray.forEach((item, index) => {
+      this.lastMessage = !getHistory ? messagesArray[0] : messagesArray[messagesArray.length - 1];
+      if(getHistory) {
+        this.messageForScroll = messagesArray[0].id;
+      }
+      console.log('+++++++++++++++++++++++++++++++++++');
+      console.log('this.lastMessage', this.lastMessage);
+      console.log('+++++++++++++++++++++++++++++++++++');
+      messagesArray.forEach((item) => {
         this.addMessage(item, getHistory);
-        if(!getHistory) {
-          if(index === 0) {
-            this.lastMessage = item;
-          }
-        } else {
-          this.lastMessage = item;
-        }
+
       });
       if(!getHistory) {
         this.addMessage(lastMessage, false);
@@ -109,7 +153,6 @@ class Messenger {
       }).catch(error => {
         console.error(error);
       });
-      console.log('chatList', response);
       const isOutgoing = response.last_message.is_outgoing;
       const canBeEdited = response.last_message.can_be_edited;
       const chatView = document.createElement('div');
@@ -118,7 +161,7 @@ class Messenger {
       chatView.innerHTML = `
             <div class="chats__item-avatar"></div>
             <div class="chats__item-title">${response.title}</div>
-            <div class="chats__item-last">${response.last_message.content.text.text}</div>
+            <div class="chats__item-last">${this.getChatContent(response.last_message.content)}</div>
             <div class="chats__item-time">
                 ${isOutgoing && !canBeEdited ? '+' : ''}
                 ${isOutgoing && canBeEdited ? '++' : ''}
