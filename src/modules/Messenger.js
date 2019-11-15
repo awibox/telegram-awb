@@ -11,7 +11,7 @@ class Messenger {
     this.chatsScroll = '';
     this.lastChatId = null;
     this.lastChatOrder = null;
-    this.chatId = null;
+    this.chat = {};
     this.chatsObj = '';
     this.lastMessage = {};
     this.messageForScroll = null;
@@ -19,7 +19,7 @@ class Messenger {
   onUpdate(update) {
     if(update['@type'] === 'updateNewMessage') {
       this.addChat(update.message.chat_id, true);
-      if(update.message.chat_id === this.chatId) {
+      if(update.message.chat_id === this.chat.id) {
         this.addMessage(update.message);
       }
     }
@@ -88,18 +88,18 @@ class Messenger {
       </div>`;
     this.messageObj.prepend(messageView);
   }
-  messageList(chatId, lastMessage, getHistory) {
+  messageList(chat, lastMessage, getHistory) {
     const MESSAGES_LIMIT = this.LIMIT;
     const MESSAGES_OFFSET = 0;
     if(!getHistory) {
       this.messageObj.innerHTML = '';
       this.messagesScroll.scrollTop = this.messagesScroll.scrollHeight;
-      this.chatId = chatId;
+      this.chat = chat;
     }
     (async () => {
       const response = await this.client.send({
         '@type': 'getChatHistory',
-        chat_id: chatId,
+        chat_id: chat.id,
         from_message_id: lastMessage.id,
         offset: MESSAGES_OFFSET,
         limit: MESSAGES_LIMIT,
@@ -126,7 +126,7 @@ class Messenger {
         this.messagesScroll.scrollTop = document.getElementById(`message-${this.messageForScroll}`).offsetTop;
       }
     })();
-    storage.set('chatId', chatId);
+    storage.setObject('chat', chat);
   }
   scrollChats(chatsObj) {
     if((chatsObj.scrollHeight - chatsObj.offsetHeight) === chatsObj.scrollTop) {
@@ -135,7 +135,7 @@ class Messenger {
   }
   scrollMessages(messagesObj) {
     if(messagesObj.scrollTop === 0) {
-      this.messageList(this.chatId, this.lastMessage, true);
+      this.messageList(this.chat, this.lastMessage, true);
     }
   }
   addChat(chatId, isUpdate) {
@@ -162,7 +162,7 @@ class Messenger {
                 ${transformDate(response.last_message.date)}
             </div>
             ${response.unread_count > 0 ? `<div class="chats__item-unread">${response.unread_count}</div>` : ''}`;
-      chatView.addEventListener('click', () => this.messageList(chatId, response.last_message, false));
+      chatView.addEventListener('click', () => this.messageList(response, response.last_message, false));
       if(!isUpdate) {
         this.chatsObj.append(chatView);
         this.lastChatId = response.id;
@@ -190,15 +190,15 @@ class Messenger {
         this.addChat(item, false);
       });
     }).finally(() => {
-      const chatId = +storage.get('chatId');
-      console.log('chatId', chatId);
-      if(typeof chatId !== 'undefined') {
+      const chatStorage = storage.getObject('chat');
+      console.log('chatStorage', chatStorage);
+      if(typeof chatStorage.id !== 'undefined') {
         (async () => {
           const chat = await this.client.send({
             '@type': 'getChat',
-            chat_id: chatId,
+            chat_id: chatStorage.id,
           });
-          this.messageList(chatId, chat.last_message, false);
+          this.messageList(chat, chat.last_message, false);
         })();
       }
     }).catch(error => {
