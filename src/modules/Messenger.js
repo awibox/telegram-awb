@@ -17,7 +17,6 @@ class Messenger {
     this.messageForScroll = null;
   }
   onUpdate(update) {
-    // console.log('update', update);
     if(update['@type'] === 'updateNewMessage') {
       this.addChat(update.message.chat_id, true);
       if(update.message.chat_id === this.chatId) {
@@ -46,7 +45,6 @@ class Messenger {
     }
   }
   getMessageContent(content) {
-    console.log('content[\'@type\']', content['@type'])
     if(content['@type'] === 'messageText') {
       return content.text.text;
     }
@@ -69,7 +67,7 @@ class Messenger {
       return `Chat was created`;
     }
   }
-  addMessage(message, history) {
+  addMessage(message) {
     const messageView = document.createElement('div');
     messageView.className = 'messages__item';
     messageView.id = `message-${message.id}`;
@@ -78,7 +76,6 @@ class Messenger {
     if(isOutgoing) {
       messageView.className = 'messages__item messages__item_out';
     }
-    // console.log('message', message);
     messageView.innerHTML = `
       <div class="messages__item-avatar"></div>
       <div class="messages__item-text">
@@ -89,13 +86,7 @@ class Messenger {
         ${getTime(message.date)}
       </div>
       </div>`;
-    if(!history) {
-      this.messageObj.append(messageView);
-      this.messagesScroll.scrollTop = this.messagesScroll.scrollHeight;
-    } else {
-      this.messageObj.prepend(messageView);
-      this.messagesScroll.scrollTop = document.getElementById(`message-${this.messageForScroll}`).offsetTop;
-    }
+    this.messageObj.prepend(messageView);
   }
   messageList(chatId, lastMessage, getHistory) {
     const MESSAGES_LIMIT = this.LIMIT;
@@ -116,20 +107,23 @@ class Messenger {
       }).catch(error => {
         console.error(error);
       });
-      const messagesArray = !getHistory ? response.messages.reverse() : response.messages;
-      this.lastMessage = !getHistory ? messagesArray[0] : messagesArray[messagesArray.length - 1];
+      const messagesArray = response.messages;
+      this.lastMessage = messagesArray[messagesArray.length - 1];
       if(getHistory) {
         this.messageForScroll = messagesArray[0].id;
       }
-      console.log('+++++++++++++++++++++++++++++++++++');
-      console.log('this.lastMessage', this.lastMessage);
-      console.log('+++++++++++++++++++++++++++++++++++');
+      if(!getHistory) {
+        this.addMessage(lastMessage);
+      }
       messagesArray.forEach((item) => {
-        this.addMessage(item, getHistory);
-
+        this.addMessage(item);
       });
       if(!getHistory) {
-        this.addMessage(lastMessage, false);
+        setTimeout(() => {
+          this.messagesScroll.scrollTop = this.messagesScroll.scrollHeight;
+        },50);
+      } else {
+        this.messagesScroll.scrollTop = document.getElementById(`message-${this.messageForScroll}`).offsetTop;
       }
     })();
     storage.set('chatId', chatId);
