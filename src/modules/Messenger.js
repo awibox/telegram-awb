@@ -9,6 +9,7 @@ class Messenger {
     this.messageObj = '';
     this.messagesScroll = '';
     this.chatsScroll = '';
+    this.chatInfo = '';
     this.lastChatId = null;
     this.lastChatOrder = null;
     this.chat = {};
@@ -95,6 +96,14 @@ class Messenger {
       this.messageObj.innerHTML = '';
       this.messagesScroll.scrollTop = this.messagesScroll.scrollHeight;
       this.chat = chat;
+      console.log(' - - - - - - chat', chat)
+      const chatInfoView = `
+        <div class="chats__item">
+        <div class="chats__item-avatar"></div>
+        <div class="chats__item-title">${chat.title}</div>
+        <div class="chats__item-status">Online</div>
+        </div>`;
+      this.chatInfo.innerHTML = chatInfoView;
     }
     (async () => {
       const response = await this.client.send({
@@ -153,15 +162,15 @@ class Messenger {
       chatView.className = 'chats__item';
       chatView.id = `chat-${chatId}`;
       chatView.innerHTML = `
-            <div class="chats__item-avatar"></div>
-            <div class="chats__item-title">${response.title}</div>
-            <div class="chats__item-last">${this.getChatContent(response.last_message.content)}</div>
-            <div class="chats__item-time">
-                ${isOutgoing && !canBeEdited ? '+' : ''}
-                ${isOutgoing && canBeEdited ? '++' : ''}
-                ${transformDate(response.last_message.date)}
-            </div>
-            ${response.unread_count > 0 ? `<div class="chats__item-unread">${response.unread_count}</div>` : ''}`;
+        <div class="chats__item-avatar"></div>
+        <div class="chats__item-title">${response.title}</div>
+        <div class="chats__item-last">${this.getChatContent(response.last_message.content)}</div>
+        <div class="chats__item-time">
+            ${isOutgoing && !canBeEdited ? '+' : ''}
+            ${isOutgoing && canBeEdited ? '++' : ''}
+            ${transformDate(response.last_message.date)}
+        </div>
+        ${response.unread_count > 0 ? `<div class="chats__item-unread">${response.unread_count}</div>` : ''}`;
       chatView.addEventListener('click', () => this.messageList(response, response.last_message, false));
       if(!isUpdate) {
         this.chatsObj.append(chatView);
@@ -207,6 +216,7 @@ class Messenger {
   }
   render() {
     this.messagesScroll = document.getElementById('messagesScroll');
+    this.chatInfo = document.getElementById('chatInfo');
     this.chatsScroll = document.getElementById('chatsScroll');
     this.messageObj = document.getElementById('messages');
     this.messagesScroll.onscroll = () => this.scrollMessages(this.messagesScroll);
