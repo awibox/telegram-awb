@@ -2,6 +2,7 @@ $avatarSize: 55px;
 $unreadSize: 20px;
 $defaultIndent: 15px;
 $chatListWidth: 360px;
+$chatInfoHeight: 60px;
 
 %layout {
   position: absolute;
@@ -16,17 +17,37 @@ $chatListWidth: 360px;
   display: flex;
   flex-flow: row;
   &__chats {
+    @extend %layout;
     width: $chatListWidth;
     border-right: 1px solid #DDDFE3;
-    @extend %layout;
   }
   &__messages {
+    @extend %layout;
     background: #E6EBEE;
     right: 0;
     left: $chatListWidth;
-    top: 50px;
+    top: $chatInfoHeight;
     bottom: 50px;
+  }
+  &__info {
     @extend %layout;
+    position: absolute;
+    left: $chatListWidth;
+    right: 0;
+    height: $chatInfoHeight;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
+    .chats__item {
+      $avatarSize: 44px;
+      min-height: $chatInfoHeight;
+      padding: 10px 70px;
+      &-avatar {
+        width: $avatarSize;
+        height: $avatarSize;
+        min-width: $avatarSize;
+        min-height: $avatarSize;
+        top: 8px;
+      }
+    }
   }
 }
 .chats {
