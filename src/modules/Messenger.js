@@ -206,7 +206,7 @@ class Messenger {
           '@type': 'downloadFile',
           file_id: response.photo.small.id,
           priority: 1,
-        }).then(result => {
+        }).then((result) => {
           this.getFile(result.remote.id, chatPhotoId);
         }).catch(error => {
           console.error(error);
@@ -259,14 +259,19 @@ class Messenger {
     };
   }
   getFile(fileId, fileOdjId){
-    this.connectDB(function(db){
+    this.connectDB((db) => {
       const request = db.transaction(['keyvaluepairs'], "readonly").objectStore('keyvaluepairs').get(fileId);
       request.onerror = (e) => console.error(e);
-      request.onsuccess = function(){
+      request.onsuccess = () => {
         const imgFile = request.result ? request.result : -1;
         const URL = window.URL || window.webkitURL;
-        const imgURL = URL.createObjectURL(imgFile);
-        document.getElementById(fileOdjId).style.backgroundImage = `url(${imgURL})`
+        if(imgFile !== -1) {
+          const imgURL = URL.createObjectURL(imgFile);
+          document.getElementById(fileOdjId).style.backgroundImage = `url(${imgURL})`;
+        } else {
+          console.log("SET TIMEOUT !!!!!!!!!!")
+          setTimeout(() => this.getFile(fileId, fileOdjId), 500);
+        }
       }
     });
   }
