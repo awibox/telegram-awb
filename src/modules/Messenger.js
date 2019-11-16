@@ -207,7 +207,7 @@ class Messenger {
   }
   scrollChats(chatsObj) {
     if((chatsObj.scrollHeight - chatsObj.offsetHeight) === chatsObj.scrollTop) {
-      this.chatList(this.lastChatId, this.lastChatOrder);
+      this.chatList(this.lastChatId, this.lastChatOrder, false);
     }
   }
   scrollMessages(messagesObj) {
@@ -274,7 +274,7 @@ class Messenger {
       }
     })();
   }
-  chatList(CHATS_OFFSET_ID, CHATS_OFFSET_ORDER) {
+  chatList(CHATS_OFFSET_ID, CHATS_OFFSET_ORDER, UpdateMessages) {
     const CHATS_LIMIT = this.LIMIT;
     this.chatsObj = document.getElementById('chats');
     this.client.send({
@@ -287,16 +287,18 @@ class Messenger {
         this.addChat(item, false);
       });
     }).finally(() => {
-      const chatStorage = storage.getObject('chat');
-      console.log('chatStorage', chatStorage);
-      if(typeof chatStorage.id !== 'undefined') {
-        (async () => {
-          const chat = await this.client.send({
-            '@type': 'getChat',
-            chat_id: chatStorage.id,
-          });
-          this.messageList(chat, chat.last_message, false);
-        })();
+      if(UpdateMessages) {
+        const chatStorage = storage.getObject('chat');
+        console.log('chatStorage', chatStorage);
+        if(typeof chatStorage.id !== 'undefined') {
+          (async () => {
+            const chat = await this.client.send({
+              '@type': 'getChat',
+              chat_id: chatStorage.id,
+            });
+            this.messageList(chat, chat.last_message, false);
+          })();
+        }
       }
     }).catch(error => {
       console.error(error);
@@ -334,7 +336,7 @@ class Messenger {
     this.messageObj = document.getElementById('messages');
     this.messagesScroll.onscroll = () => this.scrollMessages(this.messagesScroll);
     this.chatsScroll.onscroll = () => this.scrollChats(this.chatsScroll);
-    this.chatList(0, '9223372036854775807');
+    this.chatList(0, '9223372036854775807', true);
     this.client.onUpdate = (update) => this.onUpdate(update);
   }
 }
