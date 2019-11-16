@@ -22,11 +22,17 @@ class Messenger {
     this.messageForScroll = null;
   }
   onUpdate(update) {
+    // console.log('update', update);
     if(update['@type'] === 'updateNewMessage') {
       this.addChat(update.message.chat_id, true);
       if(update.message.chat_id === this.chat.id) {
-        this.addMessage(update.message);
+        this.addMessage(update.message, update);
+        this.readMessages(update.message.chat_id, [update.message]);
       }
+    }
+    if(update['@type'] === 'updateChatReadInbox') {
+      console.log(' ____ updateChatReadInbox', update);
+      this.updateChatReadInbox(update);
     }
   }
   getChatContent(content) {
@@ -72,7 +78,21 @@ class Messenger {
       return `Chat was created`;
     }
   }
-  addMessage(message) {
+  updateChatReadInbox(update) {
+    const chat = document.getElementById(`chat-${update.chat_id}`);
+    const unreadObj = chat
+      ? document.getElementById(`chat-${update.chat_id}`).querySelector('.chats__item-unread')
+      : null;
+    if(unreadObj) {
+      if(update.unread_count > 0) {
+        unreadObj.innerHTML = update.unread_count;
+      } else {
+        unreadObj.remove()
+      }
+    }
+  }
+  addMessage(message, update) {
+    console.log('message', message);
     const messageView = document.createElement('div');
     messageView.className = 'messages__item';
     messageView.id = `message-${message.id}`;
@@ -91,7 +111,12 @@ class Messenger {
         ${getTime(message.date)}
       </div>
       </div>`;
-    this.messageObj.prepend(messageView);
+    if(!update) {
+      this.messageObj.prepend(messageView);
+    } else {
+      this.messageObj.append(messageView);
+      this.messagesScroll.scrollTop = this.messagesScroll.scrollHeight;
+    }
   }
   setChatInfo(chat) {
     const avatarId = `avatar-${chat.id}`;
@@ -111,6 +136,23 @@ class Messenger {
       <div class="chats__item-status">Online</div>
       </div>`;
   }
+  setActiveChat(chat) {
+    if(document.querySelector('.chats__item_active')) {
+      document.querySelector('.chats__item_active').classList.remove('chats__item_active');
+    }
+    const chatElement = document.getElementById(`chat-${chat.id}`);
+    chatElement.classList.add('chats__item_active');
+  }
+  readMessages(chatId, messages){
+    this.client.send({
+      '@type': 'viewMessages',
+      chat_id: chatId,
+      message_ids: messages.map(item => item.id),
+      force_read: true
+    }).catch(error => {
+      console.error(error);
+    });
+  }
   messageList(chat, lastMessage, getHistory) {
     const MESSAGES_LIMIT = this.LIMIT;
     const MESSAGES_OFFSET = 0;
@@ -119,6 +161,7 @@ class Messenger {
       this.messagesScroll.scrollTop = this.messagesScroll.scrollHeight;
       this.chat = chat;
       this.setChatInfo(chat);
+      this.setActiveChat(chat);
     }
     (async () => {
       const response = await this.client.send({
@@ -136,11 +179,21 @@ class Messenger {
       if(getHistory) {
         this.messageForScroll = messagesArray[0].id;
       }
+      console.log('messagesArray', messagesArray);
       if(!getHistory) {
         this.addMessage(lastMessage);
+        console.log('chat.id, [].push(lastMessage)', chat.id, messagesArray)
+        this.readMessages(chat.id, [lastMessage]);
+        this.readMessages(chat.id, messagesArray);
       }
       messagesArray.forEach((item) => {
         this.addMessage(item);
+      });
+      this.client.send({
+        '@type': 'readAllChatMentions',
+        chat_id: chat.id,
+      }).catch(error => {
+        console.error(error);
       });
       if(!getHistory) {
         setTimeout(() => {
@@ -269,7 +322,6 @@ class Messenger {
           const imgURL = URL.createObjectURL(imgFile);
           document.getElementById(fileOdjId).style.backgroundImage = `url(${imgURL})`;
         } else {
-          console.log("SET TIMEOUT !!!!!!!!!!")
           setTimeout(() => this.getFile(fileId, fileOdjId), 500);
         }
       }
