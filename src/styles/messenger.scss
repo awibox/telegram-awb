@@ -55,13 +55,18 @@ $chatInfoHeight: 60px;
   width: 100%;
   display: flex;
   flex-flow: column;
+  padding: 8px 0;
   &__item {
-    width: 100%;
     box-sizing: border-box;
     padding: 10px 80px;
+    margin: 0 8px;
     min-height: 75px;
     position: relative;
     cursor: pointer;
+    &_active {
+      background: #F4F4F5;
+      border-radius: 10px;
+    }
     &-avatar {
       background-color: #d2d2d2;
       background-position: 50% 50%;
@@ -129,7 +134,7 @@ $chatInfoHeight: 60px;
       justify-content: flex-end;
     }
     &-text {
-      max-width: 75%;
+      max-width: 90%;
       width: auto;
       background: #fff;
       padding: 10px;
