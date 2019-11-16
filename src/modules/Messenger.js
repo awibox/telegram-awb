@@ -1,6 +1,10 @@
-import { transformDate, getTime } from 'utils';
+import { getTime, transformDate } from 'utils';
 import * as storage from 'utils/storage';
 import 'styles/messenger.scss';
+
+const wordsList = {
+  deletedAccount: 'Deleted Account'
+};
 
 class Messenger {
   constructor(client) {
@@ -89,6 +93,24 @@ class Messenger {
       </div>`;
     this.messageObj.prepend(messageView);
   }
+  setChatInfo(chat) {
+    const avatarId = `avatar-${chat.id}`;
+    const avatarElement = document.getElementById(avatarId);
+    const avatar = avatarElement.style.backgroundImage ? `background-image: ${avatarElement.style.backgroundImage}`: '';
+    if(avatarElement.innerText === '') {
+      if(!avatar) {
+        setTimeout(() => this.setChatInfo(chat), 500)
+      }
+    }
+    this.chatInfo.innerHTML = `
+      <div class="chats__item">
+      <div class="chats__item-avatar" style='${avatar ? avatar : ''}'>
+        ${!avatar ? avatarElement.innerText : ''}
+      </div>
+      <div class="chats__item-title">${chat.title ? chat.title : wordsList.deletedAccount}</div>
+      <div class="chats__item-status">Online</div>
+      </div>`;
+  }
   messageList(chat, lastMessage, getHistory) {
     const MESSAGES_LIMIT = this.LIMIT;
     const MESSAGES_OFFSET = 0;
@@ -96,14 +118,7 @@ class Messenger {
       this.messageObj.innerHTML = '';
       this.messagesScroll.scrollTop = this.messagesScroll.scrollHeight;
       this.chat = chat;
-      console.log(' - - - - - - chat', chat)
-      const chatInfoView = `
-        <div class="chats__item">
-        <div class="chats__item-avatar"></div>
-        <div class="chats__item-title">${chat.title}</div>
-        <div class="chats__item-status">Online</div>
-        </div>`;
-      this.chatInfo.innerHTML = chatInfoView;
+      this.setChatInfo(chat);
     }
     (async () => {
       const response = await this.client.send({
@@ -158,12 +173,14 @@ class Messenger {
       });
       const isOutgoing = response.last_message.is_outgoing;
       const canBeEdited = response.last_message.can_be_edited;
+      console.log('response', response);
+      const chatPhotoId = `avatar-${chatId}`;
       const chatView = document.createElement('div');
       chatView.className = 'chats__item';
       chatView.id = `chat-${chatId}`;
       chatView.innerHTML = `
-        <div class="chats__item-avatar"></div>
-        <div class="chats__item-title">${response.title}</div>
+        <div id='${chatPhotoId}' class="chats__item-avatar"></div>
+        <div class="chats__item-title">${response.title ? response.title : wordsList.deletedAccount}</div>
         <div class="chats__item-last">${this.getChatContent(response.last_message.content)}</div>
         <div class="chats__item-time">
             ${isOutgoing && !canBeEdited ? '+' : ''}
@@ -183,6 +200,24 @@ class Messenger {
           this.chatsObj.removeChild(chatElement);
         }
         this.chatsObj.prepend(chatView);
+      }
+      if(response.photo) {
+        await this.client.send({
+          '@type': 'downloadFile',
+          file_id: response.photo.small.id,
+          priority: 1,
+        }).then(result => {
+          this.getFile(result.remote.id, chatPhotoId);
+        }).catch(error => {
+          console.error(error);
+        });
+      } else {
+        if(response.title) {
+          const titleArray = response.title.split(' ');
+          document.getElementById(chatPhotoId).innerText = titleArray.length === 1
+            ? titleArray[0].split('')[0]
+            : titleArray[0].split('')[0] + titleArray[1].split('')[0];
+        }
       }
     })();
   }
@@ -212,6 +247,27 @@ class Messenger {
       }
     }).catch(error => {
       console.error(error);
+    });
+  }
+  connectDB(f){
+    const request = indexedDB.open("tdlib", 1);
+    request.onerror = function(err){
+      console.log(err);
+    };
+    request.onsuccess = function(){
+      f(request.result);
+    };
+  }
+  getFile(fileId, fileOdjId){
+    this.connectDB(function(db){
+      const request = db.transaction(['keyvaluepairs'], "readonly").objectStore('keyvaluepairs').get(fileId);
+      request.onerror = (e) => console.error(e);
+      request.onsuccess = function(){
+        const imgFile = request.result ? request.result : -1;
+        const URL = window.URL || window.webkitURL;
+        const imgURL = URL.createObjectURL(imgFile);
+        document.getElementById(fileOdjId).style.backgroundImage = `url(${imgURL})`
+      }
     });
   }
   render() {
