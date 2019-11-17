@@ -1,23 +1,30 @@
+import {getOSName, getBrowser} from 'utils';
+
+const useTestDC = false;
+
 export const apiConfig = {
-  app: {
-    id: 0, /* App ID */
-    hash: 'qwertyasdfghzxcvbnqwertyasd', /* App hash */
-    version: '0.0.0' /* App version */
-  },
-  server: {
-    test: [
-      {
-        id: 2, /* DC ID */
-        host: '0.0.0.0',
-        port: 443
-      }
-    ],
-    production: [
-      {
-        id: 2, /* DC ID */
-        host: '0.0.0.0',
-        port: 123
-      }
-    ]
-  }
-}
+  '@type': 'tdParameters',
+  api_id: ${YOUR_API_ID},
+  api_hash: ${YOUR_API_HASH},
+  system_language_code: navigator.language || 'en',
+  device_model: getBrowser(),
+  system_version: getOSName(),
+  application_version: '1.0.0',
+  use_secret_chats: false,
+  use_message_database: true,
+  use_test_dc: useTestDC,
+  use_file_database: false,
+  database_directory: '/db',
+  files_directory: '/'
+};
+
+export const TdClientOptions = {
+  logVerbosityLevel: 1,
+  jsLogVerbosityLevel: 3,
+  mode: 'wasm',
+  prefix: useTestDC ? 'tdlib_test' : 'tdlib',
+  readOnly: false,
+  isBackground: false,
+  useDatabase: false,
+  wasmUrl: `b4b0d61282108a31908dd6b2dbd7067b.wasm?_sw-precache=b4b0d61282108a31908dd6b2dbd7067b`
+};
