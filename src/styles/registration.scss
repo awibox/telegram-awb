@@ -1,0 +1,117 @@
+$registrationWidth: 360px;
+$descWidth: 220px;
+$imgSize: 160px;
+$titleSize: 32px;
+
+.registration {
+  width: $registrationWidth;
+  min-width: 320px;
+  max-width: $registrationWidth;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  &-container {
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+  }
+  &__img {
+    height: $imgSize;
+    min-height: $imgSize;
+    width: $imgSize;
+    min-width: $imgSize;
+    background-image: url(img/registration__img@1x.png);
+    background-size: contain;
+    margin-bottom: 45px;
+  }
+  &__title {
+    font-size: $titleSize;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  &__desc {
+    width: $descWidth;
+    font-size: 16px;
+    line-height: 20.5px;
+    text-align: center;
+    color: #8c8c8c;
+    margin-bottom: 50px;
+  }
+  &__input {
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 7px;
+    border: 2px solid #4ea4f7;
+    position: relative;
+    margin-bottom: 25px;
+    &-label {
+      position: absolute;
+      font-size: 12px;
+      top: -16px;
+      left: 15px;
+      color: #4ea4f7;
+      font-weight: 600;
+      background: #fff;
+      padding: 0 3px;
+      display: none;
+      transform-origin: 0 0;
+      transition: transform .4s cubic-bezier(.25,.8,.25,1),color .4s cubic-bezier(.25,.8,.25,1),width .4s cubic-bezier(.25,.8,.25,1);
+      transform: translateY(8px);
+    }
+    &-control {
+      background: none;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      width: 100%;
+      padding: 14px;
+      box-sizing: border-box;
+    }
+    &_active {
+      border-color: #4ea4f7;
+      .registration__input-label {
+        display: block;
+      }
+    }
+    &_error {
+      border-color: #E53834;
+      .registration__input-label {
+        display: block;
+        color: #E53834;
+        &:before {
+          content: "Invalid ";
+        }
+      }
+    }
+  }
+  &__button {
+    width: 100%;
+    font-size: 16px;
+    outline: none;
+    box-sizing: border-box;
+    border-radius: 7px;
+    color: #fff;
+    border: none;
+    background-color: #4ea4f7;
+    padding: 16px;
+    cursor: pointer;
+    text-transform: uppercase;
+    text-align: center;
+    user-select: none;
+    margin-bottom: 25px;
+  }
+}
+
+@media 	only screen and (-webkit-min-device-pixel-ratio: 1.5),
+only screen and (min--moz-device-pixel-ratio: 1.5),
+only screen and (-o-min-device-pixel-ratio: 3/2),
+only screen and (min-resolution: 1.5dppx),
+only screen and (min-resolution: 144dpi)  {
+  .registration {
+    &__img {
+      background-image: url(img/registration__img@2x.png);
+    }
+  }
+}
