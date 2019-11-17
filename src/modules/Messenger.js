@@ -283,14 +283,21 @@ class Messenger {
       offset_chat_id: CHATS_OFFSET_ID,
       limit: CHATS_LIMIT,
     }).then(result => {
-      result.chat_ids.forEach((item) => {
-        this.addChat(item, false);
-      });
-    }).finally(() => {
+      console.log('chatList', result);
+      if(result.chat_ids.length > 0) {
+        result.chat_ids.forEach((item) => {
+          this.addChat(item, false);
+        });
+      } else {
+        const chatsInfo = document.createElement('div');
+        chatsInfo.innerHTML = 'Chats are not found';
+        chatsInfo.style.textAlign = 'center';
+        this.chatsObj.prepend(chatsInfo);
+      }
       if(UpdateMessages) {
         const chatStorage = storage.getObject('chat');
         console.log('chatStorage', chatStorage);
-        if(typeof chatStorage.id !== 'undefined') {
+        if(chatStorage) {
           (async () => {
             const chat = await this.client.send({
               '@type': 'getChat',
@@ -298,6 +305,30 @@ class Messenger {
             });
             this.messageList(chat, chat.last_message, false);
           })();
+        } else {
+          if(result.chat_ids.length > 0) {
+            (async () => {
+              const chat = await this.client.send({
+                '@type': 'getChat',
+                chat_id: result.chat_ids[0],
+              });
+              this.messageList(chat, chat.last_message, false);
+            })();
+          } else {
+            const messagesInfo = document.createElement('div');
+            messagesInfo.innerHTML = 'There are no messages...';
+            messagesInfo.style.textAlign = 'center';
+            messagesInfo.style.paddingTop = '20px';
+            messagesInfo.style.fontSize = '24px';
+            messagesInfo.style.opacity = '0.5';
+            const chatInfo = document.createElement('div');
+            chatInfo.innerHTML = 'Please choose the chat';
+            chatInfo.style.padding = '20px';
+            chatInfo.style.fontSize = '18px';
+            chatInfo.style.opacity = '0.5';
+            this.messageObj.prepend(messagesInfo);
+            this.chatInfo.prepend(chatInfo);
+          }
         }
       }
     }).catch(error => {
