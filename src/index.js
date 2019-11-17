@@ -13,6 +13,7 @@ import Messenger from 'modules/Messenger';
 import Login from 'modules/Login';
 import Confirm from 'modules/Confirm';
 import Password from 'modules/Password';
+import Registration from 'modules/Registration';
 
 class App extends EventEmitter{
   constructor() {
@@ -53,6 +54,10 @@ class App extends EventEmitter{
       }
       if(update.authorization_state['@type'] === 'authorizationStateWaitRegistration') {
         console.log('authorizationStateWaitRegistration', update);
+        this.router.goToRoute('registration.html', () => {
+          const registration = new Registration(this.client, this.state);
+          registration.render();
+        });
       }
       if(update.authorization_state['@type'] === 'authorizationStateWaitPassword') {
         console.log('authorizationStateWaitPassword', update);
