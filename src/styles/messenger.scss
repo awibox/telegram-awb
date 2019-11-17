@@ -140,12 +140,22 @@ $chatInfoHeight: 60px;
       padding: 10px;
       border-radius: 10px;
       display: flex;
-      flex-flow: row;
+      flex-flow: column;
       align-items: flex-end;
     }
     &-time {
       margin-left: 15px;
+      margin-top: 10px;
       white-space: nowrap;
     }
   }
+}
+.photo {
+  width: 100%;
+  padding-top: 70%;
+  background-size: cover;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  margin-bottom: 15px;
+  min-width: 360px;
 }
