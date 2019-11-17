@@ -22,7 +22,6 @@ class Messenger {
     this.messageForScroll = null;
   }
   onUpdate(update) {
-    // console.log('update', update);
     if(update['@type'] === 'updateNewMessage') {
       this.addChat(update.message.chat_id, true);
       if(update.message.chat_id === this.chat.id) {
@@ -31,7 +30,6 @@ class Messenger {
       }
     }
     if(update['@type'] === 'updateChatReadInbox') {
-      console.log(' ____ updateChatReadInbox', update);
       this.updateChatReadInbox(update);
     }
   }
@@ -60,7 +58,6 @@ class Messenger {
       return content.text.text;
     }
     if(content['@type'] === 'messagePhoto') {
-      console.log('content', content);
       let remotePhoto;
       if(content.photo.sizes[0]) {
         remotePhoto = content.photo.sizes[0];
@@ -69,7 +66,6 @@ class Messenger {
         remotePhoto = content.photo.sizes[1];
       }
       const photoId = `photo-${remotePhoto.photo.id}`;
-      console.log('remotePhoto.height', remotePhoto.height, 'remotePhoto.width', remotePhoto.width);
       const photoHeight = remotePhoto.height/(remotePhoto.width/100);
       const photoElement = `
         <div id='${photoId}' class='photo'></div>
@@ -80,7 +76,6 @@ class Messenger {
           file_id: remotePhoto.photo.id,
           priority: 1,
         }).then((result) => {
-          console.log('photoHeight', photoHeight);
           this.getFile(result.remote.id, photoId, photoHeight);
         }).catch(error => {
           console.error(error);
@@ -118,7 +113,6 @@ class Messenger {
     }
   }
   addMessage(message, update) {
-    console.log('message', message);
     const messageView = document.createElement('div');
     messageView.className = 'messages__item';
     messageView.id = `message-${message.id}`;
@@ -205,10 +199,8 @@ class Messenger {
       if(getHistory) {
         this.messageForScroll = messagesArray[0].id;
       }
-      console.log('messagesArray', messagesArray);
       if(!getHistory) {
         this.addMessage(lastMessage);
-        console.log('chat.id, [].push(lastMessage)', chat.id, messagesArray)
         this.readMessages(chat.id, [lastMessage]);
         this.readMessages(chat.id, messagesArray);
       }
@@ -242,7 +234,6 @@ class Messenger {
     }
   }
   addChat(chatId, isUpdate) {
-    console.log('addChat', chatId, isUpdate);
     (async () => {
       const response = await this.client.send({
         '@type': 'getChat',
@@ -252,7 +243,6 @@ class Messenger {
       });
       const isOutgoing = response.last_message.is_outgoing;
       const canBeEdited = response.last_message.can_be_edited;
-      console.log('response', response);
       const chatPhotoId = `avatar-${chatId}`;
       const chatView = document.createElement('div');
       chatView.className = 'chats__item';
@@ -274,7 +264,6 @@ class Messenger {
         this.lastChatOrder = response.order;
       } else {
         const chatElement = document.getElementById(`chat-${chatId}`);
-        console.log('chatElement', chatElement);
         if(chatElement) {
           this.chatsObj.removeChild(chatElement);
         }
@@ -309,7 +298,6 @@ class Messenger {
       offset_chat_id: CHATS_OFFSET_ID,
       limit: CHATS_LIMIT,
     }).then(result => {
-      console.log('chatList', result);
       if(result.chat_ids.length > 0) {
         result.chat_ids.forEach((item) => {
           this.addChat(item, false);
@@ -322,7 +310,6 @@ class Messenger {
       }
       if(UpdateMessages) {
         const chatStorage = storage.getObject('chat');
-        console.log('chatStorage', chatStorage);
         if(chatStorage) {
           (async () => {
             const chat = await this.client.send({
@@ -364,7 +351,7 @@ class Messenger {
   connectDB(f){
     const request = indexedDB.open("tdlib", 1);
     request.onerror = function(err){
-      console.log(err);
+      console.error(err);
     };
     request.onsuccess = function(){
       f(request.result);
@@ -382,7 +369,6 @@ class Messenger {
           const imgElement = document.getElementById(fileOdjId);
           imgElement.style.backgroundImage = `url(${imgURL})`;
           if(photoHeight) {
-            console.log('photoHeight', photoHeight);
             imgElement.style.paddingTop = `${photoHeight}%`;
           }
         } else {

@@ -8,12 +8,9 @@ class Password {
     this.invalid = false;
   }
   sendPasswordCode(passwordCode, passwordCodeInput) {
-    console.log('SENDD PASS!!!', passwordCode);
     this.client.send({
       '@type': 'checkAuthenticationPassword',
       password: passwordCode,
-    }).then(result => {
-      console.log('result', result);
     }).catch(() => {
       passwordCodeInput.className = 'password__input password__input_error';
       this.invalid = true;
@@ -30,7 +27,6 @@ class Password {
     }
   }
   showPasswordCode(passwordEye, passwordImg, passwordCode) {
-    console.log('showPasswordCode');
     if (this.showPassword) {
       passwordEye.className = 'password__input-eye';
       passwordImg.className = 'password__img';
