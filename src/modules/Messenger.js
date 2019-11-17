@@ -87,7 +87,22 @@ class Messenger {
       return '[Document]';
     }
     if(content['@type'] === 'messageSticker') {
-      return `${content.sticker.emoji} [Sticker]`;
+      console.log('messageSticker', content);
+      const sticker = content.sticker.sticker;
+      const stickerId = `sticker-${sticker.id}`;
+      const stickerElement = `<div id='${stickerId}' class='sticker'></div>`;
+      (async () => {
+        await this.client.send({
+          '@type': 'downloadFile',
+          file_id: sticker.id,
+          priority: 1,
+        }).then((result) => {
+          this.getFile(result.remote.id, stickerId);
+        }).catch(error => {
+          console.error(error);
+        });
+      })();
+      return stickerElement;
     }
     if(content['@type'] === 'messageCall') {
       return `[Call]`;
@@ -117,7 +132,6 @@ class Messenger {
     messageView.className = 'messages__item';
     messageView.id = `message-${message.id}`;
     const isOutgoing = message.is_outgoing;
-    const canBeEdited = message.can_be_edited;
     if(isOutgoing) {
       messageView.className = 'messages__item messages__item_out';
     }
@@ -126,8 +140,6 @@ class Messenger {
       <div class="messages__item-text">
       ${this.getMessageContent(message.content)}
       <div class="messages__item-time">
-        ${canBeEdited ? '++' : '--'}
-        ${isOutgoing && !canBeEdited ? '+' : '-'}
         ${getTime(message.date)}
       </div>
       </div>`;
@@ -241,8 +253,6 @@ class Messenger {
       }).catch(error => {
         console.error(error);
       });
-      const isOutgoing = response.last_message.is_outgoing;
-      const canBeEdited = response.last_message.can_be_edited;
       const chatPhotoId = `avatar-${chatId}`;
       const chatView = document.createElement('div');
       chatView.className = 'chats__item';
@@ -252,8 +262,6 @@ class Messenger {
         <div class="chats__item-title">${response.title ? response.title : wordsList.deletedAccount}</div>
         <div class="chats__item-last">${this.getChatContent(response.last_message.content)}</div>
         <div class="chats__item-time">
-            ${isOutgoing && !canBeEdited ? '+' : ''}
-            ${isOutgoing && canBeEdited ? '++' : ''}
             ${transformDate(response.last_message.date)}
         </div>
         ${response.unread_count > 0 ? `<div class="chats__item-unread">${response.unread_count}</div>` : ''}`;
