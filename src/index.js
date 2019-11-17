@@ -6,8 +6,6 @@ import Router from 'router/router';
 import Route from 'router/route';
 import 'styles/build.scss';
 import 'styles/loader.scss';
-// TODO
-import 'styles/registration.scss';
 
 import Messenger from 'modules/Messenger';
 import Login from 'modules/Login';
@@ -23,7 +21,7 @@ class App extends EventEmitter{
     this.state = {
       phoneNumber: ''
     };
-    this.isAuth = storage.get('dc2_auth_key');
+    this.isAuth = storage.get('isAuth');
   }
   onUpdate(update) {
     if(update['@type'] === 'updateAuthorizationState') {
@@ -67,6 +65,7 @@ class App extends EventEmitter{
           messenger.render();
           this.closeLoader(loader)
         });
+        storage.set('isAuth', true);
       }
 
     }
@@ -76,7 +75,6 @@ class App extends EventEmitter{
     loader.style.opacity = '0';
   }
   init() {
-    console.log('this.isAuth', this.isAuth);
     const loader = document.getElementById('loader');
     setTimeout(() => this.closeLoader(loader), 10000);
     this.router = new Router([
