@@ -6,6 +6,8 @@ import Router from 'router/router';
 import Route from 'router/route';
 import 'styles/build.scss';
 import 'styles/loader.scss';
+// TODO
+import 'styles/registration.scss';
 
 import Messenger from 'modules/Messenger';
 import Login from 'modules/Login';
@@ -21,7 +23,6 @@ class App extends EventEmitter{
       phoneNumber: ''
     };
     this.isAuth = storage.get('dc2_auth_key');
-    this.addMessage = () => {};
   }
   onUpdate(update) {
     // console.log('update[\'@type\']', update['@type'], update);
@@ -65,7 +66,6 @@ class App extends EventEmitter{
         this.router.goToRoute('im.html', () => {
           const messenger = new Messenger(this.client);
           messenger.render();
-          this.addMessage = messenger.addMessage;
           this.closeLoader(loader)
         });
       }
