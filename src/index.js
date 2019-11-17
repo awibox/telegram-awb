@@ -26,9 +26,7 @@ class App extends EventEmitter{
     this.isAuth = storage.get('dc2_auth_key');
   }
   onUpdate(update) {
-    // console.log('update[\'@type\']', update['@type'], update);
     if(update['@type'] === 'updateAuthorizationState') {
-      // console.log('updateAuthorizationState', update);
       if(update.authorization_state['@type'] === 'authorizationStateWaitTdlibParameters') {
         this.client.send({
           '@type': 'setTdlibParameters',
@@ -46,28 +44,24 @@ class App extends EventEmitter{
         this.closeLoader(loader)
       }
       if(update.authorization_state['@type'] === 'authorizationStateWaitCode') {
-        console.log('authorizationStateWaitCode', update);
         this.router.goToRoute('confirm.html', () => {
           const confirm = new Confirm(this.client, this.state);
           confirm.render();
         });
       }
       if(update.authorization_state['@type'] === 'authorizationStateWaitRegistration') {
-        console.log('authorizationStateWaitRegistration', update);
         this.router.goToRoute('registration.html', () => {
           const registration = new Registration(this.client, this.state);
           registration.render();
         });
       }
       if(update.authorization_state['@type'] === 'authorizationStateWaitPassword') {
-        console.log('authorizationStateWaitPassword', update);
         this.router.goToRoute('password.html', () => {
           const password = new Password(this.client, this.state);
           password.render();
         });
       }
       if(update.authorization_state['@type'] === 'authorizationStateReady') {
-        console.log('authorizationStateReady', update);
         this.router.goToRoute('im.html', () => {
           const messenger = new Messenger(this.client);
           messenger.render();

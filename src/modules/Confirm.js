@@ -15,12 +15,9 @@ class Confirm {
       this.confirmCodeInput.className = `confirm__input ${this.invalid ? 'confirm__input_error' : ''}`;
     }
     if (confirmCode.length === 5) {
-      console.log('SENDD!!!', confirmCode);
       this.client.send({
         '@type': 'checkAuthenticationCode',
         code: confirmCode,
-      }).then(result => {
-        console.log('result', result);
       }).catch(() => {
         this.confirmCodeInput.className = 'confirm__input confirm__input_error';
         this.invalid = true;
