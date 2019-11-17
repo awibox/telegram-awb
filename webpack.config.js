@@ -20,7 +20,7 @@ module.exports = {
   mode: devMode ? 'development' : 'production',
   entry: './index.js',
   output: {
-    path: path.resolve(__dirname, 'public'),
+    path: path.resolve(__dirname, 'dist'),
     filename: './js/main.js',
     publicPath: '/',
     chunkFilename: './js/[name].js',
@@ -132,10 +132,13 @@ module.exports = {
     splitChunks: {
       chunks: 'all',
     },
-    minimizer: [new TerserJSPlugin({}), new OptimizeCSSAssetsPlugin({})],
+    minimizer: [
+      new TerserJSPlugin({}),
+      new OptimizeCSSAssetsPlugin({})
+    ],
   },
   devServer: {
-    contentBase: './public',
+    contentBase: './dist',
     port: 8000,
     historyApiFallback: true,
     publicPath: '/',
