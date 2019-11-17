@@ -1,5 +1,8 @@
 # compiled output
-/dist
+/dist/js
+/dist/css
+/dist/assets
+/dist/index.html
 /tmp
 /out-tsc
 
