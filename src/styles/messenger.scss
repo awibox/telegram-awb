@@ -40,6 +40,9 @@ $chatInfoHeight: 60px;
       $avatarSize: 44px;
       min-height: $chatInfoHeight;
       padding: 10px 70px;
+      &-title {
+        padding: 4px 0;
+      }
       &-avatar {
         width: $avatarSize;
         height: $avatarSize;
@@ -93,8 +96,9 @@ $chatInfoHeight: 60px;
       font-weight: bold;
       white-space: nowrap;
       overflow: hidden;
+      font-size: 13px;
       text-overflow: ellipsis;
-      padding: 5px 0;
+      padding: 7px 0;
     }
     &-last {
       white-space: nowrap;
@@ -103,6 +107,7 @@ $chatInfoHeight: 60px;
     }
     &-time {
       position: absolute;
+      display: flex;
       top: $defaultIndent;
       right: $defaultIndent;
     }
@@ -147,6 +152,7 @@ $chatInfoHeight: 60px;
       margin-left: 15px;
       margin-top: 10px;
       white-space: nowrap;
+      display: flex;
     }
   }
 }
@@ -158,4 +164,43 @@ $chatInfoHeight: 60px;
   background-repeat: no-repeat;
   margin-bottom: 15px;
   min-width: 360px;
+}
+.sticker {
+  width: 200px;
+  height: 200px;
+  background-size: cover;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+}
+.arrow {
+  background-image: url('img/icons/1check_1x.png');
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  background-size: contain;
+  width: 19px;
+  height: 14px;
+  display: inline-flex;
+}
+
+.arrow-read {
+  background-image: url('img/icons/2checks_1x.png');
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  background-size: contain;
+  width: 19px;
+  height: 14px;
+  display: inline-flex;
+}
+
+@media 	only screen and (-webkit-min-device-pixel-ratio: 1.5),
+only screen and (min--moz-device-pixel-ratio: 1.5),
+only screen and (-o-min-device-pixel-ratio: 3/2),
+only screen and (min-resolution: 1.5dppx),
+only screen and (min-resolution: 144dpi)  {
+  .arrow {
+    background-image: url('img/icons/1check_2x.png');
+  }
+  .arrow-read {
+    background-image: url('img/icons/2checks_2x.png');
+  }
 }
