@@ -87,7 +87,6 @@ class Messenger {
       return '[Document]';
     }
     if(content['@type'] === 'messageSticker') {
-      console.log('messageSticker', content);
       const sticker = content.sticker.sticker;
       const stickerId = `sticker-${sticker.id}`;
       const stickerElement = `<div id='${stickerId}' class='sticker'></div>`;
