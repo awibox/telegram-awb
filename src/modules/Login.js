@@ -19,8 +19,6 @@ class Login {
       this.client.send({
         '@type': 'setAuthenticationPhoneNumber',
         phone_number: phoneNumber,
-      }).then(result => {
-        console.log('______ setAuthenticationPhoneNumber _______', result);
       }).catch(() => {
         phoneNumberInput.className = 'login__input login__input_error';
         this.invalid = true;
@@ -28,7 +26,6 @@ class Login {
     }
   }
   onChangePhone(phoneNumber, phoneNumberInput) {
-    console.log('phoneNumber', phoneNumber);
     storage.set('phone', phoneNumber);
     if (phoneNumber.length > 0) {
       phoneNumberInput.className = `login__input login__input_active ${this.invalid ? 'login__input_error' : ''}`;
