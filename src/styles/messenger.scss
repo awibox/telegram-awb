@@ -27,7 +27,7 @@ $chatInfoHeight: 60px;
     right: 0;
     left: $chatListWidth;
     top: $chatInfoHeight;
-    bottom: 50px;
+    bottom: 0;
   }
   &__info {
     @extend %layout;
