@@ -60,7 +60,33 @@ class Messenger {
       return content.text.text;
     }
     if(content['@type'] === 'messagePhoto') {
-      return '[Photo]';
+      console.log('content', content);
+      let remotePhoto;
+      if(content.photo.sizes[0]) {
+        remotePhoto = content.photo.sizes[0];
+      }
+      if(content.photo.sizes[1]) {
+        remotePhoto = content.photo.sizes[1];
+      }
+      const photoId = `photo-${remotePhoto.photo.id}`;
+      console.log('remotePhoto.height', remotePhoto.height, 'remotePhoto.width', remotePhoto.width);
+      const photoHeight = remotePhoto.height/(remotePhoto.width/100);
+      const photoElement = `
+        <div id='${photoId}' class='photo'></div>
+        ${ content.caption.text ? `<div class="caption">${content.caption.text}</div>` : ''}`;
+      (async () => {
+        await this.client.send({
+          '@type': 'downloadFile',
+          file_id: remotePhoto.photo.id,
+          priority: 1,
+        }).then((result) => {
+          console.log('photoHeight', photoHeight);
+          this.getFile(result.remote.id, photoId, photoHeight);
+        }).catch(error => {
+          console.error(error);
+        });
+      })();
+      return photoElement;
     }
     if(content['@type'] === 'messageDocument') {
       return '[Document]';
@@ -260,7 +286,7 @@ class Messenger {
           file_id: response.photo.small.id,
           priority: 1,
         }).then((result) => {
-          this.getFile(result.remote.id, chatPhotoId);
+          this.getFile(result.remote.id, chatPhotoId, true);
         }).catch(error => {
           console.error(error);
         });
@@ -344,7 +370,7 @@ class Messenger {
       f(request.result);
     };
   }
-  getFile(fileId, fileOdjId){
+  getFile(fileId, fileOdjId, photoHeight){
     this.connectDB((db) => {
       const request = db.transaction(['keyvaluepairs'], "readonly").objectStore('keyvaluepairs').get(fileId);
       request.onerror = (e) => console.error(e);
@@ -353,7 +379,12 @@ class Messenger {
         const URL = window.URL || window.webkitURL;
         if(imgFile !== -1) {
           const imgURL = URL.createObjectURL(imgFile);
-          document.getElementById(fileOdjId).style.backgroundImage = `url(${imgURL})`;
+          const imgElement = document.getElementById(fileOdjId);
+          imgElement.style.backgroundImage = `url(${imgURL})`;
+          if(photoHeight) {
+            console.log('photoHeight', photoHeight);
+            imgElement.style.paddingTop = `${photoHeight}%`;
+          }
         } else {
           setTimeout(() => this.getFile(fileId, fileOdjId), 500);
         }
