@@ -1,5 +1,4 @@
 import { apiConfig, TdClientOptions } from 'config/api';
-import * as storage from 'utils/storage';
 import {EventEmitter} from 'events';
 import TdClient from 'tdweb';
 import Router from 'router/router';
@@ -21,7 +20,6 @@ class App extends EventEmitter{
     this.state = {
       phoneNumber: ''
     };
-    this.isAuth = storage.get('isAuth');
   }
   onUpdate(update) {
     if(update['@type'] === 'updateAuthorizationState') {
@@ -65,9 +63,7 @@ class App extends EventEmitter{
           messenger.render();
           this.closeLoader(loader)
         });
-        storage.set('isAuth', true);
       }
-
     }
   }
   closeLoader(loader) {
@@ -78,11 +74,11 @@ class App extends EventEmitter{
     const loader = document.getElementById('loader');
     setTimeout(() => this.closeLoader(loader), 10000);
     this.router = new Router([
-      new Route('login', 'login.html', !this.isAuth),
+      new Route('login', 'login.html', true),
       new Route('confirm', 'confirm.html'),
       new Route('registration', 'registration.html'),
       new Route('password', 'password.html'),
-      new Route('im', 'im.html', this.isAuth),
+      new Route('im', 'im.html'),
     ]);
     this.client = new TdClient(TdClientOptions);
     this.client.onUpdate = (update) => this.emit('update', update);
