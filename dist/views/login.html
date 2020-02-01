@@ -7,11 +7,17 @@
         <div class="login__desc">
             Please confirm your country and enter your phone number
         </div>
-<!--        <input id="countryInput"-->
-<!--               autocomplete="off"-->
-<!--               class="login__input"-->
-<!--               name="phone_number"-->
-<!--               type="tel">-->
+        <div id="closeZone" class="closeZone"></div>
+        <div id="countryInput" class="login__input">
+            <div class="login__input-label">Country</div>
+            <input id="countryId"
+                   autocomplete="off"
+                   placeholder="Country"
+                   class="login__input-control"
+                   name="country"
+                   type="tel">
+            <div id="countriesList" class="countriesList"></div>
+        </div>
         <div id="phoneInput" class="login__input">
             <div class="login__input-label">Phone Number</div>
             <input id="phoneNumber"
@@ -24,4 +30,5 @@
 
         <div id="phoneNumberButton" class="login__button">Next</div>
     </div>
+</div>
 </div>
