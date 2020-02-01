@@ -78,6 +78,14 @@ class Login {
     this.hideCountriesList();
   }
 
+  getDefautCountry(code) {
+    Countries.forEach((item) => {
+      if(item.code === code) {
+        this.setCountry(item.name, item.dial_code)
+      }
+    });
+  }
+
   countryBox(countryName) {
     if (countryName.length > 0) {
       this.state.countryInput.className = addClass(this.state.countryInput.className, 'login__input_active');
@@ -119,8 +127,7 @@ class Login {
   }
 
   render() {
-    this.api.getCountry().then((response) => {
-      console.log('getCountry', response);
+    this.api.getCountry().then((countryCode) => {
       this.state.countryId = document.getElementById('countryId');
       this.state.countryInput = document.getElementById('countryInput');
       this.state.phoneNumber = document.getElementById('phoneNumber');
@@ -132,6 +139,7 @@ class Login {
       this.state.phoneNumber.addEventListener('focusin', () => this.onFocusPhone());
       this.state.phoneNumberSendButton.addEventListener('click', () => this.sendPhoneNumber(phoneNumber.value));
       this.state.countryArrow = document.getElementById('countryArrow');
+      this.getDefautCountry(countryCode);
     });
   }
 }
