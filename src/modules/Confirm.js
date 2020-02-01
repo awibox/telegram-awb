@@ -2,32 +2,40 @@ import { Countries, addClass, deleteClass } from 'utils/index';
 import AuthApi from 'api/AuthApi';
 import storage from 'utils/storage';
 import 'styles/confirm.scss';
+import Password from 'modules/Password';
 
 class Confirm {
-  constructor(router) {
+  constructor(router, phoneNumber, phoneCodeHash) {
     this.router = router;
+    this.phoneNumber = phoneNumber;
+    this.phoneCodeHash = phoneCodeHash;
     this.api = new AuthApi();
-    this.confirmCodeInput = '';
-    this.invalid = false;
     this.state = {
-
+      confirmPhone: '',
+      confirmCodeInput: ''
     }
   }
   sendConfirmCode(confirmCode) {
     if(confirmCode.length > 0) {
-      this.confirmCodeInput.className = addClass(this.confirmCodeInput.className, 'confirm__input_active');
+      this.state.confirmCodeInput.className = addClass(this.state.confirmCodeInput.className, 'confirm__input_active');
     } else {
-      this.confirmCodeInput.className = deleteClass(this.confirmCodeInput.className, 'confirm__input_active');
+      this.state.confirmCodeInput.className = deleteClass(this.state.confirmCodeInput.className, 'confirm__input_active');
     }
     if (confirmCode.length === 5) {
-      console.log("WORRRRKK!K!!!!")
-      // this.client.send({
-      //   '@type': 'checkAuthenticationCode',
-      //   code: confirmCode,
-      // }).catch(() => {
-      //   this.confirmCodeInput.className = 'confirm__input confirm__input_error';
-      //   this.invalid = true;
-      // });
+      console.log("WORRRRKK!K!!!!");
+      this.api.checkConfirmCode(this.phoneNumber, this.phoneCodeHash, confirmCode).then((response) => {
+        console.log('checkConfirmCode', response);
+      }).catch((error) => {
+        if(error.error_message === "SESSION_PASSWORD_NEEDED") {
+          this.router.goToRoute('password.html', () => {
+            const password = new Password();
+            password.render();
+          });
+        } else {
+          console.error(error);
+          this.state.confirmCodeInput.className = addClass(this.state.confirmCodeInput.className, 'confirm__input_error');
+        }
+      });
     }
   }
 
@@ -36,6 +44,8 @@ class Confirm {
     if(phoneNumber !== storage.get('phone')) {
       this.api.sendCode(phoneNumber).then((response) => {
         console.log('sendPhoneNumber', response);
+        this.phoneNumber = phoneNumber;
+        this.phoneCodeHash = response.phone_code_hash;
       }).catch((error) => {
         console.error(error);
         this.state.confirmPhone.style.color = '#E53834';
@@ -70,13 +80,13 @@ class Confirm {
   render() {
     console.log('Start render');
     this.state.confirmPhone = document.getElementById('confirmPhone');
-    this.confirmCodeInput = document.getElementById('confirmInput');
+    this.state.confirmCodeInput = document.getElementById('confirmInput');
     const confirmCode = document.getElementById('confirmCode');
     const editPhoneNumber = document.getElementById('editPhoneNumber');
     editPhoneNumber.addEventListener('click', () => this.changePhoneNumber());
     this.state.confirmPhone.value = storage.get('phone');
     this.state.confirmPhone.style.width = `${this.state.confirmPhone.value.length * 20}px`;
-    this.confirmCodeInput.addEventListener('keyup', () => this.sendConfirmCode(confirmCode.value));
+    this.state.confirmCodeInput.addEventListener('keyup', () => this.sendConfirmCode(confirmCode.value));
     console.log('Start render end');
   }
 }
