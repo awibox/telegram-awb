@@ -9,11 +9,11 @@ class AuthApi {
   }
 
   setUser(user) {
-    storage.set('auth_user', user);
+    storage.setObject('auth_user', user);
   }
 
   getUser() {
-    return storage.get('auth_user');
+    return storage.getObject('auth_user');
   }
 
   getCountry() {
@@ -41,6 +41,30 @@ class AuthApi {
     }, function (error) {
       deferred.reject(error);
     });
+    return deferred.promise;
+  }
+  checkConfirmCode(phoneNumber, phoneCodeHash, phoneCode) {
+
+    var deferred = query.defer();
+
+    var self = this;
+
+    var request = {
+      phone_number: phoneNumber,
+      phone_code_hash: phoneCodeHash,
+      phone_code: phoneCode
+    };
+
+    this.client.invokeApi('auth.signIn', request).then((data) => {
+      console.log("signIn success", data);
+      self.setUser(data.user);
+      ////self.mtpApiManager.setUserAuth(self.dcID, data.user.id);
+      deferred.resolve(data.user);
+    }, (error) => {
+      console.log('Sign In error', error);
+      deferred.reject(error);
+    });
+
     return deferred.promise;
   }
 }
