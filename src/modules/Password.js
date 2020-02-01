@@ -1,28 +1,28 @@
+import AuthApi from 'api/AuthApi';
+import { addClass, deleteClass } from 'utils/index';
 import 'styles/password.scss';
 
 class Password {
-  constructor(client, state) {
-    this.client = client;
-    this.state = state;
+  constructor() {
+    this.api = new AuthApi();
     this.showPassword = false;
-    this.invalid = false;
   }
   sendPasswordCode(passwordCode, passwordCodeInput) {
-    this.client.send({
-      '@type': 'checkAuthenticationPassword',
-      password: passwordCode,
-    }).catch(() => {
-      passwordCodeInput.className = 'password__input password__input_error';
-      this.invalid = true;
+
+    this.api.checkPassword(passwordCode).then((response) => {
+      console.log('response', response);
+    }).catch((error) => {
+      console.error(error);
+      passwordCodeInput.className = addClass(passwordCodeInput.className, 'password__input_error');
     });
   }
   setLabel(passwordCode, passwordCodeInput, passwordEye) {
     if(passwordCode.length > 0) {
-      passwordCodeInput.className = `password__input password__input_active ${this.invalid ? 'password__input_error' : ''}`;
+      passwordCodeInput.className = addClass(passwordCodeInput.className, 'password__input_active');
       passwordEye.style.visibility = 'visible';
       passwordEye.style.opacity = '0.5';
     } else {
-      passwordCodeInput.className = `password__input ${this.invalid ? 'password__input_error' : ''}`;
+      passwordCodeInput.className = deleteClass(passwordCodeInput.className, 'password__input_active');
       passwordEye.style.opacity = '0';
     }
   }
@@ -49,4 +49,5 @@ class Password {
     passwordEye.addEventListener('click', () => this.showPasswordCode(passwordEye, passwordImg, passwordCode));
   }
 }
+
 export default Password;
