@@ -5,11 +5,12 @@
             Sign in to Telegram
         </div>
         <div class="login__desc">
-            Please confirm your country and enter your phone number
+            Please confirm your country and enter your phone number.
         </div>
         <div id="closeZone" class="closeZone"></div>
         <div id="countryInput" class="login__input">
             <div class="login__input-label">Country</div>
+            <div id="countryArrow" class="login__input-arrow"></div>
             <input id="countryId"
                    autocomplete="off"
                    placeholder="Country"
@@ -27,7 +28,9 @@
                    name="phone_number"
                    type="tel">
         </div>
-
+        <div class="login__keep">
+            <input type="checkbox" checked> Keep me signed in
+        </div>
         <div id="phoneNumberButton" class="login__button">Next</div>
     </div>
 </div>
