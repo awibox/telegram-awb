@@ -1,6 +1,7 @@
 import AuthApi from 'api/AuthApi';
 import Confirm from 'modules/Confirm';
 import { Countries, addClass, deleteClass } from 'utils/index';
+import storage from 'utils/storage';
 import 'styles/login.scss';
 
 class Login {
@@ -15,6 +16,7 @@ class Login {
     }
   }
   sendPhoneNumber(phoneNumber) {
+    storage.set('phoneNumber', phoneNumber);
     if(this.isReadyForSending) {
       this.state.phoneNumberSendButton.innerText = 'PLEASE WAIT...';
       this.isReadyForSending = false;
