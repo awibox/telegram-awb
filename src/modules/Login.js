@@ -27,8 +27,9 @@ class Login {
       this.api.sendCode(phoneNumber).then((response) => {
         console.log('sendPhoneNumber', response);
         if (response["_"] === 'auth.sentCode') {
+          const phoneCodeHash = response.phone_code_hash;
           this.router.goToRoute('confirm.html', () => {
-            const confirm = new Confirm(this.router);
+            const confirm = new Confirm(this.router, phoneNumber, phoneCodeHash);
             confirm.render();
           });
         }
