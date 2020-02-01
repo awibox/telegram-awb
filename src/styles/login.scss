@@ -102,7 +102,66 @@ $titleSize: 32px;
     margin-bottom: 25px;
   }
 }
-
+#countryInput {
+  position: relative;
+}
+.countriesList {
+  display: flex;
+  flex-flow: column;
+  max-height: 0;
+  overflow-y: auto;
+  position: absolute;
+  background: #fff;
+  box-shadow: 0 5px 8px 1px rgba(0,0,0,.24);
+  z-index: 10;
+  top: 50px;
+  left:0;
+  right: 0;
+  border-radius: 7px;
+  padding: 9px 0;
+  opacity: 0;
+  visibility: hidden;
+  &.show {
+    opacity: 1;
+    visibility: visible;
+    max-height: 300px;
+  }
+}
+.countryItem {
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 16px;
+  padding: 10px 20px;
+  cursor: pointer;
+  &:hover {
+    background-color: #E6EBEE;
+  }
+  .flag {
+    left: 15px;
+    font-size: 26px;
+  }
+  .name {
+    width: 100%;
+    padding: 0 30px;
+  }
+  .code {
+    white-space: nowrap;
+  }
+}
+.closeZone {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  &.show {
+    display: block;
+  }
+}
 @media 	only screen and (-webkit-min-device-pixel-ratio: 1.5),
 only screen and (min--moz-device-pixel-ratio: 1.5),
 only screen and (-o-min-device-pixel-ratio: 3/2),
