@@ -44,12 +44,9 @@ class AuthApi {
     return deferred.promise;
   }
   checkConfirmCode(phoneNumber, phoneCodeHash, phoneCode) {
-
-    var deferred = query.defer();
-
-    var self = this;
-
-    var request = {
+    const deferred = query.defer();
+    const self = this;
+    const request = {
       phone_number: phoneNumber,
       phone_code_hash: phoneCodeHash,
       phone_code: phoneCode
@@ -63,6 +60,22 @@ class AuthApi {
     }, (error) => {
       console.log('Sign In error', error);
       deferred.reject(error);
+    });
+
+    return deferred.promise;
+  }
+  checkPassword(password) {
+    const deferred = query.defer();
+    console.log('password', password);
+    this.client.makePasswordHash(password).then((passwordHash) => {
+      console.log('passwordHash', passwordHash);
+      this.client.invokeApi('auth.checkPassword', { password_hash: passwordHash }).then(() => {
+        console.log('check password success');
+        deferred.resolve();
+      }, (error) => {
+        console.log('check password error', error);
+        deferred.reject(error);
+      });
     });
 
     return deferred.promise;
