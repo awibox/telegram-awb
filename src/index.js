@@ -4,7 +4,6 @@ import TdClient from 'tdweb';
 import Router from 'router/router';
 import Route from 'router/route';
 import 'styles/build.scss';
-import 'styles/loader.scss';
 
 import Messenger from 'modules/Messenger';
 import Login from 'modules/Login';
