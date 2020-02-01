@@ -1,10 +1,10 @@
-import * as storage from 'utils/storage';
+import storage from 'utils/storage';
+import AuthApi from 'api/AuthApi';
 import 'styles/login.scss';
 
 class Login {
-  constructor(client, state) {
-    this.client = client;
-    this.state = state;
+  constructor() {
+    this.api = new AuthApi();
     this.isReadyForSending = true;
     this.invalid = false;
   }
@@ -16,13 +16,11 @@ class Login {
         this.isReadyForSending = true;
         phoneNumberSendButton.innerText = 'NEXT';
       }, 3000);
-      this.client.send({
-        '@type': 'setAuthenticationPhoneNumber',
-        phone_number: phoneNumber,
-      }).catch(() => {
-        phoneNumberInput.className = 'login__input login__input_error';
-        this.invalid = true;
-      });
+      this.api.sendCode(phoneNumber).then((response) => {
+        console.log('response', response)
+      }).catch((error) => {
+        console.error(error);
+      })
     }
   }
   onChangePhone(phoneNumber, phoneNumberInput) {
@@ -34,16 +32,18 @@ class Login {
     }
   }
   render() {
-    const phoneNumber = document.getElementById('phoneNumber');
-    const phoneNumberInput = document.getElementById('phoneInput');
-    const phoneNumberSendButton = document.getElementById('phoneNumberButton');
-    if(storage.get('phone')) {
-      phoneNumber.value = storage.get('phone');
-      phoneNumberInput.className = `login__input login__input_active`;
-    }
-    phoneNumberSendButton.addEventListener('click', () => this.sendPhoneNumber(phoneNumber.value, phoneNumberInput, phoneNumberSendButton));
-    phoneNumber.addEventListener('keyup', () => this.onChangePhone(phoneNumber.value, phoneNumberInput));
-
+    this.api.getCountry().then((response) => {
+      console.log('getCountry', response);
+      const phoneNumber = document.getElementById('phoneNumber');
+      const phoneNumberInput = document.getElementById('phoneInput');
+      const phoneNumberSendButton = document.getElementById('phoneNumberButton');
+      phoneNumber.addEventListener('keyup', () => this.onChangePhone(phoneNumber.value, phoneNumberInput));
+      phoneNumberSendButton.addEventListener('click', () => this.sendPhoneNumber(phoneNumber.value, phoneNumberInput, phoneNumberSendButton));
+      if(storage.get('phone')) {
+          phoneNumber.value = storage.get('phone');
+          phoneNumberInput.className = `login__input login__input_active`;
+        }
+    });
   }
 }
 export default Login;
