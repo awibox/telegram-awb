@@ -29,6 +29,31 @@ export function transformDate(date) {
   return dateView;
 }
 
+export function addClass(currentClass, newClass) {
+  console.log('currentClass', currentClass)
+  const currentClassArray = currentClass.split(' ');
+  let count = 0;
+  currentClassArray.forEach((item) => {
+    if(item === newClass) {
+      count++
+    }
+  });
+  if(count === 0) {
+    currentClassArray.push(newClass);
+  }
+  return currentClassArray.join(' ')
+}
+
+export function deleteClass(currentClass, deleteClass) {
+  const currentClassArray = currentClass.split(' ');
+  return currentClassArray.map((item) => {
+    if(item === deleteClass) {
+      return '';
+    } else {
+      return item;
+    }
+  }).join(' ')
+}
 
 export const Countries = [
   {

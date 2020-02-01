@@ -9,7 +9,6 @@ class Login {
     this.router = router;
     this.api = new AuthApi();
     this.isReadyForSending = true;
-    this.invalid = false;
     this.state = {
       countryId: '',
       phoneNumber: '',

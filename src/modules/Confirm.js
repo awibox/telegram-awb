@@ -1,8 +1,9 @@
-import { Countries, addClass, deleteClass } from 'utils/index';
 import AuthApi from 'api/AuthApi';
-import storage from 'utils/storage';
-import 'styles/confirm.scss';
 import Password from 'modules/Password';
+import storage from 'utils/storage';
+import { addClass, deleteClass } from 'utils/index';
+import 'styles/confirm.scss';
+
 
 class Confirm {
   constructor(router, phoneNumber, phoneCodeHash) {
