@@ -16,7 +16,7 @@ class Login {
     }
   }
   sendPhoneNumber(phoneNumber) {
-    storage.set('phoneNumber', phoneNumber);
+    storage.set('phone', phoneNumber);
     if(this.isReadyForSending) {
       this.state.phoneNumberSendButton.innerText = 'PLEASE WAIT...';
       this.isReadyForSending = false;
