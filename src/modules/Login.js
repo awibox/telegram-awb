@@ -1,9 +1,11 @@
 import AuthApi from 'api/AuthApi';
-import { Countries } from 'utils/index';
+import Confirm from 'modules/Confirm';
+import { Countries, addClass, deleteClass } from 'utils/index';
 import 'styles/login.scss';
 
 class Login {
-  constructor() {
+  constructor(router) {
+    this.router = router;
     this.api = new AuthApi();
     this.isReadyForSending = true;
     this.invalid = false;
@@ -12,31 +14,44 @@ class Login {
       phoneNumber: '',
     }
   }
-  sendPhoneNumber(phoneNumber, phoneNumberInput, phoneNumberSendButton) {
+  sendPhoneNumber(phoneNumber) {
     if(this.isReadyForSending) {
-      phoneNumberSendButton.innerText = 'Wait...';
+      this.state.phoneNumberSendButton.innerText = 'PLEASE WAIT...';
       this.isReadyForSending = false;
       setTimeout(() => {
         this.isReadyForSending = true;
-        phoneNumberSendButton.innerText = 'NEXT';
+        this.state.phoneNumberSendButton.innerText = 'NEXT';
       }, 3000);
       this.api.sendCode(phoneNumber).then((response) => {
-        console.log('response', response)
+        console.log('sendPhoneNumber', response);
+        if (response["_"] === 'auth.sentCode') {
+          this.router.goToRoute('confirm.html', () => {
+            const confirm = new Confirm(this.router);
+            confirm.render();
+          });
+        }
       }).catch((error) => {
         console.error(error);
+        this.state.phoneNumberInput.className = addClass(this.state.phoneNumberInput.className, 'login__input_error');
       })
     }
   }
 
-  onChangePhone(phoneNumber, phoneNumberInput) {
+  onChangePhone(phoneNumber) {
     if (phoneNumber.length > 0) {
-      phoneNumberInput.className = `login__input login__input_active ${this.invalid ? 'login__input_error' : ''}`;
+      this.state.phoneNumberInput.className = addClass(this.state.phoneNumberInput.className, 'login__input_active');
     } else {
-      phoneNumberInput.className = `login__input ${this.invalid ? 'login__input_error' : ''}`;
+      this.state.phoneNumberInput.className = deleteClass(this.state.phoneNumberInput.className, 'login__input_active');
+    }
+    if (phoneNumber.length > 11) {
+      this.state.phoneNumberSendButton.className = addClass(this.state.phoneNumberSendButton.className, 'show');
+    } else {
+      this.state.phoneNumberSendButton.className = deleteClass(this.state.phoneNumberSendButton.className, 'show');
     }
   }
 
   showCountriesList() {
+    this.state.countryArrow.className = addClass(this.state.countryArrow.className, 'active')
     this.countryBox(this.state.countryId.value);
     const countryList = document.getElementById('countriesList');
     countryList.className = 'countriesList show';
@@ -46,6 +61,7 @@ class Login {
   }
 
   hideCountriesList() {
+    this.state.countryArrow.className = deleteClass(this.state.countryArrow.className, 'active')
     const countryList = document.getElementById('countriesList');
     countryList.className = 'countriesList';
     const closeZone = document.getElementById('closeZone');
@@ -55,10 +71,17 @@ class Login {
   setCountry(name, code) {
     this.state.countryId.value = name;
     this.state.phoneNumber.value = code;
-    this.hideCountriesList()
+    this.countryBox(name);
+    this.onChangePhone(code);
+    this.hideCountriesList();
   }
 
   countryBox(countryName) {
+    if (countryName.length > 0) {
+      this.state.countryInput.className = addClass(this.state.countryInput.className, 'login__input_active');
+    } else {
+      this.state.countryInput.className = deleteClass(this.state.countryInput.className, 'login__input_active');
+    }
     const countryList = document.getElementById('countriesList');
     countryList.innerHTML = '';
     let count = 0;
@@ -66,10 +89,10 @@ class Login {
       if(item.name.toLocaleLowerCase().indexOf(countryName.toLocaleLowerCase()) > -1) {
         const countryItem = document.createElement('div');
         countryItem.className = 'countryItem';
-        countryItem.innerHTML = `
-<div class="flag">${item.emoji ? item.emoji : ''}</div>
-<div class='name'>${item.name}</div>
-<div class='code'>${item.dial_code}</div>`;
+        countryItem.innerHTML =
+          `<div class="flag">${item.emoji ? item.emoji : ''}</div>
+           <div class='name'>${item.name}</div>
+           <div class='code'>${item.dial_code}</div>`;
         countryItem.addEventListener('click', () => this.setCountry(item.name, item.dial_code));
         countryList.append(countryItem);
         count++;
@@ -83,18 +106,30 @@ class Login {
     }
   }
 
+  onFocusCountry() {
+    this.state.countryInput.className = addClass(this.state.countryInput.className, 'login__input_focused');
+    this.state.phoneNumberInput.className = deleteClass(this.state.phoneNumberInput.className, 'login__input_focused');
+    this.showCountriesList();
+  }
+  onFocusPhone() {
+    this.state.phoneNumberInput.className = addClass(this.state.phoneNumberInput.className, 'login__input_focused');
+    this.state.countryInput.className = deleteClass(this.state.countryInput.className, 'login__input_focused');
+  }
+
   render() {
     this.api.getCountry().then((response) => {
       console.log('getCountry', response);
       this.state.countryId = document.getElementById('countryId');
-      const countryInput = document.getElementById('countryInput');
+      this.state.countryInput = document.getElementById('countryInput');
       this.state.phoneNumber = document.getElementById('phoneNumber');
-      const phoneNumberInput = document.getElementById('phoneInput');
-      const phoneNumberSendButton = document.getElementById('phoneNumberButton');
-      this.state.phoneNumber.addEventListener('keyup', () => this.onChangePhone(phoneNumber.value, phoneNumberInput));
-      this.state.countryId.addEventListener('keyup', () => this.countryBox(this.state.countryId.value, countryInput));
-      this.state.countryId.addEventListener('focusin', () => this.showCountriesList());
-      phoneNumberSendButton.addEventListener('click', () => this.sendPhoneNumber(phoneNumber.value, phoneNumberInput, phoneNumberSendButton));
+      this.state.phoneNumberInput = document.getElementById('phoneInput');
+      this.state.phoneNumberSendButton = document.getElementById('phoneNumberButton');
+      this.state.phoneNumber.addEventListener('keyup', () => this.onChangePhone(phoneNumber.value));
+      this.state.countryId.addEventListener('keyup', () => this.countryBox(this.state.countryId.value));
+      this.state.countryId.addEventListener('focusin', () => this.onFocusCountry());
+      this.state.phoneNumber.addEventListener('focusin', () => this.onFocusPhone());
+      this.state.phoneNumberSendButton.addEventListener('click', () => this.sendPhoneNumber(phoneNumber.value));
+      this.state.countryArrow = document.getElementById('countryArrow');
     });
   }
 }
