@@ -62,14 +62,14 @@ class MessengerApi {
     };
   }
 
-  getMessages(peerId, hashId, isChannel) {
+  getMessages(peer, offset_id, add_offset, limit) {
     const deferred = query.defer();
 
     const request = {
-      peer: this.getInputPeerByID(peerId, hashId, isChannel),
-      offset_id: 0,
-      add_offset: 0,
-      limit: 0
+      peer: peer,
+      offset_id: offset_id,
+      add_offset: add_offset,
+      limit: limit
     };
 
     this.client.invokeApi('messages.getHistory', request, {
