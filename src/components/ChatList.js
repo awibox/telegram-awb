@@ -39,12 +39,11 @@ class ChatList {
     }
   }
 
-  getChats(flags, offset_id, offset_date, offer_peer) {
-    const CHATS_LIMIT = this.limit;
-    this.api.getChats(flags, offset_id, offset_date, offer_peer, CHATS_LIMIT).then(result => {
+  getChats(flags = 0, offset_id = 0, offset_date = 0, offer_peer) {
+    this.api.getChats(flags, offset_id, offset_date, offer_peer, this.limit).then(result => {
       const { dialogs, messages, chats, users } = result;
       dialogs.forEach((item, index) => {
-        const chat = {
+        const chat = new Object({
           id: '',
           access_hash: '',
           title: '',
@@ -56,7 +55,7 @@ class ChatList {
           timestamp: '',
           unread_count: item.unread_count,
           isChannel: false
-        };
+        });
         messages.forEach((message) => {
           if(item.top_message === message.id) {
             chat.message = message.message;
@@ -91,7 +90,7 @@ class ChatList {
   init() {
     this.chatsObj = document.getElementById('chats');
     this.chatsScroll = document.getElementById('chatsScroll');
-    this.getChats(0,0, 0);
+    this.getChats();
     this.chatsScroll.onscroll = () => this.scrollChats(this.chatsScroll);
   }
 }
