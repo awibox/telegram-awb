@@ -30,7 +30,6 @@ export function transformDate(date) {
 }
 
 export function addClass(currentClass, newClass) {
-  console.log('currentClass', currentClass)
   const currentClassArray = currentClass.split(' ');
   let count = 0;
   currentClassArray.forEach((item) => {

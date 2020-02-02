@@ -3,14 +3,14 @@ import { addClass, deleteClass } from 'utils/index';
 import 'styles/password.scss';
 
 class Password {
-  constructor() {
+  constructor(salt) {
     this.api = new AuthApi();
+    this.salt = salt;
     this.showPassword = false;
   }
   sendPasswordCode(passwordCode, passwordCodeInput) {
-
-    this.api.checkPassword(passwordCode).then((response) => {
-      console.log('response', response);
+    this.api.checkPassword(this.salt, passwordCode).then((response) => {
+      console.log('this.api.checkPassword !!!!!!!!!!!', response);
     }).catch((error) => {
       console.error(error);
       passwordCodeInput.className = addClass(passwordCodeInput.className, 'password__input_error');

@@ -17,7 +17,7 @@ export default function MtpApiManager() {
   var baseDcID = dcID;
 
   function mtpSetUserAuth(dcID, userAuth) {
-    storage.set(`dc_${dcID}_auth_key`, userAuth);
+    storage.set(`dc${dcID}_auth_key`, userAuth);
   }
 
   function mtpLogOut() {
@@ -34,8 +34,8 @@ export default function MtpApiManager() {
       throw new Exception('get Networker without dcID');
     }
 
-    var akk = `dc_${dcID}_auth_key`;
-    var ssk = `dc_${dcID}_server_salt`;
+    var akk = `dc${dcID}_auth_key`;
+    var ssk = `dc${dcID}_server_salt`;
 
     //// get cached networker
     var authKeyHex = storage.get(akk);
@@ -50,11 +50,11 @@ export default function MtpApiManager() {
       }
 
       var resPromise = getPromise().then(function (dcID) {
-        
+
         if (!serverSaltHex || serverSaltHex.length != 16) {
           serverSaltHex = 'AAAAAAAAAAAAAAAA';
         }
-          
+
         var authKey = bytesFromHex(authKeyHex);
         var serverSalt = bytesFromHex(serverSaltHex);
 
@@ -100,7 +100,7 @@ export default function MtpApiManager() {
     var rejectPromise = function (error) {
       deferred.reject(error);
     };
-    
+
     var performRequest = function (networker) {
       var performRequestPromise = (networker).wrapApiCall(method, params, options);
 
@@ -108,8 +108,8 @@ export default function MtpApiManager() {
         function (result) {
           deferred.resolve(result);
         },
-        function (error) {          
-          rejectPromise(error);          
+        function (error) {
+          rejectPromise(error);
         });
     };
 
@@ -127,30 +127,36 @@ export default function MtpApiManager() {
     return baseDcID || false;
   }
 
-  function makePasswordHash (password) {
+  function makePasswordHash (salt, password) {
     var passwordUTF8 = unescape(encodeURIComponent(password));
+
     var buffer = new ArrayBuffer(passwordUTF8.length);
     var byteView = new Uint8Array(buffer);
     for (var i = 0, len = passwordUTF8.length; i < len; i++) {
       byteView[i] = passwordUTF8.charCodeAt(i);
     }
-    
-    var serverSalt = null;
-    var ssk = `dc_${dcID}_server_salt`;
-    var serverSaltHex = storage.get(ssk);
+    console.log('salt', salt);
+    console.log('byteView', byteView);
+    buffer = bufferConcat(bufferConcat(salt, byteView), salt);
 
-    if (serverSaltHex != null) {
-      serverSalt = bytesFromHex(serverSaltHex);
-    }
-    else  {
-      serverSaltHex = 'AAAAAAAAAAAAAAAA';
-      serverSalt = bytesFromHex(serverSaltHex);
-    }
-
-    buffer = bufferConcat(bufferConcat(serverSalt, byteView), serverSalt);
-
-    return cryptoWorker.sha256Hash(buffer);   
+    return cryptoWorker.sha256Hash(buffer);
   }
+
+  // function makePasswordHash (salt, password) {
+  //   console.log('salt, password', salt, password)
+  //   var passwordUTF8 = unescape(encodeURIComponent(password))
+  //
+  //   var buffer = new ArrayBuffer(passwordUTF8.length);
+  //   var byteView = new Uint8Array(buffer);
+  //   for (var i = 0, len = passwordUTF8.length; i < len; i++) {
+  //     byteView[i] = passwordUTF8.charCodeAt(i)
+  //   }
+  //
+  //   buffer = bufferConcat(bufferConcat(salt, byteView), salt)
+  //   console.log('buffer', buffer);
+  //   console.log('CryptoWorker.sha256Hash(buffer)', CryptoWorker.sha256Hash(buffer))
+  //   return CryptoWorker.sha256Hash(buffer)
+  // }
 
   return {
     getBaseDcID: getBaseDcID,
