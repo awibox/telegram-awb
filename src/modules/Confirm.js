@@ -23,15 +23,17 @@ class Confirm {
       this.state.confirmCodeInput.className = deleteClass(this.state.confirmCodeInput.className, 'confirm__input_active');
     }
     if (confirmCode.length === 5) {
-      console.log("WORRRRKK!K!!!!");
-      this.api.checkConfirmCode(this.phoneNumber, this.phoneCodeHash, confirmCode).then((response) => {
-        console.log('checkConfirmCode', response);
-      }).catch((error) => {
+      this.api.checkConfirmCode(this.phoneNumber, this.phoneCodeHash, confirmCode)
+        .then((response) => {
+          console.log("GO to MESSAGE");
+        }).catch((error) => {
         if(error.error_message === "SESSION_PASSWORD_NEEDED") {
-          this.router.goToRoute('password.html', () => {
-            const password = new Password();
-            password.render();
-          });
+          this.api.getPasswordState().then((result) => {
+            this.router.goToRoute('password.html', () => {
+              const password = new Password(result.current_salt);
+              password.render();
+            });
+          })
         } else {
           console.error(error);
           this.state.confirmCodeInput.className = addClass(this.state.confirmCodeInput.className, 'confirm__input_error');
@@ -44,7 +46,6 @@ class Confirm {
     this.state.confirmPhone.style.color = '#000000';
     if(phoneNumber !== storage.get('phone')) {
       this.api.sendCode(phoneNumber).then((response) => {
-        console.log('sendPhoneNumber', response);
         this.phoneNumber = phoneNumber;
         this.phoneCodeHash = response.phone_code_hash;
       }).catch((error) => {
@@ -79,7 +80,6 @@ class Confirm {
   }
 
   render() {
-    console.log('Start render');
     this.state.confirmPhone = document.getElementById('confirmPhone');
     this.state.confirmCodeInput = document.getElementById('confirmInput');
     const confirmCode = document.getElementById('confirmCode');
@@ -88,7 +88,6 @@ class Confirm {
     this.state.confirmPhone.value = storage.get('phone');
     this.state.confirmPhone.style.width = `${this.state.confirmPhone.value.length * 20}px`;
     this.state.confirmCodeInput.addEventListener('keyup', () => this.sendConfirmCode(confirmCode.value));
-    console.log('Start render end');
   }
 }
 export default Confirm;

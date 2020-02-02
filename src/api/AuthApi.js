@@ -2,7 +2,6 @@ import MtpApiManager from '../mtproto/mtpApiManager';
 import storage from 'utils/storage';
 import query from 'q';
 import apiConfig from 'config/api';
-
 class AuthApi {
   constructor() {
     this.client = new MtpApiManager();
@@ -64,11 +63,23 @@ class AuthApi {
 
     return deferred.promise;
   }
-  checkPassword(password) {
+
+  getPasswordState() {
     const deferred = query.defer();
-    console.log('password', password);
-    this.client.makePasswordHash(password).then((passwordHash) => {
-      console.log('passwordHash', passwordHash);
+    const options = {dcID: 2, createNetworker: true};
+    this.client.invokeApi('account.getPassword', {}, options)
+      .then((result) => {
+        deferred.resolve(result);
+      }).catch((error) => {
+        deferred.reject(error);
+      });
+    return deferred.promise;
+  }
+
+  checkPassword(salt, password) {
+    const deferred = query.defer();
+
+    this.client.makePasswordHash(salt, password).then((passwordHash) => {
       this.client.invokeApi('auth.checkPassword', { password_hash: passwordHash }).then(() => {
         console.log('check password success');
         deferred.resolve();
