@@ -23,7 +23,9 @@
   "homepage": "https://github.com/awibox/telegram-awb#readme",
   "devDependencies": {
     "@babel/core": "^7.6.4",
+    "@goodmind/node-cryptojs-aes": "^0.5.0",
     "autoprefixer": "^9.7.1",
+    "axios": "^0.19.2",
     "babel-loader": "^8.0.6",
     "copy-webpack-plugin": "^5.0.5",
     "css-loader": "^3.2.0",
@@ -36,12 +38,15 @@
     "postcss-flexbugs-fixes": "^4.1.0",
     "postcss-loader": "^3.0.0",
     "postcss-modules-values": "^3.0.0",
+    "q": "^1.5.1",
+    "rusha": "^0.8.13",
     "sass-loader": "^8.0.0",
     "tdweb": "^1.5.0",
     "terser-webpack-plugin": "^2.2.1",
     "url-loader": "^2.2.0",
     "webpack": "^4.40.2",
     "webpack-cli": "^3.3.10",
-    "webpack-dev-server": "^3.8.0"
+    "webpack-dev-server": "^3.8.0",
+    "zlibt": "^0.0.5"
   }
 }
