@@ -29,6 +29,61 @@ class MessengerApi {
 
     return deferred.promise;
   }
+
+  getInputPeerByID(peerId, hashId, isChannel) {
+    if (!peerId) {
+      return { _: 'inputPeerEmpty' };
+    }
+    if (peerId < 0) {
+      var chatId = -peerId;
+      if (!isChannel) {
+        return {
+          _: 'inputPeerChat',
+          chat_id: chatId
+        };
+      } else {
+        return {
+          _: 'inputPeerChannel',
+          channel_id: chatId,
+          access_hash: hashId || 0
+        };
+      }
+    }
+    if (!isChannel) return {
+      _: 'inputPeerUser',
+      user_id: peerId,
+      access_hash: hashId || 0
+    };
+
+    return {
+      _: 'inputPeerChannel',
+      channel_id: peerId,
+      access_hash: hashId || 0
+    };
+  }
+
+  getMessages(peerId, hashId, isChannel) {
+    const deferred = query.defer();
+
+    const request = {
+      peer: this.getInputPeerByID(peerId, hashId, isChannel),
+      offset_id: 0,
+      add_offset: 0,
+      limit: 0
+    };
+
+    this.client.invokeApi('messages.getHistory', request, {
+      timeout: 4000
+    }).then(function (result) {
+      console.log('get MESSAGES: ', result);
+      deferred.resolve(result);
+    }, (error) => {
+      console.log('get MESSAGES error: ', error);
+      deferred.reject(error);
+    });
+
+    return deferred.promise;
+  }
 }
 
 export default MessengerApi;
