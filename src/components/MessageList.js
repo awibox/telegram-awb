@@ -14,8 +14,8 @@ class MessageList {
     this.messageObj = '';
   }
 
-  loadMessages() {
-    this.api.getMessages().then((message) => {
+  loadMessages(peerId, hashId, isChannel) {
+    this.api.getMessages(peerId, hashId, isChannel).then((message) => {
       console.log(message);
     })
   }
@@ -23,7 +23,7 @@ class MessageList {
   init() {
     this.messagesScroll = document.getElementById('messagesScroll');
     this.messageObj = document.getElementById('messages');
-    this.messagesScroll.onscroll = () => this.scrollMessages(this.messagesScroll)
+    // this.messagesScroll.onscroll = () => this.scrollMessages(this.messagesScroll)
   }
 }
 
