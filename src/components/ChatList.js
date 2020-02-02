@@ -46,6 +46,7 @@ class ChatList {
       dialogs.forEach((item, index) => {
         const chat = {
           id: '',
+          access_hash: '',
           title: '',
           message: '',
           messageId: '',
@@ -53,7 +54,8 @@ class ChatList {
           flags: item.flags,
           date: '',
           timestamp: '',
-          unread_count: item.unread_count
+          unread_count: item.unread_count,
+          isChannel: false
         };
         messages.forEach((message) => {
           if(item.top_message === message.id) {
@@ -68,6 +70,7 @@ class ChatList {
             if(item.peer.user_id === user.id) {
               chat.id = user.id;
               chat.title = `${user.first_name ? user.first_name : ''} ${user.last_name ? user.last_name : ''}`;
+              chat.access_hash = user.access_hash ? user.access_hash : '';
             }
           });
         } else {
@@ -75,6 +78,8 @@ class ChatList {
             if(item.peer.channel_id === channel.id) {
               chat.id = channel.id;
               chat.title = channel.title;
+              chat.access_hash = channel.access_hash ? channel.access_hash : '';
+              chat.isChannel = true;
             }
           });
         }
