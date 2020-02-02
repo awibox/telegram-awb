@@ -6,15 +6,20 @@ class ChatList {
     this.limit = 20;
     this.api = new MessengerApi();
     this.lastChat = {};
-    this.chatInfo = '';
     this.chatsScroll = '';
     this.chatsObj = '';
   }
+
+  scrollChats(chatsObj) {
+    if((chatsObj.scrollHeight - chatsObj.offsetHeight) === chatsObj.scrollTop) {
+      this.getChats(this.lastChat.flags, this.lastChat.messageId, this.lastChat.timestamp, this.lastChat.peer);
+    }
+  }
+  
   getChats(flags, offset_id, offset_date, offer_peer) {
     const CHATS_LIMIT = this.limit;
     this.api.getChats(flags, offset_id, offset_date, offer_peer, CHATS_LIMIT).then(result => {
       const { dialogs, messages, chats, users } = result;
-      console.log(dialogs, messages, chats, users);
       dialogs.forEach((item, index) => {
         const chat = {
           title: '',
@@ -61,14 +66,14 @@ ${chat.unread_count ? `<div class="chats__item-unread">${chat.unread_count}</div
 `;
         this.chatsObj.append(chatView);
         this.lastChat = chat;
-      })
+      });
     })
   }
   init() {
-    this.chatInfo = document.getElementById('chatInfo');
     this.chatsObj = document.getElementById('chats');
     this.chatsScroll = document.getElementById('chatsScroll');
     this.getChats(0,0, 0);
+    this.chatsScroll.onscroll = () => this.scrollChats(this.chatsScroll);
   }
 }
 
