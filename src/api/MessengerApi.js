@@ -8,15 +8,15 @@ class MessengerApi {
     this.client = new MtpApiManager();
   }
 
-  getChats() {
-    var deferred = query.defer();
+  getChats(flags, offset_id, offset_date, offer_peer, limit) {
+    const deferred = query.defer();
 
     this.client.invokeApi('messages.getDialogs', {
       flags: 0,
-      offset_date: 0,
-      offset_id: 0,
-      offset_peer: { _: 'inputPeerEmpty' },
-      limit: 0
+      offset_date: offset_date,
+      offset_id: offset_id,
+      offset_peer: offer_peer ? offer_peer : { _: 'inputPeerEmpty' },
+      limit: limit
     }, {
       timeout: 4000
     }).then(function (result) {
