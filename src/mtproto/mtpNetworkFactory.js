@@ -27,13 +27,13 @@ const mtpTimeManager = new MtpTimeManager();
 const cryptoWorker = new CryptoWorker();
 
 export function MtpNetworkerFactory() {
-  var updatesProcessor;  
+  var updatesProcessor;
   var offlineInited = false;
   var akStopped = false;
   var chromeMatches = navigator.userAgent.match(/Chrome\/(\d+(\.\d+)?)/);
   var chromeVersion = chromeMatches && parseFloat(chromeMatches[1]) || false;
-  var xhrSendBuffer = !('ArrayBufferView' in window) && (chromeVersion > 0 && chromeVersion < 30);  
-  
+  var xhrSendBuffer = !('ArrayBufferView' in window) && (chromeVersion > 0 && chromeVersion < 30);
+
   function MtpNetworker(dcID, authKey, serverSalt, options) {
     //console.log('MtpNetworker');
 
@@ -41,11 +41,11 @@ export function MtpNetworkerFactory() {
 
     this.dcID = dcID || 2;
 
-    this.authKey = authKey;   
+    this.authKey = authKey;
     this.authKeyUint8 = convertToUint8Array(authKey);
     this.authKeyID = sha1BytesSync(authKey).slice(-8);
 
-    this.serverSalt = serverSalt;    
+    this.serverSalt = serverSalt;
 
     this.upload = options.fileUpload || options.fileDownload || false;
 
@@ -61,7 +61,7 @@ export function MtpNetworkerFactory() {
     this.pendingAcks = [];
     this.pendingResends = [];
     this.connectionInited = false;
-    
+
     this.longPollInt = setInterval(this.checkLongPoll.bind(this), 10000);
 
     this.checkLongPoll();
@@ -83,7 +83,7 @@ export function MtpNetworkerFactory() {
     this.prevSessionID = this.sessionID;
     this.sessionID = new Array(8);
 
-    this.sessionID = generateSecureRandomBytes(this.sessionID);    
+    this.sessionID = generateSecureRandomBytes(this.sessionID);
   };
 
   // MtpNetworker.prototype.setupMobileSleep = function () {
@@ -220,7 +220,7 @@ export function MtpNetworkerFactory() {
       var serializer = new TLSerialization(options);
 
       // var appId = 2496;
-      var appId = 964141;    
+      var appId = 964141;
       var appVersion = "0.7.0";
 
       if (!this.connectionInited) {
@@ -266,7 +266,7 @@ export function MtpNetworkerFactory() {
     catch(error)
     {
       console.log("wrapApiCall error", error);
-      return null;      
+      return null;
     }
   };
 
@@ -282,7 +282,7 @@ export function MtpNetworkerFactory() {
 
     var self = this;
 
-    // Storage.get('dc').then(function (baseDcID) {    
+    // Storage.get('dc').then(function (baseDcID) {
       var baseDcID = false;
       if (isClean && (
         baseDcID != self.dcID ||
@@ -329,9 +329,9 @@ export function MtpNetworkerFactory() {
     //console.log('pushMessage', message);
 
     var deferred = $q.defer();
-    
-    ////this.sentMessages[message.msg_id] = angular.extend(message, options || {}, { deferred: deferred });    
-    this.sentMessages[message.msg_id] = Object.assign(message, options || {}, { deferred: deferred });    
+
+    ////this.sentMessages[message.msg_id] = angular.extend(message, options || {}, { deferred: deferred });
+    this.sentMessages[message.msg_id] = Object.assign(message, options || {}, { deferred: deferred });
 
     ////if (Object.keys(this.pendingMessages).length > 0) {
       this.pendingMessages[message.msg_id] = 0;
@@ -364,23 +364,23 @@ export function MtpNetworkerFactory() {
     this.sheduleRequest(delay);
   };
 
-  MtpNetworker.prototype.getMsgKey = function (dataWithPadding, isOut) {    
+  MtpNetworker.prototype.getMsgKey = function (dataWithPadding, isOut) {
 
     //console.log('getMsgKey');
 
     var authKey = this.authKeyUint8;
     var x = isOut ? 0 : 8;
     var msgKeyLargePlain = bufferConcat(authKey.subarray(88 + x, 88 + x + 32), dataWithPadding);
-        
+
     return cryptoWorker.sha256Hash(msgKeyLargePlain).then(function (msgKeyLarge) {
       var msgKey = new Uint8Array(msgKeyLarge).subarray(8, 24);
       return msgKey;
-    });    
+    });
   };
 
   MtpNetworker.prototype.getAesKeyIv = function (msgKey, isOut) {
     var deferred = $q.defer();
-    
+
     //console.log('getAesKeyIv');
 
     var authKey = this.authKeyUint8;
@@ -390,11 +390,11 @@ export function MtpNetworkerFactory() {
     ////var promises = {};
 
     sha2aText.set(msgKey, 0);
-    sha2aText.set(authKey.subarray(x, x + 36), 16);                
+    sha2aText.set(authKey.subarray(x, x + 36), 16);
     ////promises.sha2a = cryptoWorker.sha256Hash(sha2aText);
 
     sha2bText.set(authKey.subarray(40 + x, 40 + x + 36), 0);
-    sha2bText.set(msgKey, 36);        
+    sha2bText.set(msgKey, 36);
     ////promises.sha2b = cryptoWorker.sha256Hash(sha2bText);
 
     cryptoWorker.sha256Hash(sha2aText).then((sha2aRes) => {
@@ -405,15 +405,15 @@ export function MtpNetworkerFactory() {
         var aesIv = new Uint8Array(32);
         var sha2a = new Uint8Array(sha2aResult);
         var sha2b = new Uint8Array(sha2bRes);
-  
+
         aesKey.set(sha2a.subarray(0, 8));
         aesKey.set(sha2b.subarray(8, 24), 8);
         aesKey.set(sha2a.subarray(24, 32), 24);
-  
+
         aesIv.set(sha2b.subarray(0, 8));
         aesIv.set(sha2a.subarray(8, 24), 8);
         aesIv.set(sha2b.subarray(24, 32), 24);
-  
+
         deferred.resolve([aesKey, aesIv]);
       });
     });
@@ -475,13 +475,13 @@ export function MtpNetworkerFactory() {
       // $timeout(function () {
       //   delete $rootScope.offlineConnecting;
       // }, 1000);
-      
+
     });
   };
 
-  MtpNetworker.prototype.toggleOffline = function (enabled) {        
+  MtpNetworker.prototype.toggleOffline = function (enabled) {
 
-    //console.log('toggleOffline');    
+    //console.log('toggleOffline');
     return false;
 
     // console.log('toggle ', enabled, this.dcID, this.iii)
@@ -497,7 +497,7 @@ export function MtpNetworkerFactory() {
       ////$timeout.cancel(this.nextReqPromise);
       clearTimeout(this.nextReqPromise);
 
-      delete this.nextReq;      
+      delete this.nextReq;
 
       if (this.checkConnectionPeriod < 1.5) {
         this.checkConnectionPeriod = 0;
@@ -566,7 +566,7 @@ export function MtpNetworkerFactory() {
     var self = this;
 
     if (Object.keys(this.pendingMessages).length > 0) {
-      
+
       for(var item in this.pendingMessages) {
         var value = this.sentMessages[item];
 
@@ -574,7 +574,7 @@ export function MtpNetworkerFactory() {
         var messageID = value.msg_id;
 
       ////(this.pendingMessages).forEach(function (value, messageID) {
-      ////angular.forEach(this.pendingMessages, function (value, messageID) {      
+      ////angular.forEach(this.pendingMessages, function (value, messageID) {
         ////if (!value || value >= currentTime) {
           if (message = self.sentMessages[messageID]) {
             var messageByteLength = (message.body.byteLength || message.body.length) + 32;
@@ -610,8 +610,8 @@ export function MtpNetworkerFactory() {
 
         // messageID++;
       }
-      ////}); 
-    } 
+      ////});
+    }
 
     //console.log(this.pendingMessages);
 
@@ -642,7 +642,7 @@ export function MtpNetworkerFactory() {
     if (messages.length > 1) {
       var container = new TLSerialization({ mtproto: true, startMaxLength: messagesByteLen + 64 });
       container.storeInt(0x73f1f8dc, 'CONTAINER[id]');
-      container.storeInt(messages.length, 'CONTAINER[count]');      
+      container.storeInt(messages.length, 'CONTAINER[count]');
       var innerMessages = [];
       for (var i = 0; i < messages.length; i++) {
         container.storeLong(messages[i].msg_id, 'CONTAINER[' + i + '][msg_id]');
@@ -694,7 +694,7 @@ export function MtpNetworkerFactory() {
         ////angular.forEach(noResponseMsgs, function (msgID) {
         if (Object.keys(noResponseMsgs).length > 0) {
           for(var msgID in noResponseMsgs) {
-          ////noResponseMsgs.forEach(function (msgID) {  
+          ////noResponseMsgs.forEach(function (msgID) {
             if (self.sentMessages[msgID]) {
               var deferred = self.sentMessages[msgID].deferred;
               delete self.sentMessages[msgID];
@@ -714,7 +714,7 @@ export function MtpNetworkerFactory() {
       if (message.container) {
         ////angular.forEach(message.inner, function (msgID) {
         if (Object.keys(message.inner).length > 0) {
-          ////(message.inner).forEach(function (msgID) {  
+          ////(message.inner).forEach(function (msgID) {
           for(var msgID in (message.inner)) {
             self.pendingMessages[msgID] = 0;
           }
@@ -728,7 +728,7 @@ export function MtpNetworkerFactory() {
 
       ////angular.forEach(noResponseMsgs, function (msgID) {
       if (Object.keys(noResponseMsgs).length > 0) {
-        ////noResponseMsgs.forEach(function (msgID) {  
+        ////noResponseMsgs.forEach(function (msgID) {
         for(var msgID in noResponseMsgs) {
           if (self.sentMessages[msgID]) {
             var deferred = self.sentMessages[msgID].deferred;
@@ -798,8 +798,8 @@ export function MtpNetworkerFactory() {
     var paddingLength = (16 - (data.offset % 16)) + 16 * (1 + nextRandomInt(5));
     var padding = new Array(paddingLength);
 
-    padding = generateSecureRandomBytes(padding);    
-    
+    padding = generateSecureRandomBytes(padding);
+
     var dataWithPadding = bufferConcat(dataBuffer, padding);
     // console.log(dT(), 'Adding padding', dataBuffer, padding, dataWithPadding)
     // console.log(dT(), 'auth_key_id', bytesToHex(self.authKeyID))
@@ -815,25 +815,25 @@ export function MtpNetworkerFactory() {
       var requestData = xhrSendBuffer ? request.getBuffer() : request.getArray();
 
       var requestPromise;
-      
+
       // var url = "https://venus.web.telegram.org/apiw1";
       ////var url = Config.App.ipAddr;
-      var url = mtpDcConfigurator.chooseServer(self.dcID, self.upload);      
+      var url = mtpDcConfigurator.chooseServer(self.dcID, self.upload);
 
       var baseError = { code: 406, type: 'NETWORK_BAD_RESPONSE', url: url };
 
       try {
-                        
+
         options = Object.assign({}, options || {}, {
             responseType: 'arraybuffer',
             transformRequest: null
         });
-        
+
         //console.log("url", url);
         //console.log("requestData", requestData);
-        //console.log("options", options);              
+        //console.log("options", options);
 
-        requestPromise = httpClient2.post(url, requestData, options);        
+        requestPromise = httpClient2.post(url, requestData, options);
 
         // requestPromise = httpClient.post(url, requestData, {
         //   responseType: 'arraybuffer',
@@ -852,7 +852,7 @@ export function MtpNetworkerFactory() {
         },
         function (error) {
           if (!error.message && !error.type) {
-            // error = angular.extend(baseError, { type: 'NETWORK_BAD_REQUEST', originalError: error });                        
+            // error = angular.extend(baseError, { type: 'NETWORK_BAD_REQUEST', originalError: error });
             error = Object.assign({}, baseError, { type: 'NETWORK_BAD_REQUEST', originalError: error });
           }
           return $q.reject(error);
@@ -969,9 +969,9 @@ export function MtpNetworkerFactory() {
     });
   };
 
-  MtpNetworker.prototype.applyServerSalt = function (newServerSalt) {    
-    var serverSalt = longToBytes(newServerSalt);    
-    var ssk = `dc_2_server_salt`;
+  MtpNetworker.prototype.applyServerSalt = function (newServerSalt) {
+    var serverSalt = longToBytes(newServerSalt);
+    var ssk = `dc${this.dcID}_server_salt`;
     storage.set(ssk, bytesToHex(serverSalt));
     this.serverSalt = serverSalt;
     return true;
@@ -1015,7 +1015,7 @@ export function MtpNetworkerFactory() {
     this.sheduleRequest(30000);
   };
 
-  MtpNetworker.prototype.reqResendMessage = function (msgID) {    
+  MtpNetworker.prototype.reqResendMessage = function (msgID) {
     //console.log('reqResendMessage', msgID);
     this.pendingResends.push(msgID);
     this.sheduleRequest(100);
@@ -1029,7 +1029,7 @@ export function MtpNetworkerFactory() {
     ////console.log('clean start', this.dcID/*, this.sentMessages*/);
     ////angular.forEach(this.sentMessages, function (message, msgID) {
     if (Object.keys(this.sentMessages).length > 0) {
-      ////this.sentMessages.forEach(function (message, msgID) {        
+      ////this.sentMessages.forEach(function (message, msgID) {
       for(var item in this.sentMessages) {
         var message = this.sentMessages[item];
         var msgID = message.msg_id;
@@ -1111,8 +1111,8 @@ export function MtpNetworkerFactory() {
         ////console.log('Bad server salt', message);
         var sentMessage = this.sentMessages[message.bad_msg_id];
         if (!sentMessage || sentMessage.seq_no != message.bad_msg_seqno) {
-          ////console.log(message.bad_msg_id, message.bad_msg_seqno);          
-          throw new Error('[MT] Bad server salt for invalid message');          
+          ////console.log(message.bad_msg_id, message.bad_msg_seqno);
+          throw new Error('[MT] Bad server salt for invalid message');
         }
 
         this.applyServerSalt(message.new_server_salt);
@@ -1207,7 +1207,7 @@ export function MtpNetworkerFactory() {
         }
         break;
 
-      case 'rpc_result':          
+      case 'rpc_result':
         this.ackMessage(messageID);
 
         var sentMessageID = message.req_msg_id;
@@ -1218,7 +1218,7 @@ export function MtpNetworkerFactory() {
         if (sentMessage) {
           var deferred = sentMessage.deferred;
           if (message.result._ == 'rpc_error') {
-            ////var error = this.processError(message.result);            
+            ////var error = this.processError(message.result);
             if (deferred) {
               console.log('Rpc error !!!!!!!!', message.result);
               deferred.reject(message.result);
