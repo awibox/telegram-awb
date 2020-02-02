@@ -1,5 +1,8 @@
+import MessengerApi from 'api/MessengerApi';
 import { getTime, transformDate } from 'utils';
-import * as storage from 'utils/storage';
+import ChatList from 'components/ChatList';
+import MessageList from 'components/MessageList';
+import storage from 'utils/storage';
 import 'styles/messenger.scss';
 
 const wordsList = {
@@ -7,8 +10,12 @@ const wordsList = {
 };
 
 class Messenger {
-  constructor(client) {
-    this.client = client;
+  constructor() {
+    // Components
+    this.chatList = '';
+    this.messageList = new MessageList();
+    // API
+    this.api = new MessengerApi();
     this.LIMIT = 20;
     this.messageObj = '';
     this.messagesScroll = '';
@@ -21,6 +28,18 @@ class Messenger {
     this.lastMessage = {};
     this.messageForScroll = null;
   }
+  // NEW STAFF
+  setActiveChat(chat) {
+
+    if(document.querySelector('.chats__item_active')) {
+      document.querySelector('.chats__item_active').classList.remove('chats__item_active');
+    }
+    const chatElement = document.getElementById(`chat-${chat.id}`);
+    chatElement.classList.add('chats__item_active');
+    const messageList = new MessageList();
+    messageList.loadMessages(chat.id, chat.access_hash, chat.isChannel);
+  }
+  // OLD CONTENT
   onUpdate(update) {
     if(update['@type'] === 'updateNewMessage') {
       this.addChat(update.message.chat_id, true);
@@ -167,13 +186,6 @@ class Messenger {
       <div class="chats__item-status">Online</div>
       </div>`;
   }
-  setActiveChat(chat) {
-    if(document.querySelector('.chats__item_active')) {
-      document.querySelector('.chats__item_active').classList.remove('chats__item_active');
-    }
-    const chatElement = document.getElementById(`chat-${chat.id}`);
-    chatElement.classList.add('chats__item_active');
-  }
   readMessages(chatId, messages){
     this.client.send({
       '@type': 'viewMessages',
@@ -184,7 +196,7 @@ class Messenger {
       console.error(error);
     });
   }
-  messageList(chat, lastMessage, getHistory) {
+  messageList2(chat, lastMessage, getHistory) {
     const MESSAGES_LIMIT = this.LIMIT;
     const MESSAGES_OFFSET = 0;
     if(!getHistory) {
@@ -385,14 +397,19 @@ class Messenger {
     });
   }
   render() {
-    this.messagesScroll = document.getElementById('messagesScroll');
-    this.chatInfo = document.getElementById('chatInfo');
-    this.chatsScroll = document.getElementById('chatsScroll');
-    this.messageObj = document.getElementById('messages');
-    this.messagesScroll.onscroll = () => this.scrollMessages(this.messagesScroll);
-    this.chatsScroll.onscroll = () => this.scrollChats(this.chatsScroll);
-    this.chatList(0, '9223372036854775807', true);
-    this.client.onUpdate = (update) => this.onUpdate(update);
+    // this.messagesScroll = document.getElementById('messagesScroll');
+    // this.chatInfo = document.getElementById('chatInfo');
+    // this.chatsScroll = document.getElementById('chatsScroll');
+    // this.messageObj = document.getElementById('messages');
+    // this.messagesScroll.onscroll = () => this.scrollMessages(this.messagesScroll);
+    // this.chatsScroll.onscroll = () => this.scrollChats(this.chatsScroll);
+    // this.chatList(0, '9223372036854775807', true);
+
+    this.chatList = new ChatList(this.setActiveChat);
+    this.messageList = new MessageList();
+    this.chatList.init();
+    this.messageList.init();
+
   }
 }
 export default Messenger;
