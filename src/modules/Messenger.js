@@ -36,8 +36,10 @@ class Messenger {
     }
     const chatElement = document.getElementById(`chat-${chat.id}`);
     chatElement.classList.add('chats__item_active');
+    const peer = this.api.getInputPeerByID(chat.id, chat.access_hash, chat.isChannel);
     const messageList = new MessageList();
-    messageList.loadMessages(chat.id, chat.access_hash, chat.isChannel);
+    messageList.init();
+    messageList.loadMessages(peer);
   }
   // OLD CONTENT
   onUpdate(update) {
@@ -246,16 +248,7 @@ class Messenger {
     })();
     storage.setObject('chat', chat);
   }
-  scrollChats(chatsObj) {
-    if((chatsObj.scrollHeight - chatsObj.offsetHeight) === chatsObj.scrollTop) {
-      this.chatList(this.lastChatId, this.lastChatOrder, false);
-    }
-  }
-  scrollMessages(messagesObj) {
-    if(messagesObj.scrollTop === 0) {
-      this.messageList(this.chat, this.lastMessage, true);
-    }
-  }
+
   addChat(chatId, isUpdate) {
     (async () => {
       const response = await this.client.send({
