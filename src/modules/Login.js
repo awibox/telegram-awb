@@ -11,7 +11,11 @@ class Login {
     this.isReadyForSending = true;
     this.state = {
       countryId: '',
+      countryInput: '',
       phoneNumber: '',
+      phoneNumberInput: '',
+      phoneNumberSendButton: '',
+      countryArrow: '',
     }
   }
   sendPhoneNumber(phoneNumber) {
@@ -24,16 +28,13 @@ class Login {
         this.state.phoneNumberSendButton.innerText = 'NEXT';
       }, 3000);
       this.api.sendCode(phoneNumber).then((response) => {
-        console.log('sendPhoneNumber', response);
-        if (response["_"] === 'auth.sentCode') {
-          const phoneCodeHash = response.phone_code_hash;
-          this.router.goToRoute('confirm.html', () => {
-            const confirm = new Confirm(this.router, phoneNumber, phoneCodeHash);
-            confirm.render();
-          });
-        }
+        const phoneCodeHash = response.phone_code_hash;
+        const answerType = response["_"];
+        this.router.goToRoute('confirm.html', () => {
+          const confirm = new Confirm(this.router, phoneNumber, phoneCodeHash, answerType);
+          confirm.render();
+        });
       }).catch((error) => {
-        console.error(error);
         this.state.phoneNumberInput.className = addClass(this.state.phoneNumberInput.className, 'login__input_error');
       })
     }
@@ -78,7 +79,7 @@ class Login {
     this.hideCountriesList();
   }
 
-  getDefautCountry(code) {
+  getDefaultCountry(code) {
     Countries.forEach((item) => {
       if(item.code === code) {
         this.setCountry(item.name, item.dial_code)
@@ -139,7 +140,7 @@ class Login {
       this.state.phoneNumber.addEventListener('focusin', () => this.onFocusPhone());
       this.state.phoneNumberSendButton.addEventListener('click', () => this.sendPhoneNumber(phoneNumber.value));
       this.state.countryArrow = document.getElementById('countryArrow');
-      this.getDefautCountry(countryCode);
+      this.getDefaultCountry(countryCode);
     });
   }
 }
