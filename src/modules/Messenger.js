@@ -1,5 +1,5 @@
 import MessengerApi from 'api/MessengerApi';
-import { getTime, transformDate } from 'utils';
+import { getTime, transformDate } from 'utils/index';
 import ChatList from 'components/ChatList';
 import MessageList from 'components/MessageList';
 import storage from 'utils/storage';
@@ -369,6 +369,7 @@ class Messenger {
       f(request.result);
     };
   }
+
   getFile(fileId, fileOdjId, photoHeight){
     this.connectDB((db) => {
       const request = db.transaction(['keyvaluepairs'], "readonly").objectStore('keyvaluepairs').get(fileId);
