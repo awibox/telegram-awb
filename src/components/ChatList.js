@@ -89,12 +89,12 @@ class ChatList {
         this.addChat(chat);
         this.lastChat = chat;
         if(!!chat.avatar) {
-          // setTimeout(() => this.api.getFile2(chat.avatar).then(item => {
-          //   console.log('item FILEEE', item);
-          // }), 100);
-          // this.api.getFile(chat.avatar).then(item => {
-          //   console.log('item FILE', item);
-          // });
+          this.api.getFile(chat.avatar).then((response) => {
+            const base64 = "data:image/jpeg;base64," + btoa(String.fromCharCode.apply(null, response.bytes));
+            document.getElementById(`avatar-${chat.id}`).style.backgroundImage = `url(${base64})`;
+          }).catch((error) => {
+            console.error(error);
+          })
         }
       });
     })

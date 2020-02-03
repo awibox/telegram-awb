@@ -47,5 +47,8 @@
     "webpack-cli": "^3.3.10",
     "webpack-dev-server": "^3.8.0",
     "zlibt": "^0.0.5"
+  },
+  "dependencies": {
+    "telegram-mtproto": "^2.2.2"
   }
 }
