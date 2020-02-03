@@ -1,11 +1,11 @@
 import MtpApiManager from '../mtproto/mtpApiManager';
 import query from 'q';
-
-
+import MtpApiFileManager from 'mtproto/MtpApiFileManager';
 
 class MessengerApi {
   constructor() {
     this.client = new MtpApiManager();
+    this.fileApi = new MtpApiFileManager();
   }
 
   getChats(flags, offset_id, offset_date, offer_peer, limit) {
@@ -20,10 +20,8 @@ class MessengerApi {
     }, {
       timeout: 4000
     }).then(function (result) {
-      console.log('get DIALOGS: ', result);
       deferred.resolve(result);
-    }, (error) => {
-      console.log('get DIALOGS error: ', error);
+    }).catch((error) => {
       deferred.reject(error);
     });
 
@@ -77,13 +75,52 @@ class MessengerApi {
     }).then(function (result) {
       console.log('get MESSAGES: ', result);
       deferred.resolve(result);
-    }, (error) => {
+    }).catch((error) => {
       console.log('get MESSAGES error: ', error);
       deferred.reject(error);
     });
 
     return deferred.promise;
   }
+
+
+  getFile2(location){
+    this.fileApi.downloadSmallFile(location, this.client).then(r => {
+      console.log('r', r);
+    }).catch(e => {
+      console.log('e', e);
+    });
+  }
+
+  getFile(location){
+    const deferred = query.defer();
+    location['_'] = 'inputFileLocation';
+
+    this.client.invokeApi('upload.getFile', {
+      location: location,
+      offset: 0,
+      limit: 1024 * 1024
+    }, {
+      dcID: location.dc_id,
+      fileDownload: true,
+      createNetworker: true,
+      noErrorBox: true
+    }).then((file) => {
+      console.log('file', file);
+      deferred.resolve(file);
+      this.fileApi.downloadSmallFile(location, deferred.promise).then(r => {
+        console.log('r', r);
+        debugger;
+      }).catch(e => {
+        console.log('e', e);
+      });
+      // deferred.resolve(file)
+    }).catch((error) => {
+      deferred.reject(error);
+    });
+    return deferred.promise;
+  }
+
 }
 
 export default MessengerApi;
