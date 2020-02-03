@@ -1,10 +1,10 @@
-import MtpDcConfigurator from './mtpDcConfigurator';
 import MtpRsaKeysManager from './mtpRsaKeysManager';
 import TLSerialization from './tlSerialization';
 import TLDeserialization from './tlDeserialization';
 import MtpTimeManager from './mtpTimeManager';
 import CryptoWorker from './cryptoWorker';
 import httpClient from './http';
+import Config from '../config';
 
 import {
     nextRandomInt, bytesCmp, bytesToHex, sha1BytesSync,
@@ -17,7 +17,6 @@ import $q from 'q';
 import { BigInteger, generateSecureRandomBytes } from './vendor/jsbn_combined';
 ///import { generateSecureRandomBytes } from './vendor/jsbn_combined';
 
-const mtpDcConfigurator = new MtpDcConfigurator();
 const mtpRsaKeysManager = new MtpRsaKeysManager();
 const mtpTimeManager = new MtpTimeManager();
 const cryptoWorker = new CryptoWorker();
@@ -25,7 +24,7 @@ const cryptoWorker = new CryptoWorker();
 export default function MtpAuthorizer() {
     var chromeMatches = navigator.userAgent.match(/Chrome\/(\d+(\.\d+)?)/);
     var chromeVersion = chromeMatches && parseFloat(chromeMatches[1]) || false;
-    var xhrSendBuffer = !('ArrayBufferView' in window) && (chromeVersion > 0 && chromeVersion < 30);    
+    var xhrSendBuffer = !('ArrayBufferView' in window) && (chromeVersion > 0 && chromeVersion < 30);
 
     function mtpSendPlainRequest(dcID, requestBuffer) {
         var requestLength = requestBuffer.byteLength,
@@ -46,20 +45,20 @@ export default function MtpAuthorizer() {
         resultArray.set(requestArray, headerArray.length);
 
         var requestData = xhrSendBuffer ? resultBuffer : resultArray, requestPromise;
-                
-        var url = mtpDcConfigurator.chooseServer(dcID);        
+
+        var url = Config.App.url;
 
         var baseError = { code: 406, type: 'NETWORK_BAD_RESPONSE', url: url };
 
         try {
-            
+
             requestPromise = httpClient.post(url, requestData, {
                 responseType: 'arraybuffer',
                 transformRequest: null
-            });            
+            });
 
-        } catch (e) {            
-            requestPromise = $q.reject(Object.assign({}, baseError, {originalError: e}));            
+        } catch (e) {
+            requestPromise = $q.reject(Object.assign({}, baseError, {originalError: e}));
         }
 
         return requestPromise.then(
@@ -76,7 +75,7 @@ export default function MtpAuthorizer() {
 
                     console.log(`auth_key_id: ${auth_key_id}, msg_id: ${msg_id}, msg_len: ${msg_len}`);
                 } catch (e) {
-                    return $q.reject(Object.assign({}, baseError, {originalError: e}));                    
+                    return $q.reject(Object.assign({}, baseError, {originalError: e}));
                 }
 
                 return deserializer;
@@ -84,7 +83,7 @@ export default function MtpAuthorizer() {
             function (error) {
                 if (!error.message && !error.type) {
                     error = Object.assign({}, baseError, {originalError: error});
-                    //error = angular.extend(baseError, { originalError: error });                    
+                    //error = angular.extend(baseError, { originalError: error });
                 }
                 return $q.reject(error);
             }
@@ -125,7 +124,7 @@ export default function MtpAuthorizer() {
             }
 
             console.log('PQ factorization start', auth.pq);
-            
+
             // var pAndQ = cryptoWorker.factorize(auth.pq);
             // auth.p = pAndQ[0];
             // auth.q = pAndQ[1];
@@ -280,7 +279,7 @@ export default function MtpAuthorizer() {
         console.log('dhPrime cmp OK');
 
         var gABigInt = new BigInteger(bytesToHex(gA), 16);
-        var dhPrimeBigInt = new BigInteger(dhPrimeHex, 16);        
+        var dhPrimeBigInt = new BigInteger(dhPrimeHex, 16);
 
         if (gABigInt.compareTo(BigInteger.ONE) <= 0) {
             throw new Error('[MT] DH params are not verified: gA <= 1');
@@ -427,10 +426,6 @@ export default function MtpAuthorizer() {
         var nonce = [];
         for (var i = 0; i < 16; i++) {
             nonce.push(nextRandomInt(0xFF));
-        }
-
-        if (!mtpDcConfigurator.chooseServer(dcID)) {
-            return $q.reject(new Error('[MT] No server found for dc ' + dcID));
         }
 
         var auth = {
