@@ -6,10 +6,7 @@ const Config = {
     hash: apiConfig.api_hash,
     version: '0.7.0',
     domains: ['telegram.awb.pw'],
-    // ipAddr: 'https://aurora.web.telegram.org/apiw1'
-    // ipAddr: 'https://pluto.web.telegram.org/apiw1'
-    ipAddr: 'https://venus.web.telegram.org/apiw1'
-    // ipAddr: 'https://149.154.167.40:443',
+    url: 'https://venus.web.telegram.org/apiw1',
   },
   Modes: {
     // test: location.search.indexOf('test=1') > 0,
@@ -19,6 +16,8 @@ const Config = {
     ssl: location.search.indexOf('ssl=1') > 0 || location.protocol == 'https:' && location.search.indexOf('ssl=0') == -1,
     webcrypto: false,
     nacl: false,
+    memory_only: false,
+    allow_tmpfs: location.search.indexOf('tmpfs=yeahImSureIknowWhatImDoing') > 0 || false,
   },
   Schema: {
     MTProto: {
