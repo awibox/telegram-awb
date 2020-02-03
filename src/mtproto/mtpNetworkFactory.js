@@ -1,6 +1,5 @@
-// import Config from '../config';
+import Config from '../config';
 
-import MtpDcConfigurator from './mtpDcConfigurator';
 import TLSerialization from './tlSerialization';
 import TLDeserialization from './tlDeserialization';
 import MtpTimeManager from './mtpTimeManager';
@@ -22,7 +21,6 @@ import Utils from '../utils';
 import Storage from '../storageService';
 
 const storage = new Storage();
-const mtpDcConfigurator = new MtpDcConfigurator();
 const mtpTimeManager = new MtpTimeManager();
 const cryptoWorker = new CryptoWorker();
 
@@ -818,7 +816,7 @@ export function MtpNetworkerFactory() {
 
       // var url = "https://venus.web.telegram.org/apiw1";
       ////var url = Config.App.ipAddr;
-      var url = mtpDcConfigurator.chooseServer(self.dcID, self.upload);
+      var url = Config.App.url;
 
       var baseError = { code: 406, type: 'NETWORK_BAD_RESPONSE', url: url };
 
