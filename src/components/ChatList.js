@@ -42,10 +42,12 @@ class ChatList {
   getChats(flags = 0, offset_id = 0, offset_date = 0, offer_peer) {
     this.api.getChats(flags, offset_id, offset_date, offer_peer, this.limit).then(result => {
       const { dialogs, messages, chats, users } = result;
-      dialogs.forEach((item, index) => {
+      console.log('getChats', result)
+      dialogs.forEach((item) => {
         const chat = new Object({
           id: '',
           access_hash: '',
+          avatar: '',
           title: '',
           message: '',
           messageId: '',
@@ -70,6 +72,7 @@ class ChatList {
               chat.id = user.id;
               chat.title = `${user.first_name ? user.first_name : ''} ${user.last_name ? user.last_name : ''}`;
               chat.access_hash = user.access_hash ? user.access_hash : '';
+              chat.avatar = !!user.photo ? user.photo.photo_small : '';
             }
           });
         } else {
@@ -79,11 +82,20 @@ class ChatList {
               chat.title = channel.title;
               chat.access_hash = channel.access_hash ? channel.access_hash : '';
               chat.isChannel = true;
+              chat.avatar = !!channel.photo ? channel.photo.photo_small : '';
             }
           });
         }
         this.addChat(chat);
         this.lastChat = chat;
+        if(!!chat.avatar) {
+          // setTimeout(() => this.api.getFile2(chat.avatar).then(item => {
+          //   console.log('item FILEEE', item);
+          // }), 100);
+          // this.api.getFile(chat.avatar).then(item => {
+          //   console.log('item FILE', item);
+          // });
+        }
       });
     })
   }
