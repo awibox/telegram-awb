@@ -3,6 +3,7 @@ import Password from 'modules/Password';
 import storage from 'utils/storage';
 import { addClass, deleteClass } from 'utils/index';
 import 'styles/confirm.scss';
+import Messenger from 'modules/Messenger';
 
 
 class Confirm {
@@ -26,6 +27,10 @@ class Confirm {
       this.api.checkConfirmCode(this.phoneNumber, this.phoneCodeHash, confirmCode)
         .then((response) => {
           console.log("GO to MESSAGE");
+          this.router.goToRoute('im.html', () => {
+            const messenger = new Messenger();
+            messenger.render();
+          });
         }).catch((error) => {
         if(error.error_message === "SESSION_PASSWORD_NEEDED") {
           this.api.getPasswordState().then((result) => {
