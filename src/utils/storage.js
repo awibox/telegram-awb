@@ -9,7 +9,7 @@ const storage = {
     localStorage.setItem(key, JSON.stringify(value));
   },
   getObject: function(key) {
-    return JSON.parse(localStorage.getItem(key)) ? JSON.parse(localStorage.getItem(key)) : {};
+    return JSON.parse(localStorage.getItem(key)) ? JSON.parse(localStorage.getItem(key)) : null;
   },
   remove: function(key) {
     localStorage.removeItem(key);

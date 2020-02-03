@@ -12,10 +12,10 @@ const wordsList = {
 class Messenger {
   constructor() {
     // Components
-    this.chatList = '';
+    this.chatList = new MessengerApi();
     this.messageList = new MessageList();
     // API
-    this.api = new MessengerApi();
+    this.api = {};
     this.LIMIT = 20;
     this.messageObj = '';
     this.messagesScroll = '';

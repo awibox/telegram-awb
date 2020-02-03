@@ -1,17 +1,10 @@
-import MtpApiManager from '../mtproto/mtpApiManager';
-import query from 'q';
-import MtpApiFileManager from 'mtproto/MtpApiFileManager';
-
 class MessengerApi {
   constructor() {
-    this.client = new MtpApiManager();
-    this.fileApi = new MtpApiFileManager();
+    this.client = telegramApi;
   }
 
   getChats(flags, offset_id, offset_date, offer_peer, limit) {
-    const deferred = query.defer();
-
-    this.client.invokeApi('messages.getDialogs', {
+    return this.client.invokeApi('messages.getDialogs', {
       flags: 0,
       offset_date: offset_date,
       offset_id: offset_id,
@@ -19,13 +12,7 @@ class MessengerApi {
       limit: limit
     }, {
       timeout: 4000
-    }).then(function (result) {
-      deferred.resolve(result);
-    }).catch((error) => {
-      deferred.reject(error);
     });
-
-    return deferred.promise;
   }
 
   getInputPeerByID(peerId, hashId, isChannel) {
@@ -61,66 +48,25 @@ class MessengerApi {
   }
 
   getMessages(peer, offset_id, add_offset, limit) {
-    const deferred = query.defer();
-
     const request = {
       peer: peer,
       offset_id: offset_id,
       add_offset: add_offset,
       limit: limit
     };
-
-    this.client.invokeApi('messages.getHistory', request, {
-      timeout: 4000
-    }).then(function (result) {
-      console.log('get MESSAGES: ', result);
-      deferred.resolve(result);
-    }).catch((error) => {
-      console.log('get MESSAGES error: ', error);
-      deferred.reject(error);
-    });
-
-    return deferred.promise;
-  }
-
-
-  getFile2(location){
-    this.fileApi.downloadSmallFile(location, this.client).then(r => {
-      console.log('r', r);
-    }).catch(e => {
-      console.log('e', e);
-    });
+    return this.client.invokeApi('messages.getHistory', request, { timeout: 4000 });
   }
 
   getFile(location){
-    const deferred = query.defer();
-    location['_'] = 'inputFileLocation';
-
-    this.client.invokeApi('upload.getFile', {
-      location: location,
+    const inputLocation = location;
+    inputLocation['_'] = 'inputFileLocation';
+    console.log(inputLocation);
+    return this.client.invokeApi('upload.getFile', {
+      location: inputLocation,
       offset: 0,
       limit: 1024 * 1024
-    }, {
-      dcID: location.dc_id,
-      fileDownload: true,
-      createNetworker: true,
-      noErrorBox: true
-    }).then((file) => {
-      console.log('file', file);
-      deferred.resolve(file);
-      this.fileApi.downloadSmallFile(location, deferred.promise).then(r => {
-        console.log('r', r);
-        debugger;
-      }).catch(e => {
-        console.log('e', e);
-      });
-      // deferred.resolve(file)
-    }).catch((error) => {
-      deferred.reject(error);
-    });
-    return deferred.promise;
+    })
   }
-
 }
 
 export default MessengerApi;

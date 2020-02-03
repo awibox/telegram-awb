@@ -28,6 +28,12 @@ class Login {
         this.state.phoneNumberSendButton.innerText = 'NEXT';
       }, 3000);
       this.api.sendCode(phoneNumber).then((response) => {
+        console.log(response);
+        phone_registered: true
+        phone_code_hash: "d3043ff46db65c1a81"
+        send_call_timeout: 3600
+        is_password: false
+        console.log('phone_registered', response.phone_registered)
         const phoneCodeHash = response.phone_code_hash;
         const answerType = response["_"];
         this.router.goToRoute('confirm.html', () => {
@@ -128,7 +134,7 @@ class Login {
   }
 
   render() {
-    this.api.getCountry().then((countryCode) => {
+    this.api.getCountry().then((response) => {
       this.state.countryId = document.getElementById('countryId');
       this.state.countryInput = document.getElementById('countryInput');
       this.state.phoneNumber = document.getElementById('phoneNumber');
@@ -140,7 +146,7 @@ class Login {
       this.state.phoneNumber.addEventListener('focusin', () => this.onFocusPhone());
       this.state.phoneNumberSendButton.addEventListener('click', () => this.sendPhoneNumber(phoneNumber.value));
       this.state.countryArrow = document.getElementById('countryArrow');
-      this.getDefaultCountry(countryCode);
+      this.getDefaultCountry(response.country);
     });
   }
 }
