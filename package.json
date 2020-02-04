@@ -6,7 +6,9 @@
   "scripts": {
     "start": "webpack-dev-server --open",
     "build": "NODE_ENV=production webpack --mode production",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint --report-unused-disable-directives src",
+    "fix": "eslint --fix --report-unused-disable-directives src"
   },
   "repository": {
     "type": "git",
@@ -23,13 +25,18 @@
   "homepage": "https://github.com/awibox/telegram-awb#readme",
   "devDependencies": {
     "@babel/core": "^7.6.4",
+    "@babel/types": "7.0.0-beta.40",
     "@goodmind/node-cryptojs-aes": "^0.5.0",
     "autoprefixer": "^9.7.1",
     "axios": "^0.19.2",
+    "babel-eslint": "8.2.2",
     "babel-loader": "^8.0.6",
     "copy-webpack-plugin": "^5.0.5",
     "cryptojs": "^2.5.3",
     "css-loader": "^3.2.0",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.20.1",
     "file-loader": "^4.2.0",
     "html-webpack-plugin": "^3.2.0",
     "image-webpack-loader": "^6.0.0",
