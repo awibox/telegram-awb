@@ -1,10 +1,16 @@
-import { bigStringInt, convertToUint8Array, nextRandomInt, sha1BytesSync } from 'mtproto/js/lib/bin_utils';
+import {
+    bigStringInt,
+    bytesCmp, bytesFromArrayBuffer, bytesToArrayBuffer,
+    bytesToHex,
+    convertToUint8Array, longToBytes,
+    nextRandomInt,
+    sha1BytesSync, uintToInt,
+} from 'mtproto/js/lib/bin_utils';
 import { extend, forEach, isObject } from 'mtproto/js/Etc/Helper';
-import { TLSerialization } from 'mtproto/js/lib/tl_utils';
+import { TLDeserialization, TLSerialization } from 'mtproto/js/lib/tl_utils';
 import { dT, tsNow } from 'mtproto/js/lib/utils';
 
 export default function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, CryptoWorker, MtpDcConfigurator, $timeout, $interval, $q, $http) {
-    console.log('Config MtpNetworkerFactoryModule', Config);
     var updatesProcessor,
         akStopped = false,
         chromeMatches = navigator.userAgent.match(/Chrome\/(\d+(\.\d+)?)/),
