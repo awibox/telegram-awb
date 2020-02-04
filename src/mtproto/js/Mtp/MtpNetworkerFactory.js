@@ -342,14 +342,16 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
 
             this.onOnlineCb = this.checkConnection.bind(this);
 
-            $(document.body).on('online focus', this.onOnlineCb);
+            document.body.addEventListener('online', () => this.onOnlineCb);
+            document.body.addEventListener('focus', () => this.onOnlineCb);
         } else {
             delete this.longPollPending;
             this.checkLongPoll();
             this.sheduleRequest();
 
             if (this.onOnlineCb) {
-                $(document.body).off('online focus', this.onOnlineCb);
+                document.body.removeEventListener('online', () => this.onOnlineCb);
+                document.body.removeEventListener('focus', () => this.onOnlineCb);
             }
             $timeout.cancel(this.checkConnectionPromise);
         }

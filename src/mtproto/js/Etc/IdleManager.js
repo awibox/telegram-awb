@@ -1,4 +1,4 @@
-function IdleManagerModule($rootScope, $timeout, $) {
+function IdleManagerModule($rootScope, $timeout) {
     $rootScope.idle = {isIDLE: false};
 
     var toPromise, started = false;
@@ -25,7 +25,20 @@ function IdleManagerModule($rootScope, $timeout, $) {
     function start() {
         if (!started) {
             started = true;
-            $(window).on(visibilityChange + ' blur focus keydown mousedown touchstart', onEvent);
+            function handleVisibilityChange() {
+                if(document.hidden) {
+                    // the page is hidden
+                } else {
+                    // the page is visible
+                }
+            }
+
+            window.addEventListener(visibilityChange, () => onEvent, false);
+            window.addEventListener('blur', () => onEvent);
+            window.addEventListener('focus', () => onEvent);
+            window.addEventListener('keydown', () => onEvent);
+            window.addEventListener('mousedown', () => onEvent);
+            window.addEventListener('touchstart', () => onEvent);
 
             setTimeout(function () {
                 onEvent({type: 'blur'});
@@ -40,7 +53,8 @@ function IdleManagerModule($rootScope, $timeout, $) {
             if (e && e.movementX === 0 && e.movementY === 0) {
                 return;
             }
-            $(window).off('mousemove', onEvent);
+            window.removeEventListener('mousemove', () => onEvent);
+
         }
 
         var isIDLE = e.type == 'blur' || e.type == 'timeout' ? true : false;
@@ -57,13 +71,12 @@ function IdleManagerModule($rootScope, $timeout, $) {
         }
 
         if (isIDLE && e.type == 'timeout') {
-            $(window).on('mousemove', onEvent);
+            window.addEventListener('mousemove', () => onEvent);
         }
     }
 }
 
 IdleManagerModule.dependencies = [
-    '$rootScope', 
+    '$rootScope',
     '$timeout',
-    'jQuery'
 ];

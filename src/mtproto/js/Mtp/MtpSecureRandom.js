@@ -1,8 +1,5 @@
-function MtpSecureRandomModule($) {
-    $(window).on('click keydown', rng_seed_time);
+function MtpSecureRandomModule() {
+    document.window.addEventListener('click', () => rng_seed_time);
+    document.window.addEventListener('keydown', () => rng_seed_time);
     return new SecureRandom();
 }
-
-MtpSecureRandomModule.dependencies = [
-    'jQuery'
-];
