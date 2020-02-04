@@ -1,4 +1,7 @@
-function AppUsersManagerModule(Storage, MtpApiManager) {
+import { forEach, isObject } from 'mtproto/js/Etc/Helper';
+import { safeReplaceObject, tsNow } from 'mtproto/js/lib/utils';
+
+export default function AppUsersManagerModule(Storage, MtpApiManager) {
     var users = {},
         userAccess = {},
         myID,
@@ -107,6 +110,6 @@ function AppUsersManagerModule(Storage, MtpApiManager) {
 }
 
 AppUsersManagerModule.dependencies = [
-    'Storage', 
+    'Storage',
     'MtpApiManager'
 ];

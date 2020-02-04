@@ -10,17 +10,26 @@ import Confirm from 'modules/Confirm';
 import Password from 'modules/Password';
 import Registration from 'modules/Registration';
 
-import 'mtproto/IoC';
+import 'long/dist/long.js';
+import 'zlibjs/bin/gunzip.min.js';
+import 'rusha/rusha.min.js';
+import './mtproto/js/lib/polyfill';
+import './mtproto/vendor/cryptoJS/crypto.min';
+import './mtproto/js/lib/config';
+import './mtproto/IoC';
+
 
 class App{
   constructor() {
     this.router = {};
-    this.client = telegramApi;
+    this.client = 'telegramApi';
     this.isAuth = !!storage.getObject('user_auth');
   }
 
   init() {
-    this.client.setConfig(apiConfig);
+    console.log('telegramApi', telegramApi);
+    telegramApi.setConfig(apiConfig);
+    console.log('FSDFSDFDSFDFDSFDSF');
     this.router = new Router([
       new Route('login', 'login.html'),
       new Route('confirm', 'confirm.html'),
@@ -29,7 +38,7 @@ class App{
       new Route('im', 'im.html'),
     ]);
     const self = this;
-    this.client.getUserInfo().then(function(user) {
+    telegramApi.getUserInfo().then(function(user) {
       console.log('user', user, self);
       if (user.id) {
         self.router.goToRoute('im.html', () => {
@@ -42,7 +51,9 @@ class App{
           login.render();
         });
       }
-    });
+    }).catch((error) => {
+      console.log('error', error);
+    })
   }
 }
 

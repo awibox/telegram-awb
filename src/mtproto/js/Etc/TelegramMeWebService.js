@@ -1,4 +1,6 @@
-function TelegramMeWebServiceModule(Storage) {
+import { tsNow } from 'mtproto/js/lib/utils';
+
+export default function TelegramMeWebServiceModule(Storage) {
     var disabled = location.protocol != 'http:' && location.protocol != 'https:';
 
     function sendAsyncRequest(canRedirect) {
@@ -18,7 +20,6 @@ function TelegramMeWebServiceModule(Storage) {
 
             var script = document.createElement('script');
             script.src = '//telegram.me/_websync_?authed=' + (canRedirect ? '1' : '0');
-            script.addEventListener('error');
             script.onerror = () => {
                 document.body.removeChild(script);
             };

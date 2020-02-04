@@ -1,4 +1,4 @@
-function AppProfileManagerModule(AppChatsManager, AppUsersManager, MtpApiManager, $q) {
+export default function AppProfileManagerModule(AppChatsManager, AppUsersManager, MtpApiManager, $q) {
     var chatsFull = {};
     var chatFullPromises = {};
 

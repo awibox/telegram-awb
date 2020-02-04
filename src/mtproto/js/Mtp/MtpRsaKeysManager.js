@@ -1,4 +1,8 @@
-function MtpRsaKeysManagerModule() {
+import { TLSerialization } from 'mtproto/js/lib/tl_utils';
+import { bigStringInt, bytesFromHex, bytesToHex, sha1BytesSync } from 'mtproto/js/lib/bin_utils';
+import { extend } from 'mtproto/js/Etc/Helper';
+
+export default function MtpRsaKeysManagerModule() {
     /**
      *  Server public key, obtained from here: https://core.telegram.org/api/obtaining_api_id
      *

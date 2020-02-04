@@ -1,4 +1,4 @@
-function qSyncModule() {
+export default function qSyncModule() {
     return {
         when: function (result) {
             return {

@@ -1,4 +1,4 @@
-function AppPeersManagerModule(AppChatsManager, AppUsersManager) {
+export default function AppPeersManagerModule(AppChatsManager, AppUsersManager) {
     function getInputPeerByID(peerID) {
         if (!peerID) {
             return {_: 'inputPeerEmpty'};
@@ -56,6 +56,6 @@ function AppPeersManagerModule(AppChatsManager, AppUsersManager) {
 }
 
 AppPeersManagerModule.dependencies = [
-    'AppChatsManager', 
+    'AppChatsManager',
     'AppUsersManager'
 ];

@@ -1,4 +1,4 @@
-function $rootScopeModule() {
+export default function $rootScopeModule() {
     return {};
 }
 

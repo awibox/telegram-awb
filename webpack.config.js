@@ -139,7 +139,7 @@ module.exports = {
   },
   devServer: {
     contentBase: './dist',
-    port: 8000,
+    port: 4000,
     historyApiFallback: true,
     publicPath: '/',
   },

@@ -1,4 +1,7 @@
-function AppChatsManagerModule() {
+import { forEach, isObject } from 'mtproto/js/Etc/Helper';
+import { safeReplaceObject } from 'mtproto/js/lib/utils';
+
+export default function AppChatsManagerModule() {
     var chats = {},
         channelAccess = {};
 

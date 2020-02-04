@@ -1,4 +1,4 @@
-function $httpModule($q) {
+export default function $httpModule($q) {
     return {
         post: function (url, data) {
             var defer = $q.defer();
