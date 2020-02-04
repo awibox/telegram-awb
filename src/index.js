@@ -10,14 +10,6 @@ import Confirm from 'modules/Confirm';
 import Password from 'modules/Password';
 import Registration from 'modules/Registration';
 
-import 'long/dist/long.js';
-import 'zlibjs/bin/gunzip.min.js';
-import 'rusha/rusha.min.js';
-import './mtproto/js/lib/polyfill';
-import './mtproto/vendor/cryptoJS/crypto.min';
-import './mtproto/js/lib/config';
-import './mtproto/IoC';
-
 
 class App{
   constructor() {
