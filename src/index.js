@@ -23,13 +23,10 @@ class App{
   constructor() {
     this.router = {};
     this.client = 'telegramApi';
-    this.isAuth = !!storage.getObject('user_auth');
   }
 
   init() {
-    console.log('telegramApi', telegramApi);
     telegramApi.setConfig(apiConfig);
-    console.log('FSDFSDFDSFDFDSFDSF');
     this.router = new Router([
       new Route('login', 'login.html'),
       new Route('confirm', 'confirm.html'),
