@@ -1,4 +1,4 @@
-function FileSaverModule($timeout) {
+export default function FileSaverModule($timeout) {
     function save(bytes, fileName) {
         // TODO: Improve
         var a = document.createElement('a');

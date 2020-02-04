@@ -5,7 +5,18 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
- function TLSerialization (options) {
+import {
+  bigStringInt,
+  bigint,
+  bytesToArrayBuffer,
+  bytesToHex,
+  gzipUncompress,
+  intToUint,
+  uintToInt,
+} from 'mtproto/js/lib/bin_utils';
+import { isArray, isObject } from 'mtproto/js/Etc/Helper';
+
+export function TLSerialization (options) {
   options = options || {};
   this.maxLength = options.startMaxLength || 2048; // 2Kb
   this.offset = 0; // in bytes
@@ -336,7 +347,7 @@ TLSerialization.prototype.storeObject = function (obj, type, field) {
 
 
 
-function TLDeserialization (buffer, options) {
+export function TLDeserialization (buffer, options) {
   options = options || {};
 
   this.offset = 0; // in bytes

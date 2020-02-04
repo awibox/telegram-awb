@@ -1,4 +1,7 @@
-function MtpApiManagerModule(MtpSingleInstanceService, MtpNetworkerFactory, MtpAuthorizer, Storage, TelegramMeWebService, qSync, $q) {
+import { bytesFromHex, bytesToHex } from 'mtproto/js/lib/bin_utils';
+import { isObject } from 'mtproto/js/Etc/Helper';
+
+export default function MtpApiManagerModule(MtpSingleInstanceService, MtpNetworkerFactory, MtpAuthorizer, Storage, TelegramMeWebService, qSync, $q) {
     var cachedNetworkers = {},
         cachedUploadNetworkers = {},
         cachedExportPromise = {},
@@ -262,11 +265,11 @@ function MtpApiManagerModule(MtpSingleInstanceService, MtpNetworkerFactory, MtpA
 }
 
 MtpApiManagerModule.dependencies = [
-    'MtpSingleInstanceService', 
-    'MtpNetworkerFactory', 
-    'MtpAuthorizer', 
-    'Storage', 
-    'TelegramMeWebService', 
-    'qSync', 
+    'MtpSingleInstanceService',
+    'MtpNetworkerFactory',
+    'MtpAuthorizer',
+    'Storage',
+    'TelegramMeWebService',
+    'qSync',
     '$q'
 ];

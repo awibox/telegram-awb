@@ -1,4 +1,16 @@
-function MtpAuthorizerModule(MtpTimeManager, MtpDcConfigurator, MtpRsaKeysManager, CryptoWorker, MtpSecureRandom, $q, $timeout, $http) {
+import { extend } from 'mtproto/js/Etc/Helper';
+import { TLDeserialization, TLSerialization } from 'mtproto/js/lib/tl_utils';
+import { dT, tsNow } from 'mtproto/js/lib/utils';
+import {
+    aesDecryptSync, aesEncryptSync,
+    bytesCmp, bytesFromHex,
+    bytesToArrayBuffer,
+    bytesToHex, bytesXor, nextRandomInt,
+    rsaEncrypt,
+    sha1BytesSync,
+} from 'mtproto/js/lib/bin_utils';
+
+export default function MtpAuthorizerModule(MtpTimeManager, MtpDcConfigurator, MtpRsaKeysManager, CryptoWorker, MtpSecureRandom, $q, $timeout, $http) {
     var chromeMatches = navigator.userAgent.match(/Chrome\/(\d+(\.\d+)?)/),
         chromeVersion = chromeMatches && parseFloat(chromeMatches[1]) || false,
         xhrSendBuffer = !('ArrayBufferView' in window) && (!chromeVersion || chromeVersion < 30);
@@ -369,12 +381,12 @@ function MtpAuthorizerModule(MtpTimeManager, MtpDcConfigurator, MtpRsaKeysManage
 }
 
 MtpAuthorizerModule.dependencies = [
-    'MtpTimeManager', 
-    'MtpDcConfigurator', 
-    'MtpRsaKeysManager', 
-    'CryptoWorker', 
-    'MtpSecureRandom', 
-    '$q', 
-    '$timeout', 
+    'MtpTimeManager',
+    'MtpDcConfigurator',
+    'MtpRsaKeysManager',
+    'CryptoWorker',
+    'MtpSecureRandom',
+    '$q',
+    '$timeout',
     '$http'
 ];

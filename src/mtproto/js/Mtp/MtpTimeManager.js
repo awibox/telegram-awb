@@ -1,4 +1,7 @@
-function MtpTimeManagerModule(Storage) {
+import { longFromInts, nextRandomInt } from 'mtproto/js/lib/bin_utils';
+import { dT, tsNow } from 'mtproto/js/lib/utils';
+
+export default function MtpTimeManagerModule(Storage) {
     var lastMessageID = [0, 0],
         timeOffset = 0;
 

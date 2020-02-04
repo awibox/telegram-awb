@@ -1,8 +1,9 @@
-function MtpDcConfiguratorModule() {
+export default function MtpDcConfiguratorModule() {
     var chosenServers = {};
 
     function chooseServer(dcID, upload) {
         var dcOptions = Config.Modes.test ? Config.Server.Test : Config.Server.Production;
+        console.log('dcOptions', dcOptions, Config);
 
         if (chosenServers[dcID] === undefined) {
             var chosenServer = false,

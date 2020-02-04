@@ -1,4 +1,4 @@
-function $timeoutModule($q) {
+export default function $timeoutModule($q) {
     var timeout = function (cb, t) {
         var defer = $q.defer();
         var promise = defer.promise;

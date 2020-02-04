@@ -1,4 +1,6 @@
-function StorageModule($q) {
+import { forEach, toArray } from 'mtproto/js/Etc/Helper';
+
+export default function StorageModule($q) {
     var methods = {};
 
     forEach(['get', 'set', 'remove'], function (methodName) {

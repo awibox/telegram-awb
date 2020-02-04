@@ -1,4 +1,4 @@
-function IdleManagerModule($rootScope, $timeout) {
+export default function IdleManagerModule($rootScope, $timeout) {
     $rootScope.idle = {isIDLE: false};
 
     var toPromise, started = false;

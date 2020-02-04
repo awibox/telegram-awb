@@ -1,4 +1,4 @@
-function MtpApiFileManagerModule(MtpApiManager, $q) {
+export default function MtpApiFileManagerModule(MtpApiManager, $q) {
     var cachedFs = false;
     var cachedFsPromise = false;
     var cachedSavePromises = {};
@@ -162,6 +162,6 @@ function MtpApiFileManagerModule(MtpApiManager, $q) {
 }
 
 MtpApiFileManagerModule.dependencies = [
-    'MtpApiManager', 
+    'MtpApiManager',
     '$q'
 ];

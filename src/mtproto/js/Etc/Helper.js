@@ -1,4 +1,4 @@
-function forEach(obj, iterator, context) {
+export function forEach(obj, iterator, context) {
     if (!obj) {
         return;
     }
@@ -18,23 +18,23 @@ function forEach(obj, iterator, context) {
     }
 }
 
-function isObject(value) {
+export function isObject(value) {
     return value !== null && typeof value === 'object';
 }
 
-function isString(value) {
+export function isString(value) {
     return typeof value == 'string';
 }
 
-function isArray(value) {
+export function isArray(value) {
     return Array.isArray(value);
 }
 
-function isFunction(value) {
+export function isFunction(value) {
     return typeof value == 'function';
 }
 
-function extend() {
+export function extend() {
     var objects = toArray(arguments);
     var obj = objects[0];
 
@@ -47,7 +47,7 @@ function extend() {
     return obj;
 }
 
-function map(array, iterator) {
+export function map(array, iterator) {
     var result = [];
 
     forEach(array, function (obj) {
@@ -57,7 +57,7 @@ function map(array, iterator) {
     return result;
 }
 
-function min(array) {
+export function min(array) {
     var min = array[0];
 
     forEach(array, function (obj) {
@@ -68,7 +68,7 @@ function min(array) {
 
     return min;
 }
-function toArray(obj) {
+export function toArray(obj) {
     return Array.prototype.slice.call(obj);
 }
 

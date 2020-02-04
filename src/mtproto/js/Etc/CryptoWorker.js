@@ -1,4 +1,12 @@
-function CryptoWorkerModule($timeout) {
+import {
+    aesEncryptSync, bytesModPow,
+    convertToArrayBuffer,
+    convertToByteArray, pqPrimeFactorization,
+    sha1HashSync,
+    sha256HashSync,
+} from 'mtproto/js/lib/bin_utils';
+
+export default function CryptoWorkerModule($timeout) {
     return {
         sha1Hash: function (bytes) {
             return $timeout(function () {

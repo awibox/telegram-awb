@@ -1,23 +1,21 @@
 // Console-polyfill. MIT license.
 // https://github.com/paulmillr/console-polyfill
 // Make it safe to do console.log() always.
-;(function(global) {
-  'use strict';
-  global.console = global.console || {};
-  var con = global.console;
-  var prop, method;
-  var empty = {};
-  var dummy = function() {};
-  var properties = 'memory'.split(',');
-  var methods = ('assert,clear,count,debug,dir,dirxml,error,exception,group,' +
-     'groupCollapsed,groupEnd,info,log,markTimeline,profile,profiles,profileEnd,' +
-     'show,table,time,timeEnd,timeline,timelineEnd,timeStamp,trace,warn').split(',');
-  while (prop = properties.pop()) if (!con[prop]) con[prop] = empty;
-  while (method = methods.pop()) if (!con[method]) con[method] = dummy;
-})(typeof window === 'undefined' ? this : window);
+'use strict';
+window.console = window.console || {};
+var con = window.console;
+var prop, method;
+var empty = {};
+var dummy = function() {};
+var properties = 'memory'.split(',');
+var methods = ('assert,clear,count,debug,dir,dirxml,error,exception,group,' +
+   'groupCollapsed,groupEnd,info,log,markTimeline,profile,profiles,profileEnd,' +
+   'show,table,time,timeEnd,timeline,timelineEnd,timeStamp,trace,warn').split(',');
+while (prop = properties.pop()) if (!con[prop]) con[prop] = empty;
+while (method = methods.pop()) if (!con[method]) con[method] = dummy;
 // Using `this` for web workers while maintaining compatibility with browser
 // targeted script loaders such as Browserify or Webpack where the only way to
-// get to the global object is via `window`.
+// get to the window object is via `window`.
 
 /* Array.indexOf polyfill */
 if (!Array.prototype.indexOf) {
@@ -102,34 +100,32 @@ if (!Function.prototype.bind) {
 }
 
 /* setZeroTimeout polyfill, from http://dbaron.org/log/20100309-faster-timeouts */
-(function(global) {
-  var timeouts = [];
-  var messageName = 'zero-timeout-message';
+var timeouts = [];
+var messageName = 'zero-timeout-message';
 
-  function setZeroTimeout(fn) {
-    timeouts.push(fn);
-    global.postMessage(messageName, '*');
-  }
+function setZeroTimeout(fn) {
+  timeouts.push(fn);
+  window.postMessage(messageName, '*');
+}
 
-  function handleMessage(event) {
-    if (event.source == global && event.data == messageName) {
-      event.stopPropagation();
-      if (timeouts.length > 0) {
-        var fn = timeouts.shift();
-        fn();
-      }
+function handleMessage(event) {
+  if (event.source == window && event.data == messageName) {
+    event.stopPropagation();
+    if (timeouts.length > 0) {
+      var fn = timeouts.shift();
+      fn();
     }
   }
+}
 
-  global.addEventListener('message', handleMessage, true);
+window.addEventListener('message', handleMessage, true);
 
-  var originalSetTimeout = global.setTimeout;
-  global.setTimeout = function (callback, delay) {
-    if (!delay || delay <= 5) {
-      return setZeroTimeout(callback);
-    }
-    return originalSetTimeout(callback, delay);
-  };
+var originalSetTimeout = window.setTimeout;
+window.setTimeout = function (callback, delay) {
+  if (!delay || delay <= 5) {
+    return setZeroTimeout(callback);
+  }
+  return originalSetTimeout(callback, delay);
+};
 
-  global.setZeroTimeout = setZeroTimeout;
-})(this);
+window.setZeroTimeout = setZeroTimeout;

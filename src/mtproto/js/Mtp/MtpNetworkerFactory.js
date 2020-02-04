@@ -1,4 +1,10 @@
-function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, CryptoWorker, MtpDcConfigurator, $timeout, $interval, $q, $http) {
+import { bigStringInt, convertToUint8Array, nextRandomInt, sha1BytesSync } from 'mtproto/js/lib/bin_utils';
+import { extend, forEach, isObject } from 'mtproto/js/Etc/Helper';
+import { TLSerialization } from 'mtproto/js/lib/tl_utils';
+import { dT, tsNow } from 'mtproto/js/lib/utils';
+
+export default function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, CryptoWorker, MtpDcConfigurator, $timeout, $interval, $q, $http) {
+    console.log('Config MtpNetworkerFactoryModule', Config);
     var updatesProcessor,
         akStopped = false,
         chromeMatches = navigator.userAgent.match(/Chrome\/(\d+(\.\d+)?)/),
@@ -210,7 +216,7 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
             longPoll: true
         }).then(function () {
             delete self.longPollPending;
-            setZeroTimeout(self.checkLongPoll.bind(self));
+            setTimeout(self.checkLongPoll.bind(self));
         }, function () {
             console.log('Long-poll failed');
         });

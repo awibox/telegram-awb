@@ -1,4 +1,8 @@
-function MtpSingleInstanceServiceModule(IdleManager, Storage, MtpNetworkerFactory, $interval, $rootScope, $timeout) {
+import {nextRandomInt} from '../lib/bin_utils';
+import {tsNow} from '../lib/utils';
+import { dT } from 'mtproto/js/lib/utils';
+
+export default function MtpSingleInstanceServiceModule(IdleManager, Storage, MtpNetworkerFactory, $interval, $rootScope, $timeout) {
     var instanceID = nextRandomInt(0xFFFFFFFF);
     var started = false;
     var masterInstance = false;
