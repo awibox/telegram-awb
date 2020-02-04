@@ -1,4 +1,4 @@
-function MtpSingleInstanceServiceModule(IdleManager, Storage, MtpNetworkerFactory, $interval, $rootScope, $timeout, $) {
+function MtpSingleInstanceServiceModule(IdleManager, Storage, MtpNetworkerFactory, $interval, $rootScope, $timeout) {
     var instanceID = nextRandomInt(0xFFFFFFFF);
     var started = false;
     var masterInstance = false;
@@ -15,7 +15,7 @@ function MtpSingleInstanceServiceModule(IdleManager, Storage, MtpNetworkerFactor
             checkInstance();
 
             try {
-                $(window).on('beforeunload', clearInstance);
+                window.addEventListener('beforeunload', () => clearInstance)
             } catch (e) {
             }
         }
@@ -88,11 +88,10 @@ function MtpSingleInstanceServiceModule(IdleManager, Storage, MtpNetworkerFactor
 }
 
 MtpSingleInstanceServiceModule.dependencies = [
-    'IdleManager', 
+    'IdleManager',
     'Storage',
     'MtpNetworkerFactory',
-    '$interval', 
-    '$rootScope', 
+    '$interval',
+    '$rootScope',
     '$timeout',
-    'jQuery'
 ];

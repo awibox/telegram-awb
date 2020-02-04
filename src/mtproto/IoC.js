@@ -22,7 +22,6 @@ builder.register('MtpTimeManager', MtpTimeManagerModule);
 // Register Angular modules
 builder.register('$http', $httpModule);
 builder.register('$interval', $intervalModule);
-builder.register('$q', $qModule);
 builder.register('$rootScope', $rootScopeModule);
 builder.register('$timeout', $timeoutModule);
 
