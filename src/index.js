@@ -10,6 +10,8 @@ import Confirm from 'modules/Confirm';
 import Password from 'modules/Password';
 import Registration from 'modules/Registration';
 
+import 'mtproto/IoC';
+
 class App{
   constructor() {
     this.router = {};
