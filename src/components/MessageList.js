@@ -15,9 +15,9 @@ class MessageList {
   }
 
   scrollMessages() {
-    if(this.messagesScroll.scrollTop === 0) {
+    if (this.messagesScroll.scrollTop === 0) {
       console.log('this.lastMessage', this.lastMessage);
-      this.loadMessages(this.lastMessage.peer, this.lastMessage.id, 20)
+      this.loadMessages(this.lastMessage.peer, this.lastMessage.id, 20);
     }
   }
 
@@ -26,7 +26,7 @@ class MessageList {
     messageView.className = 'messages__item';
     messageView.id = `message-${message.id}`;
     const isOutgoing = message.is_outgoing;
-    if(isOutgoing) {
+    if (isOutgoing) {
       messageView.className = 'messages__item messages__item_out';
     }
     messageView.innerHTML = `
@@ -37,9 +37,9 @@ class MessageList {
         ${message.date}
       </div>
       </div>`;
-    if(!!!update) {
+    if (!update) {
       this.messageObj.prepend(messageView);
-      if(reset) {
+      if (reset) {
         this.messagesScroll.scrollTop = this.messagesScroll.scrollHeight;
       }
     } else {
@@ -49,7 +49,7 @@ class MessageList {
   }
 
   loadMessages(peer, offset_id = 0, add_offset = 0) {
-    if(offset_id === 0) {
+    if (offset_id === 0) {
       this.messageObj.innerHTML = '';
     }
     this.api.getMessages(peer, offset_id, add_offset, this.limit).then((response) => {
@@ -61,12 +61,12 @@ class MessageList {
           timestamp: item.date,
           date: getTime(item.date),
           is_outgoing: false,
-          peer
+          peer,
         });
         this.addMessage(message, false, offset_id === 0);
         this.lastMessage = message;
-      })
-    })
+      });
+    });
   }
 
   init() {

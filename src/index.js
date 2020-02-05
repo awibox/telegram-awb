@@ -11,7 +11,7 @@ import Password from 'modules/Password';
 import Registration from 'modules/Registration';
 
 
-class App{
+class App {
   constructor() {
     this.router = {};
     this.client = 'telegramApi';
@@ -27,7 +27,7 @@ class App{
       new Route('im', 'im.html'),
     ]);
     const self = this;
-    telegramApi.getUserInfo().then(function(user) {
+    telegramApi.getUserInfo().then((user) => {
       console.log('user', user, self);
       if (user.id) {
         self.router.goToRoute('im.html', () => {
@@ -42,7 +42,7 @@ class App{
       }
     }).catch((error) => {
       console.log('error', error);
-    })
+    });
   }
 }
 
