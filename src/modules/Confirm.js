@@ -26,7 +26,7 @@ class Confirm {
     if (confirmCode.length === 5) {
       this.api.checkConfirmCode(this.phoneNumber, this.phoneCodeHash, confirmCode)
         .then((response) => {
-          console.log("GO to MESSAGE");
+          console.log("response", response);
           this.router.goToRoute('im.html', () => {
             const messenger = new Messenger();
             messenger.render();
