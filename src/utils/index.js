@@ -5,6 +5,11 @@ export const getTime = (date) => {
   return `${numberStabilization(dateObj.getHours())}:${numberStabilization(dateObj.getMinutes())}`;
 };
 
+export function tsNow (seconds) {
+  var t = +new Date() + (window.tsOffset || 0)
+  return seconds ? Math.floor(t / 1000) : t
+}
+
 export function transformDate(date) {
   const dateObj = new Date(date*1000);
   const currentDate = new Date();
