@@ -31,7 +31,6 @@ builder.register('IdleManager', IdleManagerModule);
 builder.register('qSync', qSyncModule);
 builder.register('Storage', StorageModule);
 builder.register('TelegramMeWebService', TelegramMeWebServiceModule);
-builder.register('jQuery', jQueryModule);
 builder.register('FileSaver', FileSaverModule);
 
 // Register TelegramApi module
