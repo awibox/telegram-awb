@@ -18,7 +18,7 @@ builder.register('MtpSecureRandom', MtpSecureRandomModule);
 builder.register('MtpSingleInstanceService', MtpSingleInstanceServiceModule);
 builder.register('MtpTimeManager', MtpTimeManagerModule);
 
-// Register Angular modules
+// Register helps modules
 builder.register('$http', $httpModule);
 builder.register('$interval', $intervalModule);
 builder.register('$q', $qModule);
