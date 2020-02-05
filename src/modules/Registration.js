@@ -8,6 +8,7 @@ class Registration {
     this.isReadyForSending = true;
     this.invalid = false;
   }
+
   onChangeName(name, nameContainer) {
     if (name.length > 0) {
       nameContainer.className = `registration__input registration__input_active ${this.invalid ? 'registration__input_error' : ''}`;
@@ -15,8 +16,9 @@ class Registration {
       nameContainer.className = `registration__input ${this.invalid ? 'registration__input_error' : ''}`;
     }
   }
+
   sendData(registrationSendButton, registrationName, registrationNameInput, registrationLastNameInput) {
-    if(this.isReadyForSending) {
+    if (this.isReadyForSending) {
       registrationSendButton.innerText = 'Wait...';
       this.isReadyForSending = false;
       setTimeout(() => {
@@ -26,13 +28,14 @@ class Registration {
       this.client.send({
         '@type': 'registerUser',
         first_name: registrationNameInput.value,
-        last_name: registrationLastNameInput.value
+        last_name: registrationLastNameInput.value,
       }).catch(() => {
         registrationName.className = 'registration__input registration__input_error';
         this.invalid = true;
       });
     }
   }
+
   render() {
     const registrationName = document.getElementById('registrationName');
     const registrationNameInput = document.getElementById('registrationNameInput');
@@ -41,7 +44,7 @@ class Registration {
     const registrationSendButton = document.getElementById('registrationSendButton');
     registrationNameInput.addEventListener('keyup', () => this.onChangeName(registrationNameInput.value, registrationName));
     registrationLastNameInput.addEventListener('keyup', () => this.onChangeName(registrationLastNameInput.value, registrationLastName));
-    registrationSendButton.addEventListener('click', () => this.sendData(registrationSendButton, registrationName, registrationNameInput, registrationLastNameInput))
+    registrationSendButton.addEventListener('click', () => this.sendData(registrationSendButton, registrationName, registrationNameInput, registrationLastNameInput));
   }
 }
 export default Registration;

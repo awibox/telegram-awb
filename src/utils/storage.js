@@ -1,22 +1,22 @@
 const storage = {
-  set: function(key, value) {
-    localStorage.setItem(key, value)
+  set(key, value) {
+    localStorage.setItem(key, value);
   },
-  get: function(key) {
+  get(key) {
     return localStorage.getItem(key) ? localStorage.getItem(key) : null;
   },
-  setObject: function(key, value) {
+  setObject(key, value) {
     localStorage.setItem(key, JSON.stringify(value));
   },
-  getObject: function(key) {
+  getObject(key) {
     return JSON.parse(localStorage.getItem(key)) ? JSON.parse(localStorage.getItem(key)) : null;
   },
-  remove: function(key) {
+  remove(key) {
     localStorage.removeItem(key);
   },
-  clear: function() {
-    localStorage.clear()
-  }
+  clear() {
+    localStorage.clear();
+  },
 };
 
 export default storage;
