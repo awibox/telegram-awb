@@ -7,6 +7,7 @@ gulp.task('js', function () {
         'node_modules/zlibjs/bin/gunzip.min.js',
         'node_modules/rusha/rusha.min.js',
         'node_modules/ioc-js/dist/ioc-js.min.js',
+        'node_modules/q/q.js',
 
         'src/vendor/**/*.js',
         'src/js/**/*.js',
@@ -15,8 +16,6 @@ gulp.task('js', function () {
         'src/IoC.js'
     ])
         .pipe(gulpLoadPlugin.concat('mtproto.js'))
-        .pipe(gulpLoadPlugin.rename({suffix: '.min'}))
-        .pipe(gulpLoadPlugin.uglify())
         .pipe(gulp.dest('../dist'));
 });
 

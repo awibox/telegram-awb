@@ -274,7 +274,6 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
         sha1dText.set(msgKey, 0);
         sha1dText.set(authKey.subarray(x + 96, x + 128), 16);
         promises.sha1d = CryptoWorker.sha1Hash(sha1dText);
-
         return $q.all(promises).then(function (result) {
             var aesKey = new Uint8Array(32),
                 aesIv = new Uint8Array(32),
@@ -342,14 +341,16 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
 
             this.onOnlineCb = this.checkConnection.bind(this);
 
-            $(document.body).on('online focus', this.onOnlineCb);
+            document.body.addEventListener('online', this.onOnlineCb);
+            document.body.addEventListener('focus', this.onOnlineCb);
         } else {
             delete this.longPollPending;
             this.checkLongPoll();
             this.sheduleRequest();
 
             if (this.onOnlineCb) {
-                $(document.body).off('online focus', this.onOnlineCb);
+                document.body.removeEventListener('online', this.onOnlineCb);
+                document.body.removeEventListener('focus', this.onOnlineCb);
             }
             $timeout.cancel(this.checkConnectionPromise);
         }
