@@ -12,7 +12,7 @@ import Registration from 'modules/Registration';
 class App{
   constructor() {
     this.router = {};
-    this.isAuth = !!storage.getObject('auth_user');
+    this.isAuth = true;
   }
 
   init() {

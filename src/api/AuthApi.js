@@ -69,6 +69,7 @@ class AuthApi {
     const options = {dcID: 2, createNetworker: true};
     this.client.invokeApi('account.getPassword', {}, options)
       .then((result) => {
+        console.log('result', result)
         deferred.resolve(result);
       }).catch((error) => {
         deferred.reject(error);

@@ -1,11 +1,11 @@
 import MtpApiManager from '../mtproto/mtpApiManager';
 import query from 'q';
-import MtpApiFileManager from 'mtproto/MtpApiFileManager';
+// import MtpApiFileManager from 'mtproto/MtpApiFileManager';
 
 class MessengerApi {
   constructor() {
     this.client = new MtpApiManager();
-    this.fileApi = new MtpApiFileManager();
+    // this.fileApi = new MtpApiFileManager();
   }
 
   getChats(flags, offset_id, offset_date, offer_peer, limit) {
@@ -83,15 +83,6 @@ class MessengerApi {
     return deferred.promise;
   }
 
-
-  getFile2(location){
-    this.fileApi.downloadSmallFile(location, this.client).then(r => {
-      console.log('r', r);
-    }).catch(e => {
-      console.log('e', e);
-    });
-  }
-
   getFile(location){
     const deferred = query.defer();
     location['_'] = 'inputFileLocation';
@@ -108,12 +99,6 @@ class MessengerApi {
     }).then((file) => {
       console.log('file', file);
       deferred.resolve(file);
-      this.fileApi.downloadSmallFile(location, deferred.promise).then(r => {
-        console.log('r', r);
-        debugger;
-      }).catch(e => {
-        console.log('e', e);
-      });
       // deferred.resolve(file)
     }).catch((error) => {
       deferred.reject(error);
