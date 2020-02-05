@@ -1,6 +1,7 @@
 import storage from 'utils/storage';
 import query from 'q';
 import apiConfig from 'config/api';
+
 class AuthApi {
   constructor() {
     this.client = telegramApi;
@@ -28,7 +29,7 @@ class AuthApi {
 
   getPasswordState() {
     const deferred = query.defer();
-    const options = {dcID: 2, createNetworker: true};
+    const options = { dcID: 2, createNetworker: true };
     this.client.invokeApi('account.getPassword', {}, options)
       .then((result) => {
         deferred.resolve(result);
