@@ -33,10 +33,10 @@ class Confirm {
             messenger.render();
           });
         }).catch((error) => {
-          if (error.error_message === 'SESSION_PASSWORD_NEEDED') {
+          if (error.type === 'SESSION_PASSWORD_NEEDED') {
             this.api.getPasswordState().then((result) => {
               this.router.goToRoute('password.html', () => {
-                const password = new Password(result.current_salt);
+                const password = new Password(this.router, result.current_salt);
                 password.render();
               });
             });
