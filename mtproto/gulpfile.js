@@ -7,7 +7,6 @@ gulp.task('js', function () {
         'node_modules/zlibjs/bin/gunzip.min.js',
         'node_modules/rusha/rusha.min.js',
         'node_modules/ioc-js/dist/ioc-js.min.js',
-        'node_modules/q/q.js',
 
         'src/vendor/**/*.js',
         'src/js/**/*.js',
