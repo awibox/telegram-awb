@@ -1,10 +1,12 @@
 import AuthApi from 'api/AuthApi';
 import { addClass, deleteClass } from 'utils/index';
 import 'styles/password.scss';
+import Messenger from 'modules/Messenger';
 
 class Password {
-  constructor(salt) {
+  constructor(router, salt) {
     this.api = new AuthApi();
+    this.router = router;
     this.salt = salt;
     this.showPassword = false;
   }
@@ -12,6 +14,10 @@ class Password {
   sendPasswordCode(passwordCode, passwordCodeInput) {
     this.api.checkPassword(this.salt, passwordCode).then((response) => {
       console.log('this.api.checkPassword !!!!!!!!!!!', response);
+      this.router.goToRoute('im.html', () => {
+        const messenger = new Messenger();
+        messenger.render();
+      });
     }).catch((error) => {
       console.error(error);
       passwordCodeInput.className = addClass(passwordCodeInput.className, 'password__input_error');

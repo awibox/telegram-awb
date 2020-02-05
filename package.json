@@ -44,6 +44,7 @@
     "postcss-flexbugs-fixes": "^4.1.0",
     "postcss-loader": "^3.0.0",
     "postcss-modules-values": "^3.0.0",
+    "q": "^1.5.1",
     "sass-loader": "^8.0.0",
     "terser-webpack-plugin": "^2.2.1",
     "url-loader": "^2.2.0",
