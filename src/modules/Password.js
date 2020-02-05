@@ -8,6 +8,7 @@ class Password {
     this.salt = salt;
     this.showPassword = false;
   }
+
   sendPasswordCode(passwordCode, passwordCodeInput) {
     this.api.checkPassword(this.salt, passwordCode).then((response) => {
       console.log('this.api.checkPassword !!!!!!!!!!!', response);
@@ -16,8 +17,9 @@ class Password {
       passwordCodeInput.className = addClass(passwordCodeInput.className, 'password__input_error');
     });
   }
+
   setLabel(passwordCode, passwordCodeInput, passwordEye) {
-    if(passwordCode.length > 0) {
+    if (passwordCode.length > 0) {
       passwordCodeInput.className = addClass(passwordCodeInput.className, 'password__input_active');
       passwordEye.style.visibility = 'visible';
       passwordEye.style.opacity = '0.5';
@@ -26,6 +28,7 @@ class Password {
       passwordEye.style.opacity = '0';
     }
   }
+
   showPasswordCode(passwordEye, passwordImg, passwordCode) {
     if (this.showPassword) {
       passwordEye.className = 'password__input-eye';
@@ -38,6 +41,7 @@ class Password {
     }
     this.showPassword = !this.showPassword;
   }
+
   render() {
     const passwordCodeInput = document.getElementById('passwordInput');
     const passwordEye = document.getElementById('passwordEye');

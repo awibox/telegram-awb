@@ -16,11 +16,12 @@ class Login {
       phoneNumberInput: '',
       phoneNumberSendButton: '',
       countryArrow: '',
-    }
+    };
   }
+
   sendPhoneNumber(phoneNumber) {
     storage.set('phone', phoneNumber);
-    if(this.isReadyForSending) {
+    if (this.isReadyForSending) {
       this.state.phoneNumberSendButton.innerText = 'PLEASE WAIT...';
       this.isReadyForSending = false;
       setTimeout(() => {
@@ -29,20 +30,20 @@ class Login {
       }, 3000);
       this.api.sendCode(phoneNumber).then((response) => {
         console.log(response);
-        phone_registered: true
-        phone_code_hash: "d3043ff46db65c1a81"
-        send_call_timeout: 3600
-        is_password: false
-        console.log('phone_registered', response.phone_registered)
+        true;
+        'd3043ff46db65c1a81';
+        3600;
+        false;
+        console.log('phone_registered', response.phone_registered);
         const phoneCodeHash = response.phone_code_hash;
-        const answerType = response["_"];
+        const answerType = response._;
         this.router.goToRoute('confirm.html', () => {
           const confirm = new Confirm(this.router, phoneNumber, phoneCodeHash, answerType);
           confirm.render();
         });
       }).catch((error) => {
         this.state.phoneNumberInput.className = addClass(this.state.phoneNumberInput.className, 'login__input_error');
-      })
+      });
     }
   }
 
@@ -60,7 +61,7 @@ class Login {
   }
 
   showCountriesList() {
-    this.state.countryArrow.className = addClass(this.state.countryArrow.className, 'active')
+    this.state.countryArrow.className = addClass(this.state.countryArrow.className, 'active');
     this.countryBox(this.state.countryId.value);
     const countryList = document.getElementById('countriesList');
     countryList.className = 'countriesList show';
@@ -70,7 +71,7 @@ class Login {
   }
 
   hideCountriesList() {
-    this.state.countryArrow.className = deleteClass(this.state.countryArrow.className, 'active')
+    this.state.countryArrow.className = deleteClass(this.state.countryArrow.className, 'active');
     const countryList = document.getElementById('countriesList');
     countryList.className = 'countriesList';
     const closeZone = document.getElementById('closeZone');
@@ -87,8 +88,8 @@ class Login {
 
   getDefaultCountry(code) {
     Countries.forEach((item) => {
-      if(item.code === code) {
-        this.setCountry(item.name, item.dial_code)
+      if (item.code === code) {
+        this.setCountry(item.name, item.dial_code);
       }
     });
   }
@@ -103,11 +104,10 @@ class Login {
     countryList.innerHTML = '';
     let count = 0;
     Countries.forEach((item) => {
-      if(item.name.toLocaleLowerCase().indexOf(countryName.toLocaleLowerCase()) > -1) {
+      if (item.name.toLocaleLowerCase().indexOf(countryName.toLocaleLowerCase()) > -1) {
         const countryItem = document.createElement('div');
         countryItem.className = 'countryItem';
-        countryItem.innerHTML =
-          `<div class="flag">${item.emoji ? item.emoji : ''}</div>
+        countryItem.innerHTML = `<div class="flag">${item.emoji ? item.emoji : ''}</div>
            <div class='name'>${item.name}</div>
            <div class='code'>${item.dial_code}</div>`;
         countryItem.addEventListener('click', () => this.setCountry(item.name, item.dial_code));
@@ -115,10 +115,10 @@ class Login {
         count++;
       }
     });
-    if(count === 0) {
+    if (count === 0) {
       const countryItem = document.createElement('div');
       countryItem.className = 'countryItem';
-      countryItem.innerHTML = `<div class="name">Nothing found</div>`;
+      countryItem.innerHTML = '<div class="name">Nothing found</div>';
       countryList.append(countryItem);
     }
   }
@@ -128,6 +128,7 @@ class Login {
     this.state.phoneNumberInput.className = deleteClass(this.state.phoneNumberInput.className, 'login__input_focused');
     this.showCountriesList();
   }
+
   onFocusPhone() {
     this.state.phoneNumberInput.className = addClass(this.state.phoneNumberInput.className, 'login__input_focused');
     this.state.countryInput.className = deleteClass(this.state.countryInput.className, 'login__input_focused');
