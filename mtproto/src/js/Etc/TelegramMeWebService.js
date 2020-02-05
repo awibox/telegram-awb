@@ -1,5 +1,5 @@
 function TelegramMeWebServiceModule(Storage) {
-    var disabled = location.protocol != 'http:' && location.protocol != 'https:';
+    var disabled = Config.Modes.test || location.protocol != 'http:' && location.protocol != 'https:';
 
     function sendAsyncRequest(canRedirect) {
         if (disabled) {

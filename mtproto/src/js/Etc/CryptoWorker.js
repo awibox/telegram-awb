@@ -1,40 +1,38 @@
-function CryptoWorkerModule($timeout) {
+function CryptoWorkerModule($timeout, $q) {
     return {
         sha1Hash: function (bytes) {
-            return $timeout(function () {
-                return sha1HashSync(bytes);
-            });
+            var deferred = $q.defer();
+            deferred.resolve(sha1HashSync(bytes));
+            return deferred.promise;
         },
         sha256Hash: function (bytes) {
-            return $timeout(function () {
-                return sha256HashSync(bytes);
-            });
+            var deferred = $q.defer();
+            deferred.resolve(sha256HashSync(bytes));
+            return deferred.promise;
         },
         aesEncrypt: function (bytes, keyBytes, ivBytes) {
-            return $timeout(function () {
-                return convertToArrayBuffer(aesEncryptSync(bytes, keyBytes, ivBytes));
-            });
+            var deferred = $q.defer();
+            deferred.resolve(convertToArrayBuffer(aesEncryptSync(bytes, keyBytes, ivBytes)));
+            return deferred.promise;
         },
         aesDecrypt: function (encryptedBytes, keyBytes, ivBytes) {
-            return $timeout(function () {
-                return convertToArrayBuffer(aesDecryptSync(encryptedBytes, keyBytes, ivBytes));
-            });
+            var deferred = $q.defer();
+            deferred.resolve(convertToArrayBuffer(aesDecryptSync(encryptedBytes, keyBytes, ivBytes)));
+            return deferred.promise;
         },
         factorize: function (bytes) {
+            var deferred = $q.defer();
             bytes = convertToByteArray(bytes);
-
-            return $timeout(function () {
-                return pqPrimeFactorization(bytes);
-            });
+            deferred.resolve(pqPrimeFactorization(bytes));
+            return deferred.promise;
         },
         modPow: function (x, y, m) {
-            return $timeout(function () {
-                return bytesModPow(x, y, m);
-            });
+            return bytesModPow(x, y, m);
         }
     };
 }
 
 CryptoWorkerModule.dependencies = [
-    '$timeout'
+    '$timeout',
+    '$q'
 ];

@@ -44,6 +44,7 @@ function TelegramApiModule(MtpApiManager, AppPeersManager, MtpApiFileManager, Ap
         subscribe: subscribe,
         unSubscribe: unSubscribe,
         logOut: logOut,
+        generatePasswordHash: generatePasswordHash,
 
         invokeApi: invokeApi,
         dT: dT,
@@ -60,6 +61,14 @@ function TelegramApiModule(MtpApiManager, AppPeersManager, MtpApiFileManager, Ap
      */
     function invokeApi(method, params) {
         return MtpApiManager.invokeApi(method, params);
+    }
+    /**
+     * @function generatePasswordHash
+     * @description Generate Password Hash
+     */
+
+    function generatePasswordHash(salt, password) {
+        return MtpApiManager.makePasswordHash(salt, password);
     }
 
     /**
