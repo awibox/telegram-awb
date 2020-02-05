@@ -5,6 +5,7 @@ import apiConfig from 'config/api';
 class AuthApi {
   constructor() {
     this.client = telegramApi;
+    this.options =  { dcID: 2, createNetworker: true };
   }
 
   setUser(user) {
@@ -16,35 +17,64 @@ class AuthApi {
   }
 
   getCountry() {
-    return this.client.invokeApi('help.getNearestDc');
+    return this.client.invokeApi('help.getNearestDc', {}, this.options)
+
   }
 
   sendCode(phone) {
-    return this.client.sendCode(phone);
+    const deferred = query.defer();
+    const request = {
+      flags: 0,
+      phone_number: phone,
+      api_id: apiConfig.app.id,
+      api_hash: apiConfig.app.hash,
+      lang_code: 'en'
+    };
+    this.client.invokeApi('auth.sendCode', request, this.options).then(function (sentCode) {
+      deferred.resolve(sentCode);
+    }, function (error) {
+      deferred.reject(error);
+    });
+    return deferred.promise;
   }
-
   checkConfirmCode(phoneNumber, phoneCodeHash, phoneCode) {
-    return this.client.signIn(phoneNumber, phoneCodeHash, phoneCode);
+    const deferred = query.defer();
+    const self = this;
+    const request = {
+      phone_number: phoneNumber,
+      phone_code_hash: phoneCodeHash,
+      phone_code: phoneCode
+    };
+
+    this.client.invokeApi('auth.signIn', request, this.options).then((data) => {
+      console.log("signIn success", data);
+      self.setUser(data.user);
+      deferred.resolve(data.user);
+    }, (error) => {
+      console.log('Sign In error', error);
+      deferred.reject(error);
+    });
+
+    return deferred.promise;
   }
 
   getPasswordState() {
     const deferred = query.defer();
-    const options = { dcID: 2, createNetworker: true };
-    this.client.invokeApi('account.getPassword', {}, options)
+    this.client.invokeApi('account.getPassword', {}, this.options)
       .then((result) => {
+        console.log('result', result)
         deferred.resolve(result);
       }).catch((error) => {
-        deferred.reject(error);
-      });
+      deferred.reject(error);
+    });
     return deferred.promise;
   }
 
   checkPassword(salt, password) {
     const deferred = query.defer();
-
-    this.client.makePasswordHash(salt, password).then((passwordHash) => {
-      this.client.invokeApi('auth.checkPassword', { password_hash: passwordHash }).then(() => {
-        console.log('check password success');
+    this.client.generatePasswordHash(salt, password).then((passwordHash) => {
+      this.client.invokeApi('auth.checkPassword', { password_hash: passwordHash }, this.options).then((result) => {
+        console.log('check password success', result);
         deferred.resolve();
       }, (error) => {
         console.log('check password error', error);
