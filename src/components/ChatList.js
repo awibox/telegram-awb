@@ -14,6 +14,7 @@ class ChatList {
     this.lastChat = {};
     this.chatsScroll = '';
     this.chatsObj = '';
+    this.chatsPinnedObj = '';
   }
 
   scrollChats(chatsObj) {
@@ -35,12 +36,22 @@ class ChatList {
         ${chat.arrow ? `<div class="${chat.arrowClass}"></div>`: ''}
         ${chat.date}
     </div>
+    ${chat.pinned && !chat.unread_count ? `<div class="chats__item-pinned"></div>` : ''}
     ${chat.unread_count ? `<div class="chats__item-unread">${chat.unread_count}</div>` : ''}`;
     chatView.addEventListener('click', () => this.setActiveChat(chat));
+    console.log('PIN', chat.title, chat.pinned)
     if (update) {
-      this.chatsObj.prepend(chatView);
+      if(chat.pinned) {
+        this.chatsPinnedObj.prepend(chatView);
+      } else {
+        this.chatsObj.prepend(chatView);
+      }
     } else {
-      this.chatsObj.append(chatView);
+      if(chat.pinned) {
+        this.chatsPinnedObj.append(chatView);
+      } else {
+        this.chatsObj.append(chatView);
+      }
     }
   }
 
@@ -51,7 +62,6 @@ class ChatList {
       } = response.result;
       console.log('getChats', response);
       dialogs.forEach((item) => {
-        console.log('item', item);
         const chat = new Object({
           arrow: '',
           arrowClass: item.read_outbox_max_id >= item.top_message ? 'arrow-read' : 'arrow',
@@ -62,6 +72,7 @@ class ChatList {
           message: '',
           messageId: '',
           peer: item.peer,
+          pinned: !!item.pFlags['pinned'],
           flags: item.flags,
           date: '',
           timestamp: '',
@@ -113,6 +124,7 @@ class ChatList {
 
   init() {
     this.chatsObj = document.getElementById('chats');
+    this.chatsPinnedObj = document.getElementById('pinnedChats');
     this.chatsScroll = document.getElementById('chatsScroll');
     this.getChats();
     this.chatsScroll.onscroll = () => this.scrollChats(this.chatsScroll);

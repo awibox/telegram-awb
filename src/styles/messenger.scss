@@ -1,5 +1,6 @@
 $avatarSize: 55px;
 $unreadSize: 20px;
+$pinnedSize: 24px;
 $defaultIndent: 15px;
 $chatListWidth: 360px;
 $topBarHeight: 60px;
@@ -119,11 +120,13 @@ $topBarHeight: 60px;
     }
   }
 }
+#pinnedChats {
+  border-bottom: 1px solid #eee;
+}
 .chats {
   width: 100%;
   display: flex;
   flex-flow: column;
-  padding: 8px 0;
   &__item {
     box-sizing: border-box;
     padding: 10px 80px;
@@ -131,6 +134,12 @@ $topBarHeight: 60px;
     min-height: 75px;
     position: relative;
     cursor: pointer;
+    &:first-child {
+      margin-top: 8px;
+    }
+    &:last-child {
+      margin-bottom: 8px;
+    }
     &_active {
       background: #F4F4F5;
       border-radius: 10px;
@@ -188,6 +197,20 @@ $topBarHeight: 60px;
       background-color: #4DCD5E;
       border-radius: $unreadSize/2;
       box-sizing: border-box;
+      padding: 0 6px;
+    }
+    &-pinned {
+      position: absolute;
+      bottom: $defaultIndent;
+      right: $defaultIndent;
+      width: $pinnedSize;
+      height: $pinnedSize;
+      border-radius: $pinnedSize/2;
+      box-sizing: border-box;
+      background-image: url(img/icons/pinnedchat_svg.svg);
+      background-size: 24px;
+      background-repeat: no-repeat;
+      background-position: 50% 50%;
       padding: 0 6px;
     }
   }

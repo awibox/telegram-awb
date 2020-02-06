@@ -53,7 +53,6 @@ class MessengerApi {
   getFile(location) {
     const inputLocation = location;
     inputLocation._ = 'inputFileLocation';
-    console.log(inputLocation);
     return this.client.invokeApi('upload.getFile', {
       location: inputLocation,
       offset: 0,
