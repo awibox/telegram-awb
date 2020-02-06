@@ -121,7 +121,7 @@ class ChatList {
     chatView.innerHTML = `
     <div id='${chatPhotoId}' class="chats__item-avatar"></div>
     <div class="chats__item-title">
-        <div class="chats__item-title-text">${chat.title}</div>
+        <div class="chats__item-title-text" title="${chat.title}">${chat.title}</div>
         ${chat.mute ? `<div class="chats__item-mute-icon"></div>`: ''}
     </div>
     <div class="chats__item-last">${chat.arrow ? 'You: ' : ''}${this.getMessage(chat.message)}</div>
@@ -153,6 +153,7 @@ class ChatList {
       const {
         dialogs, messages, chats, users,
       } = result;
+      console.log('getChats', result);
       this.chatsOffset = offset;
       dialogs.forEach((item) => {
         const chat = new Object({
@@ -192,7 +193,7 @@ class ChatList {
           });
         } else {
           chats.forEach((channel) => {
-            if (item.peer.channel_id === channel.id) {
+            if (item.peer.channel_id === channel.id || item.peer.chat_id === channel.id) {
               chat.id = channel.id;
               chat.title = channel.title;
               chat.access_hash = channel.access_hash ? channel.access_hash : '';
