@@ -62,7 +62,7 @@ class AuthApi {
     const deferred = query.defer();
     this.client.invokeApi('account.getPassword', {}, this.options)
       .then((result) => {
-        console.log('result', result)
+        console.log('result', result);
         deferred.resolve(result);
       }).catch((error) => {
       deferred.reject(error);
@@ -71,18 +71,7 @@ class AuthApi {
   }
 
   checkPassword(salt, password) {
-    const deferred = query.defer();
-    this.client.generatePasswordHash(salt, password).then((passwordHash) => {
-      this.client.invokeApi('auth.checkPassword', { password_hash: passwordHash }, this.options).then((result) => {
-        console.log('check password success', result);
-        deferred.resolve();
-      }, (error) => {
-        console.log('check password error', error);
-        deferred.reject(error);
-      });
-    });
-
-    return deferred.promise;
+    return this.client.checkPasswordHash(salt, password);
   }
 }
 
