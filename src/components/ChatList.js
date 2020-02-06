@@ -1,5 +1,6 @@
 import MessengerApi from 'api/MessengerApi';
 import { transformDate } from 'utils/index';
+import storage from 'utils/storage';
 
 class ChatList {
   constructor(setActiveChat) {
@@ -8,6 +9,7 @@ class ChatList {
     // API
     this.limit = 20;
     this.api = new MessengerApi();
+    this.userAuth = storage.getObject('user_auth');
     // State
     this.lastChat = {};
     this.chatsScroll = '';
@@ -29,7 +31,10 @@ class ChatList {
     <div id='${chatPhotoId}' class="chats__item-avatar"></div>
     <div class="chats__item-title">${chat.title}</div>
     <div class="chats__item-last">${chat.message}</div>
-    <div class="chats__item-time">${chat.date}</div>
+    <div class="chats__item-time">
+        ${chat.arrow ? `<div class="${chat.arrowClass}"></div>`: ''}
+        ${chat.date}
+    </div>
     ${chat.unread_count ? `<div class="chats__item-unread">${chat.unread_count}</div>` : ''}`;
     chatView.addEventListener('click', () => this.setActiveChat(chat));
     if (update) {
@@ -40,13 +45,16 @@ class ChatList {
   }
 
   getChats(flags = 0, offset_id = 0, offset_date = 0, offer_peer) {
-    this.api.getChats(flags, offset_id, offset_date, offer_peer, this.limit).then((result) => {
+    this.api.getDialogs(flags, offset_id, offset_date, offer_peer, this.limit).then((response) => {
       const {
         dialogs, messages, chats, users,
-      } = result;
-      console.log('getChats', result);
+      } = response.result;
+      console.log('getChats', response);
       dialogs.forEach((item) => {
+        console.log('item', item);
         const chat = new Object({
+          arrow: '',
+          arrowClass: item.read_outbox_max_id >= item.top_message ? 'arrow-read' : 'arrow',
           id: '',
           access_hash: '',
           avatar: '',
@@ -62,6 +70,7 @@ class ChatList {
         });
         messages.forEach((message) => {
           if (item.top_message === message.id) {
+            chat.arrow = message.from_id === this.userAuth.id;
             chat.message = message.message;
             chat.messageId = message.id;
             chat.timestamp = message.date;
