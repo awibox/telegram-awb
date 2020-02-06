@@ -95,6 +95,24 @@ class ChatList {
     }
   }
 
+  getDefaultAvatarText(title) {
+    if(!!title) {
+      const avatarText = title.split(' ');
+      if(avatarText.length === 1) {
+        return avatarText[0].charAt(0) + avatarText[0].charAt(1);
+      } else {
+        return avatarText[0].charAt(0) + avatarText[1].charAt(0);
+      }
+    } else {
+      return '';
+    }
+  }
+
+  getRandomColor() {
+    const colors = ['#28a745', '#d73a49', '#6f42c1', '#0366d6', '#f66a0a'];
+    return colors[Math.floor(Math.random() * 5)];
+  }
+
   addChat(chat, update) {
     const chatPhotoId = `avatar-${chat.id}`;
     const chatView = document.createElement('div');
@@ -190,7 +208,12 @@ class ChatList {
             document.getElementById(`avatar-${chat.id}`).style.backgroundImage = `url(${base64})`;
           }).catch((error) => {
             console.error(error);
+            document.getElementById(`avatar-${chat.id}`).innerHTML = this.getDefaultAvatarText(chat.title);
+            document.getElementById(`avatar-${chat.id}`).style.backgroundColor = this.getRandomColor();
           });
+        } else {
+          document.getElementById(`avatar-${chat.id}`).innerHTML = this.getDefaultAvatarText(chat.title);
+          document.getElementById(`avatar-${chat.id}`).style.backgroundColor = this.getRandomColor();
         }
       });
     });
