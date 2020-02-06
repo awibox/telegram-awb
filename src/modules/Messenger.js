@@ -15,7 +15,8 @@ class Messenger {
     this.chatList = new MessengerApi();
     this.messageList = new MessageList();
     // API
-    this.api = {};
+    this.api = telegramApi;
+    this.userAuth = storage.getObject('user_auth');
     this.LIMIT = 20;
     this.messageObj = '';
     this.messagesScroll = '';
@@ -42,20 +43,34 @@ class Messenger {
     messageList.loadMessages(peer);
   }
 
-  // OLD CONTENT
   onUpdate(update) {
-    if (update['@type'] === 'updateNewMessage') {
-      this.addChat(update.message.chat_id, true);
-      if (update.message.chat_id === this.chat.id) {
-        this.addMessage(update.message, update);
-        this.readMessages(update.message.chat_id, [update.message]);
-      }
+    console.log('update', update);
+    if(update['_'] === "updates") {
+      const { updates } = update;
+      updates.forEach((item) => {
+        if(item['_'] === 'updateNewMessage') {
+          this.chatList.updateChat(item['_'], item.message);
+        }
+        if(item['_'] === "updateNewChannelMessage") {
+          this.chatList.updateChat(item['_'], item.message);
+        }
+      })
     }
-    if (update['@type'] === 'updateChatReadInbox') {
-      this.updateChatReadInbox(update);
+    if(update['_'] === "updateShortMessage") {
+      this.chatList.updateChat(update);
     }
+    // if (update['@type'] === 'updateNewMessage') {
+    //   this.addChat(update.message.chat_id, true);
+    //   if (update.message.chat_id === this.chat.id) {
+    //     this.addMessage(update.message, update);
+    //     this.readMessages(update.message.chat_id, [update.message]);
+    //   }
+    // }
+    // if (update['@type'] === 'updateChatReadInbox') {
+    //   this.updateChatReadInbox(update);
+    // }
   }
-
+  // OLD CONTENT
   getChatContent(content) {
     if (content['@type'] === 'messageText') {
       return content.text.text;
@@ -406,10 +421,12 @@ class Messenger {
     // this.chatsScroll.onscroll = () => this.scrollChats(this.chatsScroll);
     // this.chatList(0, '9223372036854775807', true);
 
-    this.chatList = new ChatList(this.setActiveChat);
+    this.chatList = new ChatList(this.setActiveChat, this.userAuth);
     this.messageList = new MessageList();
     this.chatList.init();
     this.messageList.init();
+    this.api.subscribe(this.userAuth.id, (update) => this.onUpdate(update));
+    // this.client.onUpdate = (update) => this.onUpdate(update);
   }
 }
 export default Messenger;
