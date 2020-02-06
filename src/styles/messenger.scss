@@ -2,7 +2,7 @@ $avatarSize: 55px;
 $unreadSize: 20px;
 $defaultIndent: 15px;
 $chatListWidth: 360px;
-$chatInfoHeight: 60px;
+$topBarHeight: 60px;
 
 %layout {
   position: absolute;
@@ -16,9 +16,24 @@ $chatInfoHeight: 60px;
 .im {
   display: flex;
   flex-flow: row;
+  align-content: stretch;
+  align-items: stretch;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  &__leftBar {
+    width: $chatListWidth;
+    min-width: $chatListWidth;
+  }
+  &__centerBar {
+    width: 100%;
+  }
+  &__rightBar {
+    width: 0;
+  }
   &__chats {
     @extend %layout;
     width: $chatListWidth;
+    top: $topBarHeight;
     border-right: 1px solid #DDDFE3;
   }
   &__messages {
@@ -26,19 +41,19 @@ $chatInfoHeight: 60px;
     background: #E6EBEE;
     right: 0;
     left: $chatListWidth;
-    top: $chatInfoHeight;
+    top: $topBarHeight;
     bottom: 0;
   }
   &__info {
-    @extend %layout;
+    //@extend %layout;
     position: absolute;
     left: $chatListWidth;
     right: 0;
-    height: $chatInfoHeight;
+    height: $topBarHeight;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
     .chats__item {
       $avatarSize: 44px;
-      min-height: $chatInfoHeight;
+      min-height: $topBarHeight;
       padding: 10px 70px;
       &-title {
         padding: 4px 0;
@@ -55,11 +70,11 @@ $chatInfoHeight: 60px;
   }
 }
 .chatsPanel {
-  position: absolute;
+  //position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  height: 60px;
+  height: $topBarHeight;
   display: flex;
   flex-flow: row;
   &__menu {
@@ -105,7 +120,6 @@ $chatInfoHeight: 60px;
   }
 }
 .chats {
-  margin-top: 60px;
   width: 100%;
   display: flex;
   flex-flow: column;
