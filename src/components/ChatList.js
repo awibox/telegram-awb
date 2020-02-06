@@ -105,7 +105,7 @@ class ChatList {
     chatView.innerHTML = `
     <div id='${chatPhotoId}' class="chats__item-avatar"></div>
     <div class="chats__item-title">
-        ${chat.title}
+        <div class="chats__item-title-text">${chat.title}</div>
         ${chat.mute ? `<div class="chats__item-mute-icon"></div>`: ''}
     </div>
     <div class="chats__item-last">${this.getMessage(chat.message)}</div>
