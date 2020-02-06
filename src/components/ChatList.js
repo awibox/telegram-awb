@@ -6,10 +6,10 @@ class ChatList {
   constructor(setActiveChat) {
     // Props
     this.setActiveChat = setActiveChat;
+    this.userAuth = storage.getObject('user_auth');
     // API
     this.limit = 20;
     this.api = new MessengerApi();
-    this.userAuth = storage.getObject('user_auth');
     // State
     this.lastChat = {};
     this.chatsScroll = '';
@@ -23,6 +23,79 @@ class ChatList {
     }
   }
 
+  getMessage(message) {
+    if(message.message) {
+      return message.message;
+    }
+    if(!!message.media) {
+      let mediaType;
+      switch (message.media['_']) {
+        case 'messageMediaDocument': {
+          if(!!message.media.document.attributes) {
+            message.media.document.attributes.forEach((item) => {
+              if(!mediaType) {
+                switch(item['_']) {
+                  case 'documentAttributeSticker': {
+                    debugger;
+                    mediaType = item.alt + ' Sticker';
+                    break;
+                  }
+                  case 'documentAttributeFilename': {
+                    mediaType = item.file_name;
+                    break;
+                  }
+                  case 'documentAttributeAudio': {
+                    if(!!item.pFlags.voice) {
+                      mediaType = 'Voice Message'
+                    } else {
+                      mediaType = 'Audio'
+                    }
+                  }
+                }
+              }
+            });
+          } else {
+            mediaType = 'Document';
+          }
+          break;
+        }
+        case 'messageMediaPhoto': {
+          mediaType = message.media.caption ? message.media.caption : 'Photo';
+          break;
+        }
+        case 'messageMediaGeo': {
+          mediaType = 'Location';
+          break;
+        }
+        default: console.log('MEDIAA', message);
+      }
+      return mediaType;
+    }
+    // TODO Indetify users
+    if(message['_'] === "messageService") {
+      let messageService;
+      switch(message.action['_']) {
+        case 'messageActionChatAddUser' : {
+          messageService = 'join the group';
+          break;
+        }
+        case 'messageActionCustomAction' : {
+          messageService = message.action.message;
+          break;
+        }
+        case 'messageActionChatMigrateTo' : {
+          messageService = 'messageActionChatMigrateTo';
+          break;
+        }
+        case 'messageActionChatDeleteUser' : {
+          messageService = 'messageActionChatDeleteUser';
+          break;
+        }
+      }
+      return messageService;
+    }
+  }
+
   addChat(chat, update) {
     const chatPhotoId = `avatar-${chat.id}`;
     const chatView = document.createElement('div');
@@ -31,7 +104,7 @@ class ChatList {
     chatView.innerHTML = `
     <div id='${chatPhotoId}' class="chats__item-avatar"></div>
     <div class="chats__item-title">${chat.title}</div>
-    <div class="chats__item-last">${chat.message}</div>
+    <div class="chats__item-last">${this.getMessage(chat.message)}</div>
     <div class="chats__item-time">
         ${chat.arrow ? `<div class="${chat.arrowClass}"></div>`: ''}
         ${chat.date}
@@ -39,7 +112,6 @@ class ChatList {
     ${chat.pinned && !chat.unread_count ? `<div class="chats__item-pinned"></div>` : ''}
     ${chat.unread_count ? `<div class="chats__item-unread">${chat.unread_count}</div>` : ''}`;
     chatView.addEventListener('click', () => this.setActiveChat(chat));
-    console.log('PIN', chat.title, chat.pinned)
     if (update) {
       if(chat.pinned) {
         this.chatsPinnedObj.prepend(chatView);
@@ -82,7 +154,7 @@ class ChatList {
         messages.forEach((message) => {
           if (item.top_message === message.id) {
             chat.arrow = message.from_id === this.userAuth.id;
-            chat.message = message.message;
+            chat.message = message;
             chat.messageId = message.id;
             chat.timestamp = message.date;
             chat.date = transformDate(message.date);
