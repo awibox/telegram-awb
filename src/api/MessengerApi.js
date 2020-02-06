@@ -3,7 +3,7 @@ class MessengerApi {
     this.client = telegramApi;
   }
 
-  getDialogs(flags, offset_id, offset_date, offer_peer, limit) {
+  getDialogs(offset_date, limit) {
     return this.client.getDialogs(offset_date, limit);
   }
 

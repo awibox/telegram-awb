@@ -11,7 +11,7 @@ class ChatList {
     this.limit = 20;
     this.api = new MessengerApi();
     // State
-    this.lastChat = {};
+    this.chatsOffset = 0;
     this.chatsScroll = '';
     this.chatsObj = '';
     this.chatsPinnedObj = '';
@@ -19,7 +19,7 @@ class ChatList {
 
   scrollChats(chatsObj) {
     if ((chatsObj.scrollHeight - chatsObj.offsetHeight) === chatsObj.scrollTop) {
-      this.getChats(this.lastChat.flags, this.lastChat.messageId, this.lastChat.timestamp, this.lastChat.peer);
+      this.getChats(this.chatsOffset);
     }
   }
 
@@ -36,7 +36,6 @@ class ChatList {
               if(!mediaType) {
                 switch(item['_']) {
                   case 'documentAttributeSticker': {
-                    debugger;
                     mediaType = item.alt + ' Sticker';
                     break;
                   }
@@ -60,7 +59,7 @@ class ChatList {
           break;
         }
         case 'messageMediaPhoto': {
-          mediaType = message.media.caption ? message.media.caption : 'Photo';
+          mediaType = message.media.caption ? `🖼️${message.media.caption}` : 'Photo';
           break;
         }
         case 'messageMediaGeo': {
@@ -97,7 +96,6 @@ class ChatList {
   }
 
   addChat(chat, update) {
-    console.log('MUTE', chat.mute);
     const chatPhotoId = `avatar-${chat.id}`;
     const chatView = document.createElement('div');
     chatView.className = 'chats__item';
@@ -108,7 +106,7 @@ class ChatList {
         <div class="chats__item-title-text">${chat.title}</div>
         ${chat.mute ? `<div class="chats__item-mute-icon"></div>`: ''}
     </div>
-    <div class="chats__item-last">${this.getMessage(chat.message)}</div>
+    <div class="chats__item-last">${chat.arrow ? 'You: ' : ''}${this.getMessage(chat.message)}</div>
     <div class="chats__item-time">
         ${chat.arrow ? `<div class="${chat.arrowClass}"></div>`: ''}
         ${chat.date}
@@ -131,12 +129,13 @@ class ChatList {
     }
   }
 
-  getChats(flags = 0, offset_id = 0, offset_date = 0, offer_peer) {
-    this.api.getDialogs(flags, offset_id, offset_date, offer_peer, this.limit).then((response) => {
+  getChats(chatsOffset) {
+    this.api.getDialogs(chatsOffset, this.limit).then((response) => {
+      const {result, offset} = response;
       const {
         dialogs, messages, chats, users,
-      } = response.result;
-      console.log('getChats', response);
+      } = result;
+      this.chatsOffset = offset;
       dialogs.forEach((item) => {
         const chat = new Object({
           arrow: '',
@@ -146,7 +145,6 @@ class ChatList {
           avatar: '',
           title: '',
           message: '',
-          messageId: '',
           mute: !!item.notify_settings.mute_until,
           peer: item.peer,
           pinned: !!item.pFlags['pinned'],
@@ -161,7 +159,6 @@ class ChatList {
           if (item.top_message === message.id) {
             chat.arrow = message.from_id === this.userAuth.id;
             chat.message = message;
-            chat.messageId = message.id;
             chat.timestamp = message.date;
             chat.date = transformDate(message.date);
           }
@@ -187,7 +184,6 @@ class ChatList {
           });
         }
         this.addChat(chat);
-        this.lastChat = chat;
         if (chat.avatar) {
           this.api.getFile(chat.avatar).then((response) => {
             const base64 = `data:image/jpeg;base64,${btoa(String.fromCharCode.apply(null, response.bytes))}`;

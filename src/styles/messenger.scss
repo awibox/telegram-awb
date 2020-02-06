@@ -171,6 +171,7 @@ $topBarHeight: 60px;
       display: flex;
       flex-flow: row;
       flex-wrap: nowrap;
+      align-items: center;
       &-text {
         font-weight: bold;
         white-space: nowrap;
@@ -204,7 +205,7 @@ $topBarHeight: 60px;
       box-sizing: border-box;
       padding: 0 6px;
       &_mute {
-        background-color: rgb(197,201,203);
+        background-color: #c5c9cb;
       }
     }
     &-mute-icon {
