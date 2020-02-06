@@ -239,7 +239,7 @@ function MtpApiManagerModule(MtpSingleInstanceService, MtpNetworkerFactory, MtpA
     //
     //     return deferred.promise;
     // }
-    // TODO
+
     function mtpInvokeApi(method, params, options) {
         options = options || {};
 
