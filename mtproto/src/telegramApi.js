@@ -44,7 +44,7 @@ function TelegramApiModule(MtpApiManager, AppPeersManager, MtpApiFileManager, Ap
         subscribe: subscribe,
         unSubscribe: unSubscribe,
         logOut: logOut,
-        generatePasswordHash: generatePasswordHash,
+        checkPasswordHash: checkPasswordHash,
 
         invokeApi: invokeApi,
         dT: dT,
@@ -61,14 +61,6 @@ function TelegramApiModule(MtpApiManager, AppPeersManager, MtpApiFileManager, Ap
      */
     function invokeApi(method, params) {
         return MtpApiManager.invokeApi(method, params);
-    }
-    /**
-     * @function generatePasswordHash
-     * @description Generate Password Hash
-     */
-
-    function generatePasswordHash(salt, password) {
-        return MtpApiManager.makePasswordHash(salt, password);
     }
 
     /**
@@ -105,6 +97,26 @@ function TelegramApiModule(MtpApiManager, AppPeersManager, MtpApiFileManager, Ap
                 id: result.user.id
             });
         });
+    }
+
+    function checkPasswordHash(salt, password) {
+        const deferred = $q.defer();
+        debugger;
+        MtpApiManager.makePasswordHash(salt, password).then((passwordHash) => {
+            MtpApiManager.invokeApi('auth.checkPassword', { password_hash: passwordHash }, this.options).then(function(){
+                MtpApiManager.invokeApi('users.getFullUser', { id: {_: 'inputUserSelf'} }).then(function(result){
+                    MtpApiManager.setUserAuth(options.dcID, {
+                        id: result.user.id
+                    });
+                });
+                deferred.resolve();
+            }, (error) => {
+                console.log('check password error', error);
+                deferred.reject(error);
+            });
+        });
+
+        return deferred.promise;
     }
 
     /**
