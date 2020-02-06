@@ -1,12 +1,11 @@
 import MessengerApi from 'api/MessengerApi';
 import { transformDate } from 'utils/index';
-import storage from 'utils/storage';
 
 class ChatList {
-  constructor(setActiveChat) {
+  constructor(setActiveChat, userAuth) {
     // Props
     this.setActiveChat = setActiveChat;
-    this.userAuth = storage.getObject('user_auth');
+    this.userAuth = userAuth;
     // API
     this.limit = 20;
     this.api = new MessengerApi();
@@ -113,13 +112,13 @@ class ChatList {
     return colors[Math.floor(Math.random() * 5)];
   }
 
-  addChat(chat, update) {
+  addChat(chat, update = false) {
     const chatPhotoId = `avatar-${chat.id}`;
     const chatView = document.createElement('div');
     chatView.className = 'chats__item';
     chatView.id = `chat-${chat.id}`;
     chatView.innerHTML = `
-    <div id='${chatPhotoId}' class="chats__item-avatar"></div>
+    ${chat.avatarNode ? '' : `<div id='${chatPhotoId}' class="chats__item-avatar"></div>`}
     <div class="chats__item-title">
         <div class="chats__item-title-text" title="${chat.title}">${chat.title}</div>
         ${chat.mute ? `<div class="chats__item-mute-icon"></div>`: ''}
@@ -132,7 +131,11 @@ class ChatList {
     ${chat.pinned && !chat.unread_count ? `<div class="chats__item-pinned"></div>` : ''}
     ${chat.unread_count ? `<div class="chats__item-unread ${chat.mute ? 'chats__item-unread_mute' : ''}">${chat.unread_count}</div>` : ''}`;
     chatView.addEventListener('click', () => this.setActiveChat(chat));
+    if(chat.avatarNode) {
+      chatView.prepend(chat.avatarNode);
+    }
     if (update) {
+      this.deleteChat(chat.id);
       if(chat.pinned) {
         this.chatsPinnedObj.prepend(chatView);
       } else {
@@ -147,7 +150,76 @@ class ChatList {
     }
   }
 
-  getChats(chatsOffset) {
+  configureChat(item, messages, chats, users, update = false) {
+    const chat = new Object({
+      arrow: '',
+      arrowClass: item.read_outbox_max_id >= item.top_message ? 'arrow-read' : 'arrow',
+      id: '',
+      access_hash: '',
+      avatar: '',
+      title: '',
+      message: '',
+      mute: !!item.notify_settings.mute_until,
+      peer: item.peer,
+      pinned: !!item.pFlags['pinned'],
+      flags: item.flags,
+      date: '',
+      timestamp: '',
+      unread_count: item.unread_count,
+      isChannel: false,
+    });
+
+    messages.forEach((message) => {
+      if (item.top_message === message.id) {
+        chat.arrow = message.from_id === this.userAuth.id;
+        chat.message = message;
+        chat.timestamp = message.date;
+        chat.date = transformDate(message.date);
+      }
+    });
+    if (item.peer._ === 'peerUser') {
+      users.forEach((user) => {
+        if (item.peer.user_id === user.id) {
+          chat.id = user.id;
+          chat.title = `${user.first_name ? user.first_name : ''} ${user.last_name ? user.last_name : ''}`;
+          chat.access_hash = user.access_hash ? user.access_hash : '';
+          chat.avatar = user.photo ? user.photo.photo_small : '';
+        }
+      });
+    } else {
+      chats.forEach((channel) => {
+        if (item.peer.channel_id === channel.id || item.peer.chat_id === channel.id) {
+          chat.id = channel.id;
+          chat.title = channel.title;
+          chat.access_hash = channel.access_hash ? channel.access_hash : '';
+          chat.isChannel = true;
+          chat.avatar = channel.photo ? channel.photo.photo_small : '';
+        }
+      });
+    }
+    if(update) {
+      chat.avatarNode = document.getElementById(`avatar-${chat.id}`).cloneNode();
+      chat.avatarNode.innerHTML = document.getElementById(`avatar-${chat.id}`).innerHTML;
+    }
+    this.addChat(chat, update);
+    if(!update) {
+      if (chat.avatar) {
+        this.api.getFile(chat.avatar).then((response) => {
+          const base64 = `data:image/jpeg;base64,${btoa(String.fromCharCode.apply(null, response.bytes))}`;
+          document.getElementById(`avatar-${chat.id}`).style.backgroundImage = `url(${base64})`;
+        }).catch((error) => {
+          console.error(error);
+          document.getElementById(`avatar-${chat.id}`).innerHTML = this.getDefaultAvatarText(chat.title);
+          document.getElementById(`avatar-${chat.id}`).style.backgroundColor = this.getRandomColor();
+        });
+      } else {
+        document.getElementById(`avatar-${chat.id}`).innerHTML = this.getDefaultAvatarText(chat.title);
+        document.getElementById(`avatar-${chat.id}`).style.backgroundColor = this.getRandomColor();
+      }
+    }
+  }
+
+  getChats(chatsOffset, updateId = 0) {
     this.api.getDialogs(chatsOffset, this.limit).then((response) => {
       const {result, offset} = response;
       const {
@@ -156,68 +228,37 @@ class ChatList {
       console.log('getChats', result);
       this.chatsOffset = offset;
       dialogs.forEach((item) => {
-        const chat = new Object({
-          arrow: '',
-          arrowClass: item.read_outbox_max_id >= item.top_message ? 'arrow-read' : 'arrow',
-          id: '',
-          access_hash: '',
-          avatar: '',
-          title: '',
-          message: '',
-          mute: !!item.notify_settings.mute_until,
-          peer: item.peer,
-          pinned: !!item.pFlags['pinned'],
-          flags: item.flags,
-          date: '',
-          timestamp: '',
-          unread_count: item.unread_count,
-          isChannel: false,
-        });
-
-        messages.forEach((message) => {
-          if (item.top_message === message.id) {
-            chat.arrow = message.from_id === this.userAuth.id;
-            chat.message = message;
-            chat.timestamp = message.date;
-            chat.date = transformDate(message.date);
+        if(!updateId) {
+          this.configureChat(item, messages, chats, users);
+        } else {
+          if(item.peer.channel_id === updateId || item.peer.user_id === updateId || item.peer.chat_id === updateId) {
+            this.configureChat(item, messages, chats, users, true);
           }
-        });
-        if (item.peer._ === 'peerUser') {
-          users.forEach((user) => {
-            if (item.peer.user_id === user.id) {
-              chat.id = user.id;
-              chat.title = `${user.first_name ? user.first_name : ''} ${user.last_name ? user.last_name : ''}`;
-              chat.access_hash = user.access_hash ? user.access_hash : '';
-              chat.avatar = user.photo ? user.photo.photo_small : '';
-            }
-          });
-        } else {
-          chats.forEach((channel) => {
-            if (item.peer.channel_id === channel.id || item.peer.chat_id === channel.id) {
-              chat.id = channel.id;
-              chat.title = channel.title;
-              chat.access_hash = channel.access_hash ? channel.access_hash : '';
-              chat.isChannel = true;
-              chat.avatar = channel.photo ? channel.photo.photo_small : '';
-            }
-          });
-        }
-        this.addChat(chat);
-        if (chat.avatar) {
-          this.api.getFile(chat.avatar).then((response) => {
-            const base64 = `data:image/jpeg;base64,${btoa(String.fromCharCode.apply(null, response.bytes))}`;
-            document.getElementById(`avatar-${chat.id}`).style.backgroundImage = `url(${base64})`;
-          }).catch((error) => {
-            console.error(error);
-            document.getElementById(`avatar-${chat.id}`).innerHTML = this.getDefaultAvatarText(chat.title);
-            document.getElementById(`avatar-${chat.id}`).style.backgroundColor = this.getRandomColor();
-          });
-        } else {
-          document.getElementById(`avatar-${chat.id}`).innerHTML = this.getDefaultAvatarText(chat.title);
-          document.getElementById(`avatar-${chat.id}`).style.backgroundColor = this.getRandomColor();
         }
       });
     });
+  }
+
+  deleteChat(id) {
+    document.getElementById(`chat-${id}`).remove();
+  }
+
+  updateChat(type, message){
+    console.log('type, message', type, message);
+    if(type === 'updateNewMessage') {
+      const { from_id, to_id } = message;
+      if(!!to_id.chat_id) {
+        this.getChats(0, to_id.chat_id);
+      } else {
+        const updateId = from_id === this.userAuth.id ? to_id.user_id : from_id;
+        this.getChats(0, updateId);
+      }
+
+    }
+    if(type === "updateNewChannelMessage") {
+      const { to_id } = message;
+      this.getChats(0, to_id.channel_id);
+    }
   }
 
   init() {
