@@ -97,20 +97,24 @@ class ChatList {
   }
 
   addChat(chat, update) {
+    console.log('MUTE', chat.mute);
     const chatPhotoId = `avatar-${chat.id}`;
     const chatView = document.createElement('div');
     chatView.className = 'chats__item';
     chatView.id = `chat-${chat.id}`;
     chatView.innerHTML = `
     <div id='${chatPhotoId}' class="chats__item-avatar"></div>
-    <div class="chats__item-title">${chat.title}</div>
+    <div class="chats__item-title">
+        ${chat.title}
+        ${chat.mute ? `<div class="chats__item-mute-icon"></div>`: ''}
+    </div>
     <div class="chats__item-last">${this.getMessage(chat.message)}</div>
     <div class="chats__item-time">
         ${chat.arrow ? `<div class="${chat.arrowClass}"></div>`: ''}
         ${chat.date}
     </div>
     ${chat.pinned && !chat.unread_count ? `<div class="chats__item-pinned"></div>` : ''}
-    ${chat.unread_count ? `<div class="chats__item-unread">${chat.unread_count}</div>` : ''}`;
+    ${chat.unread_count ? `<div class="chats__item-unread ${chat.mute ? 'chats__item-unread_mute' : ''}">${chat.unread_count}</div>` : ''}`;
     chatView.addEventListener('click', () => this.setActiveChat(chat));
     if (update) {
       if(chat.pinned) {
@@ -143,6 +147,7 @@ class ChatList {
           title: '',
           message: '',
           messageId: '',
+          mute: !!item.notify_settings.mute_until,
           peer: item.peer,
           pinned: !!item.pFlags['pinned'],
           flags: item.flags,
@@ -151,6 +156,7 @@ class ChatList {
           unread_count: item.unread_count,
           isChannel: false,
         });
+
         messages.forEach((message) => {
           if (item.top_message === message.id) {
             chat.arrow = message.from_id === this.userAuth.id;

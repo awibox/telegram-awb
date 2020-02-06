@@ -173,6 +173,8 @@ $topBarHeight: 60px;
       font-size: 13px;
       text-overflow: ellipsis;
       padding: 7px 0;
+      display: flex;
+      align-items: end;
     }
     &-last {
       white-space: nowrap;
@@ -198,6 +200,20 @@ $topBarHeight: 60px;
       border-radius: $unreadSize/2;
       box-sizing: border-box;
       padding: 0 6px;
+      &_mute {
+        background-color: rgb(197,201,203);
+      }
+    }
+    &-mute-icon {
+      background-image: url('img/icons/nosound_svg.svg');
+      background-repeat: no-repeat;
+      background-position: 50% 50%;
+      background-size: contain;
+      width: 19px;
+      height: 14px;
+      display: inline-flex;
+      color: rgb(197,201,203) !important;
+      fill: rgb(197,201,203) !important;
     }
     &-pinned {
       position: absolute;
