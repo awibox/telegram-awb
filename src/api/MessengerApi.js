@@ -3,16 +3,8 @@ class MessengerApi {
     this.client = telegramApi;
   }
 
-  getChats(flags, offset_id, offset_date, offer_peer, limit) {
-    return this.client.invokeApi('messages.getDialogs', {
-      flags: 0,
-      offset_date,
-      offset_id,
-      offset_peer: offer_peer || { _: 'inputPeerEmpty' },
-      limit,
-    }, {
-      timeout: 4000,
-    });
+  getDialogs(flags, offset_id, offset_date, offer_peer, limit) {
+    return this.client.getDialogs(offset_date, limit);
   }
 
   getInputPeerByID(peerId, hashId, isChannel) {
