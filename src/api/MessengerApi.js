@@ -20,6 +20,10 @@ class MessengerApi {
       limit: 1024 * 1024,
     });
   }
+
+  sendMessage(chatId, message){
+    return this.client.sendMessage(chatId, message);
+  }
 }
 
 export default MessengerApi;
