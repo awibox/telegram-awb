@@ -14,12 +14,12 @@ class ChatList {
     this.chatsScroll = '';
     this.chatsObj = '';
     this.chatsPinnedObj = '';
-    this.chatsWasLoaded = false;
+    this.chatsWereLoaded = false;
   }
 
   scrollChats(chatsObj) {
     if ((chatsObj.scrollHeight - chatsObj.offsetHeight) === chatsObj.scrollTop) {
-      if(!this.chatsWasLoaded) {
+      if(!this.chatsWereLoaded) {
         this.getChats(this.chatsOffset);
       }
     }
@@ -169,6 +169,7 @@ class ChatList {
       flags: item.flags,
       date: '',
       timestamp: '',
+      type: '',
       unread_count: item.unread_count,
       isChannel: false,
     });
@@ -188,6 +189,7 @@ class ChatList {
           chat.title = `${user.first_name ? user.first_name : ''} ${user.last_name ? user.last_name : ''}`;
           chat.access_hash = user.access_hash ? user.access_hash : '';
           chat.avatar = user.photo ? user.photo.photo_small : '';
+          chat.type = 'user';
         }
       });
     } else {
@@ -198,6 +200,7 @@ class ChatList {
           chat.access_hash = channel.access_hash ? channel.access_hash : '';
           chat.isChannel = true;
           chat.avatar = channel.photo ? channel.photo.photo_small : '';
+          chat.type = !!item.peer.channel_id ? 'channel' : 'chat';
         }
       });
     }
@@ -230,7 +233,7 @@ class ChatList {
         dialogs, messages, chats, users,
       } = result;
       if(dialogs.length < this.limit) {
-        this.chatsWasLoaded = true;
+        this.chatsWereLoaded = true;
       }
       console.log('getChats', result);
       this.chatsOffset = offset;
