@@ -54,10 +54,13 @@ class MessageList {
     if (!update) {
       this.messageObj.prepend(messageView);
       if (firstLoad) {
-        setTimeout(() => {this.messagesWereLoaded = false}, 500);
-        this.messagesScroll.scrollTop = this.messagesScroll.scrollHeight;
+        setTimeout(() => {
+          this.messagesScroll.scrollTop = this.messagesScroll.scrollHeight;
+        }, 200);
       } else {
-        this.messagesScroll.scrollTop = document.getElementById(`message-${this.scrollMessageId}`).offsetTop;
+        setTimeout(() => {
+          this.messagesScroll.scrollTop = document.getElementById(`message-${this.scrollMessageId}`).offsetTop;
+        }, 200);
       }
     } else {
       this.messageObj.append(messageView);
@@ -84,6 +87,12 @@ class MessageList {
       messages.forEach((item) => {
         this.addMessage(item, false, firstLoad);
       });
+      if (firstLoad) {
+        setTimeout(() => {
+          this.messagesWereLoaded = false;
+          this.messagesScroll.scrollTop = this.messagesScroll.scrollHeight;
+        }, 200);
+      }
     });
   }
 
