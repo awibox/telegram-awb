@@ -33,6 +33,10 @@ $topBarHeight: 60px;
     background-image: url('img/messages_bg.jpg');
     background-size: cover;
     background-position: 50% 50%;
+    display: flex;
+    flex-flow: column;
+    flex-wrap: nowrap;
+    justify-content: space-between;
   }
   &__rightBar {
     width: 0;
@@ -45,21 +49,27 @@ $topBarHeight: 60px;
     border-right: 1px solid #DDDFE3;
   }
   &__messages {
-    @extend %layout;
-    top: $topBarHeight;
-    bottom: 95px;
-    right: 0;
-    left: 0;
-    z-index: 1;
-    justify-content: center;
-    box-sizing: border-box;
-    padding: 0 70px;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    flex: 1 1 auto;
+    &-container {
+      padding: 0 70px;
+      box-sizing: border-box;
+      justify-content: center;
+      align-items: center;
+      display: flex;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      overflow-y: scroll;
+    }
   }
   &__info {
-    position: absolute;
-    left: 0;
-    right: 0;
-    z-index: 2;
+    width: 100%;
+    height: $topBarHeight;
     &-container {
       height: $topBarHeight;
       background: #fff;
@@ -109,15 +119,16 @@ $topBarHeight: 60px;
     }
   }
   &__send-messages {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    width: 100%;
+    min-height: 95px;
+    max-height: 300px;
     height: 95px;
     display: flex;
     justify-content: center;
     box-sizing: border-box;
     padding: 20px 70px;
+    flex: 1 1 auto;
+    height: 100%;
   }
 }
 .send-messages {
@@ -128,15 +139,18 @@ $topBarHeight: 60px;
   display: flex;
   flex-flow: row;
   flex-wrap: nowrap;
+  align-items: flex-end;
   &__text-area {
     background: #fff;
-    height: 55px;
+    min-height: 55px;
     border-radius: 10px;
     width: 100%;
     display: flex;
     flex-flow: row;
     flex-wrap: nowrap;
+    align-items: flex-end;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
+    position: relative;
   }
   &__smiles {
     background-image: url('img/icons/smile_svg.svg');
@@ -150,9 +164,13 @@ $topBarHeight: 60px;
     width: 100%;
     height: 100%;
     outline: none;
-    padding: 20px 0;
+    padding-top: 20px;
+    margin-bottom: 20px;
     line-height: 15px;
     box-sizing: border-box;
+    max-height: 200px;
+    overflow: auto;
+    padding-right: 55px;
   }
   &__files {
     background-image: url('img/icons/attach_svg.svg');
@@ -161,6 +179,9 @@ $topBarHeight: 60px;
     width: 55px;
     height: 55px;
     min-width: 55px;
+    position: absolute;
+    bottom: 0;
+    right: 0;
   }
   %sendButton {
     background-color: #fff;
@@ -350,6 +371,9 @@ $topBarHeight: 60px;
   display: flex;
   flex-flow: column;
   justify-content: flex-end;
+  max-width: 695px;
+  width: 100%;
+  box-sizing: border-box;
   &__item {
     padding: 10px;
     position: relative;
