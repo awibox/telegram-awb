@@ -31,7 +31,7 @@ $topBarHeight: 60px;
     width: 100%;
     position: relative;
     background-image: url('img/messages_bg.jpg');
-    background-size: 100%;
+    background-size: cover;
     background-position: 50% 50%;
   }
   &__rightBar {
@@ -46,6 +46,8 @@ $topBarHeight: 60px;
   }
   &__messages {
     @extend %layout;
+    top: $topBarHeight;
+    bottom: $topBarHeight;
     right: 0;
     left: 0;
   }
