@@ -28,11 +28,27 @@ class Messenger {
     this.chatsObj = '';
     this.lastMessage = {};
     this.messageForScroll = null;
+    this.currentChatId = 0;
   }
 
   // NEW STAFF
+
+  sendMessage() {
+    const self = this;
+    console.log('self', self);
+    if(this.currentChatId) {
+      this.api.sendMessage(this.currentChatId, document.getElementById('sendInput').innerHTML).then(function(updates) {
+        // debugger;
+        console.log('updates', updates);
+        document.getElementById('sendInput').innerHTML = '';
+        updates.forEach((item) => {
+          self.onUpdate(item, true)
+        });
+      });
+    }
+  }
+
   setChatInfo(chat) {
-    console.log('setChatInfo', chat);
     const avatarId = `avatar-${chat.id}`;
     const avatarElement = document.getElementById(avatarId);
     const avatar = avatarElement.style.backgroundImage ? `background-image: ${avatarElement.style.backgroundImage}` : '';
@@ -62,26 +78,31 @@ class Messenger {
     const chatElement = document.getElementById(`chat-${chat.id}`);
     chatElement.classList.add('chats__item_active');
     if(!!!this.messageList) {
-      this.messageList = new MessageList();
+      this.messageList = new MessageList(this.onUpdate);
       this.messageList.init();
     }
     const params = {
       id: chat.type === 'user' ? chat.id : -chat.id,
       type: chat.type
     };
-
+    this.currentChatId = chat.id;
     this.messageList.loadMessages(params, true);
+    document.getElementById('sendButton').removeEventListener('click', () => this.sendMessage());
+    document.getElementById('sendButton').addEventListener('click', () => this.sendMessage())
   }
 
   onUpdate(update) {
-    console.log('update', update);
     if(update['_'] === "updates") {
       const { updates } = update;
       updates.forEach((item) => {
         if(item['_'] === 'updateNewMessage') {
+          debugger;
           this.chatList.updateChat(item['_'], item.message);
         }
         if(item['_'] === "updateNewChannelMessage") {
+          this.chatList.updateChat(item['_'], item.message);
+        }
+        if(item['_'] === "updateEditChannelMessage") {
           this.chatList.updateChat(item['_'], item.message);
         }
       })
@@ -92,16 +113,10 @@ class Messenger {
     if(update['_'] === "updateShortChatMessage") {
       this.chatList.updateChat(update['_'], update);
     }
-    // if (update['@type'] === 'updateNewMessage') {
-    //   this.addChat(update.message.chat_id, true);
-    //   if (update.message.chat_id === this.chat.id) {
-    //     this.addMessage(update.message, update);
-    //     this.readMessages(update.message.chat_id, [update.message]);
-    //   }
-    // }
-    // if (update['@type'] === 'updateChatReadInbox') {
-    //   this.updateChatReadInbox(update);
-    // }
+    if(update['_'] === "updateShortSentMessage") {
+      this.chatList.updateChat(update['_'], update);
+    }
+
   }
   // OLD CONTENT
   getChatContent(content) {
@@ -438,11 +453,11 @@ class Messenger {
     // this.chatsScroll.onscroll = () => this.scrollChats(this.chatsScroll);
     // this.chatList(0, '9223372036854775807', true);
 
-    this.chatList = new ChatList(this.userAuth, this.setActiveChat, this.setChatInfo);
-    this.messageList = new MessageList();
+    this.chatList = new ChatList(this);
+    this.messageList = new MessageList(this.onUpdate);
     this.chatList.init();
     this.messageList.init();
-    this.api.subscribe(this.userAuth.id, (update) => this.onUpdate(update));
+    // this.api.subscribe(this.userAuth.id, (update) => this.onUpdate(update));
     // this.client.onUpdate = (update) => this.onUpdate(update);
   }
 }

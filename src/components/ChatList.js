@@ -2,11 +2,9 @@ import MessengerApi from 'api/MessengerApi';
 import { transformDate } from 'utils/index';
 
 class ChatList {
-  constructor(userAuth, setActiveChat, setChatInfo) {
+  constructor(Messenger) {
     // Props
-    this.setActiveChat = setActiveChat;
-    this.setChatInfo = setChatInfo;
-    this.userAuth = userAuth;
+    this.Messenger = Messenger;
     // API
     this.limit = 20;
     this.api = new MessengerApi();
@@ -139,8 +137,8 @@ class ChatList {
     </div>
     ${chat.pinned && !chat.unread_count ? `<div class="chats__item-pinned"></div>` : ''}
     ${chat.unread_count ? `<div class="chats__item-unread ${chat.mute ? 'chats__item-unread_mute' : ''}">${chat.unread_count}</div>` : ''}`;
-    chatView.addEventListener('click', () => this.setActiveChat(chat));
-    chatView.addEventListener('click', () => this.setChatInfo(chat));
+    chatView.addEventListener('click', () => this.Messenger.setActiveChat(chat));
+    chatView.addEventListener('click', () => this.Messenger.setChatInfo(chat));
     if (chat.avatarNode) {
       chatView.prepend(chat.avatarNode);
     }
@@ -182,7 +180,7 @@ class ChatList {
 
     messages.forEach((message) => {
       if (item.top_message === message.id) {
-        chat.arrow = message.from_id === this.userAuth.id;
+        chat.arrow = message.from_id === this.Messenger.userAuth.id;
         chat.message = message;
         chat.timestamp = message.date;
         chat.date = transformDate(message.date);
@@ -269,9 +267,14 @@ class ChatList {
         if (!!to_id.chat_id) {
           this.getChats(0, to_id.chat_id);
         } else {
-          const updateId = from_id === this.userAuth.id ? to_id.user_id : from_id;
+          const updateId = from_id === this.Messenger.userAuth.id ? to_id.user_id : from_id;
           this.getChats(0, updateId);
         }
+        break;
+      }
+      case "updateEditChannelMessage" : {
+        const { to_id } = message;
+        this.getChats(0, to_id.channel_id);
         break;
       }
       case 'updateNewChannelMessage' : {
@@ -280,6 +283,11 @@ class ChatList {
         break;
       }
       case 'updateShortMessage' : {
+        this.getChats(0, message.user_id);
+        break;
+      }
+      case 'updateShortSentMessage' : {
+        debugger;
         this.getChats(0, message.user_id);
         break;
       }
