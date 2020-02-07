@@ -181,7 +181,7 @@ class ChatList {
         chat.date = transformDate(message.date);
       }
     });
-    if (item.peer._ === 'peerUser') {
+    if (item.peer['_'] === 'peerUser') {
       users.forEach((user) => {
         if (item.peer.user_id === user.id) {
           chat.id = user.id;
@@ -238,7 +238,6 @@ class ChatList {
         if (!updateId) {
           this.configureChat(item, messages, chats, users);
         } else {
-          debugger;
           if (item.peer.channel_id === updateId || item.peer.user_id === updateId || item.peer.chat_id === updateId) {
             this.configureChat(item, messages, chats, users, true);
           }
