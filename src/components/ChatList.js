@@ -2,9 +2,10 @@ import MessengerApi from 'api/MessengerApi';
 import { transformDate } from 'utils/index';
 
 class ChatList {
-  constructor(setActiveChat, userAuth) {
+  constructor(userAuth, setActiveChat, setChatInfo) {
     // Props
     this.setActiveChat = setActiveChat;
+    this.setChatInfo = setChatInfo;
     this.userAuth = userAuth;
     // API
     this.limit = 20;
@@ -139,6 +140,7 @@ class ChatList {
     ${chat.pinned && !chat.unread_count ? `<div class="chats__item-pinned"></div>` : ''}
     ${chat.unread_count ? `<div class="chats__item-unread ${chat.mute ? 'chats__item-unread_mute' : ''}">${chat.unread_count}</div>` : ''}`;
     chatView.addEventListener('click', () => this.setActiveChat(chat));
+    chatView.addEventListener('click', () => this.setChatInfo(chat));
     if (chat.avatarNode) {
       chatView.prepend(chat.avatarNode);
     }

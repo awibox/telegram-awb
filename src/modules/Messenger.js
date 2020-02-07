@@ -33,6 +33,26 @@ class Messenger {
   // NEW STAFF
   setChatInfo(chat) {
     console.log('setChatInfo', chat);
+    const avatarId = `avatar-${chat.id}`;
+    const avatarElement = document.getElementById(avatarId);
+    const avatar = avatarElement.style.backgroundImage ? `background-image: ${avatarElement.style.backgroundImage}` : '';
+    if (avatarElement.innerText === '') {
+      if (!avatar) {
+        setTimeout(() => this.setChatInfo(chat), 500);
+      }
+    }
+    document.getElementById('chatInfo').innerHTML = `
+    <div class="im__info-container">
+      <div class="im__info-item">
+      <div class="im__info-item-avatar" style='${avatar || ''}'>
+        ${!avatar ? avatarElement.innerText : ''}
+      </div>
+      <div class="im__info-item-title">
+      <div class="im__info-item-title-text">${chat.title ? chat.title : wordsList.deletedAccount}</div>
+      </div>
+      <div class="im__info-item-status">Online</div>
+      </div>
+    </div>`;
   }
 
   setActiveChat(chat) {
@@ -41,7 +61,6 @@ class Messenger {
     }
     const chatElement = document.getElementById(`chat-${chat.id}`);
     chatElement.classList.add('chats__item_active');
-    // this.setChatInfo(chat);
     if(!!!this.messageList) {
       this.messageList = new MessageList();
       this.messageList.init();
@@ -52,7 +71,6 @@ class Messenger {
     };
 
     this.messageList.loadMessages(params, true);
-
   }
 
   onUpdate(update) {
@@ -206,23 +224,7 @@ class Messenger {
     }
   }
 
-  setChatInfo(chat) {
-    const avatarId = `avatar-${chat.id}`;
-    const avatarElement = document.getElementById(avatarId);
-    const avatar = avatarElement.style.backgroundImage ? `background-image: ${avatarElement.style.backgroundImage}` : '';
-    if (avatarElement.innerText === '') {
-      if (!avatar) {
-        setTimeout(() => this.setChatInfo(chat), 500);
-      }
-    }
-    this.chatInfo.innerHTML = `
-      <div class="chats__item">
-      <div class="chats__item-avatar" style='${avatar || ''}'>
-        ${!avatar ? avatarElement.innerText : ''}
-      </div>
-      <div class="chats__item-title">${chat.title ? chat.title : wordsList.deletedAccount}</div>
-      <div class="chats__item-status">Online</div>
-      </div>`;
+  setChatInfo2(chat) {
   }
 
   readMessages(chatId, messages) {
@@ -429,14 +431,14 @@ class Messenger {
 
   render() {
     // this.messagesScroll = document.getElementById('messagesScroll');
-    // this.chatInfo = document.getElementById('chatInfo');
+    this.chatInfo = document.getElementById('chatInfo');
     // this.chatsScroll = document.getElementById('chatsScroll');
     // this.messageObj = document.getElementById('messages');
     // this.messagesScroll.onscroll = () => this.scrollMessages(this.messagesScroll);
     // this.chatsScroll.onscroll = () => this.scrollChats(this.chatsScroll);
     // this.chatList(0, '9223372036854775807', true);
 
-    this.chatList = new ChatList(this.setActiveChat, this.userAuth);
+    this.chatList = new ChatList(this.userAuth, this.setActiveChat, this.setChatInfo);
     this.messageList = new MessageList();
     this.chatList.init();
     this.messageList.init();
