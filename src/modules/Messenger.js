@@ -57,7 +57,10 @@ class Messenger {
       })
     }
     if(update['_'] === "updateShortMessage") {
-      this.chatList.updateChat(update);
+      this.chatList.updateChat(update['_'], update);
+    }
+    if(update['_'] === "updateShortChatMessage") {
+      this.chatList.updateChat(update['_'], update);
     }
     // if (update['@type'] === 'updateNewMessage') {
     //   this.addChat(update.message.chat_id, true);
