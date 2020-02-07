@@ -93,6 +93,10 @@ class ChatList {
           messageService = 'messageActionChatDeleteUser';
           break;
         }
+        case "messageActionChatEditTitle" : {
+          messageService = `channel renamed to "${message.action.title}"`;
+          break;
+        }
       }
       return messageService;
     }
