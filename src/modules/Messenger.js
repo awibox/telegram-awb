@@ -34,11 +34,9 @@ class Messenger {
   sendMessage() {
     const self = this;
     if(this.currentChatId) {
-      this.api.sendMessage(this.currentChatId, document.getElementById('sendInput').innerHTML).then(function(updates) {
+      this.api.sendMessage(this.currentChatId, document.getElementById('sendInput').innerHTML).then(function(response) {
         document.getElementById('sendInput').innerHTML = '';
-        updates.forEach((item) => {
-          self.onUpdate(item, true)
-        });
+        self.onUpdate(response);
       });
     }
   }
@@ -76,40 +74,10 @@ class Messenger {
       id: chat.type === 'user' ? chat.id : -chat.id,
       type: chat.type
     };
-    this.currentChatId = chat.id;
+    this.currentChatId = params.id;
     this.loadMessages(params, true);
-    document.getElementById('sendButton').removeEventListener('click', () => this.sendMessage());
-    document.getElementById('sendButton').addEventListener('click', () => this.sendMessage())
   }
 
-  onUpdate(update) {
-    if(update['_'] === "updates") {
-      const { updates } = update;
-      updates.forEach((item) => {
-        if(item['_'] === 'updateNewMessage') {
-          debugger;
-          this.updateChat(item['_'], item.message);
-        }
-        if(item['_'] === "updateNewChannelMessage") {
-          this.updateChat(item['_'], item.message);
-        }
-        if(item['_'] === "updateEditChannelMessage") {
-          this.updateChat(item['_'], item.message);
-        }
-      })
-    }
-    if(update['_'] === "updateShortMessage") {
-      this.updateChat(update['_'], update);
-    }
-    if(update['_'] === "updateShortChatMessage") {
-      this.updateChat(update['_'], update);
-    }
-    if(update['_'] === "updateShortSentMessage") {
-      this.updateChat(update['_'], update);
-    }
-  }
-
-  //
   /**
    * MESSAGE LIST
    */
@@ -214,6 +182,9 @@ class Messenger {
         if (!updateId) {
           this.configureChat(item, messages, chats, users);
         } else {
+          if(updateId < 0) {
+            updateId = -updateId;
+          }
           if (item.peer.channel_id === updateId || item.peer.user_id === updateId || item.peer.chat_id === updateId) {
             this.configureChat(item, messages, chats, users, true);
           }
@@ -448,11 +419,29 @@ class Messenger {
     }
   }
 
-  updateChat(type, message) {
-    console.log('type, message', type, message);
-    switch (type) {
+  /**
+   * Updates
+   */
+  onUpdate(update) {
+    console.log('onUpdate', update, update['_'])
+    const self = this;
+    if(update['_'] === "updates") {
+      const { updates } = update;
+      updates.forEach((item) => {
+        if(item) {
+          self.checkUpdate(item)
+        }
+      })
+    } else {
+      self.checkUpdate(update)
+    }
+  }
+
+  checkUpdate(update) {
+    console.log('checkUpdate', update);
+    switch (update['_']) {
       case 'updateNewMessage' : {
-        const { from_id, to_id } = message;
+        const { from_id, to_id } = update.message;
         if (!!to_id.chat_id) {
           this.getChats(0, to_id.chat_id);
         } else {
@@ -462,26 +451,25 @@ class Messenger {
         break;
       }
       case "updateEditChannelMessage" : {
-        const { to_id } = message;
+        const { to_id } = update.message;
         this.getChats(0, to_id.channel_id);
         break;
       }
       case 'updateNewChannelMessage' : {
-        const { to_id } = message;
+        const { to_id } = update.message;
         this.getChats(0, to_id.channel_id);
         break;
       }
       case 'updateShortMessage' : {
-        this.getChats(0, message.user_id);
+        this.getChats(0, update.user_id);
         break;
       }
       case 'updateShortSentMessage' : {
-        debugger;
-        this.getChats(0, message.user_id);
+        this.getChats(0, this.currentChatId);
         break;
       }
       case 'updateShortChatMessage' : {
-        this.getChats(0, message.chat_id);
+        this.getChats(0, update.chat_id);
         break;
       }
       default :
@@ -503,6 +491,7 @@ class Messenger {
     this.messagesScroll.onscroll = () => this.scrollMessages();
     // Subscribe to updatesx
     this.api.subscribe(this.userAuth.id, (update) => this.onUpdate(update));
+    document.getElementById('sendButton').addEventListener('click', () => this.sendMessage())
   }
 }
 export default Messenger;
