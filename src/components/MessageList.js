@@ -3,6 +3,7 @@ import { getTime, transformDate } from 'utils/index';
 
 class MessageList {
   constructor() {
+    // Props
     // API
     this.limit = 20;
     this.api = new MessengerApi();
