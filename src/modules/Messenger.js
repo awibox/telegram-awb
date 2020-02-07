@@ -1,45 +1,40 @@
-import MessengerApi from 'api/MessengerApi';
 import { getTime, transformDate } from 'utils/index';
-import ChatList from 'components/ChatList';
-import MessageList from 'components/MessageList';
 import storage from 'utils/storage';
 import 'styles/messenger.scss';
 
-const wordsList = {
-  deletedAccount: 'Deleted Account',
-};
-
 class Messenger {
   constructor() {
-    // Components
-    this.chatList = new MessengerApi();
-    this.messageList = new MessageList();
     // API
     this.api = telegramApi;
+    // Storage
     this.userAuth = storage.getObject('user_auth');
-    this.LIMIT = 20;
-    this.messageObj = '';
-    this.messagesScroll = '';
+    // Settings
+    this.limit = 20;
+    // Objects
     this.chatsScroll = '';
-    this.chatInfo = '';
-    this.lastChatId = null;
-    this.lastChatOrder = null;
-    this.chat = {};
-    this.chatsObj = '';
-    this.lastMessage = {};
-    this.messageForScroll = null;
+    // State
     this.currentChatId = 0;
+    this.params = '';
+    this.scrollMessageId = '';
+    this.offset = 0;
+    this.messagesScroll = '';
+    this.messageObj = '';
+    this.messagesWereLoaded = true;
+    this.chatsOffset = 0;
+    this.chatsScroll = '';
+    this.chatsObj = '';
+    this.chatsPinnedObj = '';
+    this.chatsWereLoaded = false;
   }
 
-  // NEW STAFF
+  /**
+   * BASE FUNCTIONS
+   */
 
   sendMessage() {
     const self = this;
-    console.log('self', self);
     if(this.currentChatId) {
       this.api.sendMessage(this.currentChatId, document.getElementById('sendInput').innerHTML).then(function(updates) {
-        // debugger;
-        console.log('updates', updates);
         document.getElementById('sendInput').innerHTML = '';
         updates.forEach((item) => {
           self.onUpdate(item, true)
@@ -77,16 +72,12 @@ class Messenger {
     }
     const chatElement = document.getElementById(`chat-${chat.id}`);
     chatElement.classList.add('chats__item_active');
-    if(!!!this.messageList) {
-      this.messageList = new MessageList(this.onUpdate);
-      this.messageList.init();
-    }
     const params = {
       id: chat.type === 'user' ? chat.id : -chat.id,
       type: chat.type
     };
     this.currentChatId = chat.id;
-    this.messageList.loadMessages(params, true);
+    this.loadMessages(params, true);
     document.getElementById('sendButton').removeEventListener('click', () => this.sendMessage());
     document.getElementById('sendButton').addEventListener('click', () => this.sendMessage())
   }
@@ -97,125 +88,53 @@ class Messenger {
       updates.forEach((item) => {
         if(item['_'] === 'updateNewMessage') {
           debugger;
-          this.chatList.updateChat(item['_'], item.message);
+          this.updateChat(item['_'], item.message);
         }
         if(item['_'] === "updateNewChannelMessage") {
-          this.chatList.updateChat(item['_'], item.message);
+          this.updateChat(item['_'], item.message);
         }
         if(item['_'] === "updateEditChannelMessage") {
-          this.chatList.updateChat(item['_'], item.message);
+          this.updateChat(item['_'], item.message);
         }
       })
     }
     if(update['_'] === "updateShortMessage") {
-      this.chatList.updateChat(update['_'], update);
+      this.updateChat(update['_'], update);
     }
     if(update['_'] === "updateShortChatMessage") {
-      this.chatList.updateChat(update['_'], update);
+      this.updateChat(update['_'], update);
     }
     if(update['_'] === "updateShortSentMessage") {
-      this.chatList.updateChat(update['_'], update);
-    }
-
-  }
-  // OLD CONTENT
-  getChatContent(content) {
-    if (content['@type'] === 'messageText') {
-      return content.text.text;
-    }
-    if (content['@type'] === 'messagePhoto') {
-      return 'Photo';
-    }
-    if (content['@type'] === 'messageDocument') {
-      return 'Document';
-    }
-    if (content['@type'] === 'messageSticker') {
-      return `${content.sticker.emoji} Sticker`;
-    }
-    if (content['@type'] === 'messageCall') {
-      return 'Call';
-    }
-    if (content['@type'] === 'messageAnimation') {
-      return 'Animation';
+      this.updateChat(update['_'], update);
     }
   }
 
-  getMessageContent(content) {
-    if (content['@type'] === 'messageText') {
-      return content.text.text;
-    }
-    if (content['@type'] === 'messagePhoto') {
-      let remotePhoto;
-      if (content.photo.sizes[0]) {
-        remotePhoto = content.photo.sizes[0];
-      }
-      if (content.photo.sizes[1]) {
-        remotePhoto = content.photo.sizes[1];
-      }
-      const photoId = `photo-${remotePhoto.photo.id}`;
-      const photoHeight = remotePhoto.height / (remotePhoto.width / 100);
-      const photoElement = `
-        <div id='${photoId}' class='photo'></div>
-        ${content.caption.text ? `<div class="caption">${content.caption.text}</div>` : ''}`;
-      (async () => {
-        await this.client.send({
-          '@type': 'downloadFile',
-          file_id: remotePhoto.photo.id,
-          priority: 1,
-        }).then((result) => {
-          this.getFile(result.remote.id, photoId, photoHeight);
-        }).catch((error) => {
-          console.error(error);
-        });
-      })();
-      return photoElement;
-    }
-    if (content['@type'] === 'messageDocument') {
-      return '[Document]';
-    }
-    if (content['@type'] === 'messageSticker') {
-      const { sticker } = content.sticker;
-      const stickerId = `sticker-${sticker.id}`;
-      const stickerElement = `<div id='${stickerId}' class='sticker'></div>`;
-      (async () => {
-        await this.client.send({
-          '@type': 'downloadFile',
-          file_id: sticker.id,
-          priority: 1,
-        }).then((result) => {
-          this.getFile(result.remote.id, stickerId);
-        }).catch((error) => {
-          console.error(error);
-        });
-      })();
-      return stickerElement;
-    }
-    if (content['@type'] === 'messageCall') {
-      return '[Call]';
-    }
-    if (content['@type'] === 'messageAnimation') {
-      return '[Animation]';
-    }
-    if (content['@type'] === 'messageSupergroupChatCreate') {
-      return 'Chat was created';
-    }
-  }
+  //
+  /**
+   * MESSAGE LIST
+   */
 
-  updateChatReadInbox(update) {
-    const chat = document.getElementById(`chat-${update.chat_id}`);
-    const unreadObj = chat
-      ? document.getElementById(`chat-${update.chat_id}`).querySelector('.chats__item-unread')
-      : null;
-    if (unreadObj) {
-      if (update.unread_count > 0) {
-        unreadObj.innerHTML = update.unread_count;
-      } else {
-        unreadObj.remove();
+  scrollMessages() {
+    if (this.messagesScroll.scrollTop === 0) {
+      if(!this.messagesWereLoaded) {
+        const params = {
+          ...this.params,
+          skip: this.offset,
+        };
+        this.loadMessages(params);
       }
     }
   }
 
-  addMessage(message, update) {
+  addMessage(item, update = false, firstLoad = false) {
+    const message = new Object({
+      id: item.id,
+      message: item.message,
+      timestamp: item.date,
+      date: getTime(item.date),
+      is_outgoing: false,
+    });
+
     const messageView = document.createElement('div');
     messageView.className = 'messages__item';
     messageView.id = `message-${message.id}`;
@@ -226,239 +145,364 @@ class Messenger {
     messageView.innerHTML = `
       <div class="messages__item-avatar"></div>
       <div class="messages__item-text">
-      ${this.getMessageContent(message.content)}
+      ${message.message}
       <div class="messages__item-time">
-        ${getTime(message.date)}
+        ${message.date}
       </div>
       </div>`;
     if (!update) {
       this.messageObj.prepend(messageView);
+      if (firstLoad) {
+        setTimeout(() => {
+          this.messagesScroll.scrollTop = this.messagesScroll.scrollHeight;
+        }, 200);
+      } else {
+        setTimeout(() => {
+          this.messagesScroll.scrollTop = document.getElementById(`message-${this.scrollMessageId}`).offsetTop;
+        }, 200);
+      }
     } else {
       this.messageObj.append(messageView);
       this.messagesScroll.scrollTop = this.messagesScroll.scrollHeight;
     }
   }
 
-  setChatInfo2(chat) {
-  }
-
-  readMessages(chatId, messages) {
-    this.client.send({
-      '@type': 'viewMessages',
-      chat_id: chatId,
-      message_ids: messages.map((item) => item.id),
-      force_read: true,
-    }).catch((error) => {
-      console.error(error);
+  loadMessages(params, firstLoad = false) {
+    if(firstLoad) {
+      this.offset = 0;
+      this.messageObj.innerHTML = '';
+    }
+    params.take = this.limit;
+    this.params = params;
+    this.api.getHistory(params).then((response) => {
+      const { messages } = response;
+      if(messages.length < this.limit) {
+        this.messagesWereLoaded = true;
+      }
+      this.offset = this.offset + this.limit;
+      if(!!messages[0].id) {
+        this.scrollMessageId = messages[0].id;
+      }
+      messages.forEach((item) => {
+        this.addMessage(item, false, firstLoad);
+      });
+      if (firstLoad) {
+        setTimeout(() => {
+          this.messagesWereLoaded = false;
+          this.messagesScroll.scrollTop = this.messagesScroll.scrollHeight;
+        }, 200);
+      }
     });
   }
 
-  messageList2(chat, lastMessage, getHistory) {
-    const MESSAGES_LIMIT = this.LIMIT;
-    const MESSAGES_OFFSET = 0;
-    if (!getHistory) {
-      this.messageObj.innerHTML = '';
-      this.messagesScroll.scrollTop = this.messagesScroll.scrollHeight;
-      this.chat = chat;
-      this.setChatInfo(chat);
-      this.setActiveChat(chat);
-    }
-    (async () => {
-      const response = await this.client.send({
-        '@type': 'getChatHistory',
-        chat_id: chat.id,
-        from_message_id: lastMessage.id,
-        offset: MESSAGES_OFFSET,
-        limit: MESSAGES_LIMIT,
-        only_local: false,
-      }).catch((error) => {
-        console.error(error);
-      });
-      const messagesArray = response.messages;
-      this.lastMessage = messagesArray[messagesArray.length - 1];
-      if (getHistory) {
-        this.messageForScroll = messagesArray[0].id;
+  /**
+   * CHAT LIST
+   */
+
+  getChats(chatsOffset, updateId = 0) {
+    this.api.getDialogs(chatsOffset, this.limit).then((response) => {
+      const { result, offset } = response;
+      const {
+        dialogs, messages, chats, users,
+      } = result;
+      if(dialogs.length < this.limit) {
+        this.chatsWereLoaded = true;
       }
-      if (!getHistory) {
-        this.addMessage(lastMessage);
-        this.readMessages(chat.id, [lastMessage]);
-        this.readMessages(chat.id, messagesArray);
-      }
-      messagesArray.forEach((item) => {
-        this.addMessage(item);
+      console.log('getChats', result);
+      this.chatsOffset = offset;
+      dialogs.forEach((item) => {
+        if (!updateId) {
+          this.configureChat(item, messages, chats, users);
+        } else {
+          if (item.peer.channel_id === updateId || item.peer.user_id === updateId || item.peer.chat_id === updateId) {
+            this.configureChat(item, messages, chats, users, true);
+          }
+        }
       });
-      this.client.send({
-        '@type': 'readAllChatMentions',
-        chat_id: chat.id,
-      }).catch((error) => {
-        console.error(error);
-      });
-      if (!getHistory) {
-        setTimeout(() => {
-          this.messagesScroll.scrollTop = this.messagesScroll.scrollHeight;
-        }, 50);
-      } else {
-        this.messagesScroll.scrollTop = document.getElementById(`message-${this.messageForScroll}`).offsetTop;
-      }
-    })();
-    storage.setObject('chat', chat);
+    });
   }
 
-  addChat(chatId, isUpdate) {
-    (async () => {
-      const response = await this.client.send({
-        '@type': 'getChat',
-        chat_id: chatId,
-      }).catch((error) => {
-        console.error(error);
-      });
-      const chatPhotoId = `avatar-${chatId}`;
-      const chatView = document.createElement('div');
-      chatView.className = 'chats__item';
-      chatView.id = `chat-${chatId}`;
-      chatView.innerHTML = `
-        <div id='${chatPhotoId}' class="chats__item-avatar"></div>
-        <div class="chats__item-title">${response.title ? response.title : wordsList.deletedAccount}</div>
-        <div class="chats__item-last">${this.getChatContent(response.last_message.content)}</div>
-        <div class="chats__item-time">
-            ${transformDate(response.last_message.date)}
-        </div>
-        ${response.unread_count > 0 ? `<div class="chats__item-unread">${response.unread_count}</div>` : ''}`;
-      chatView.addEventListener('click', () => this.messageList(response, response.last_message, false));
-      if (!isUpdate) {
-        this.chatsObj.append(chatView);
-        this.lastChatId = response.id;
-        this.lastChatOrder = response.order;
-      } else {
-        const chatElement = document.getElementById(`chat-${chatId}`);
-        if (chatElement) {
-          this.chatsObj.removeChild(chatElement);
-        }
-        this.chatsObj.prepend(chatView);
+  configureChat(item, messages, chats, users, update = false) {
+    const chat = new Object({
+      arrow: '',
+      arrowClass: item.read_outbox_max_id >= item.top_message ? 'arrow-read' : 'arrow',
+      id: '',
+      access_hash: '',
+      avatar: '',
+      title: '',
+      message: '',
+      mute: !!item.notify_settings.mute_until,
+      peer: item.peer,
+      pinned: !!item.pFlags['pinned'],
+      flags: item.flags,
+      date: '',
+      timestamp: '',
+      type: '',
+      unread_count: item.unread_count,
+      isChannel: false,
+    });
+
+    messages.forEach((message) => {
+      if (item.top_message === message.id) {
+        chat.arrow = message.from_id === this.userAuth.id;
+        chat.message = message;
+        chat.timestamp = message.date;
+        chat.date = transformDate(message.date);
       }
-      if (response.photo) {
-        await this.client.send({
-          '@type': 'downloadFile',
-          file_id: response.photo.small.id,
-          priority: 1,
-        }).then((result) => {
-          this.getFile(result.remote.id, chatPhotoId, true);
+    });
+    if (item.peer['_'] === 'peerUser') {
+      users.forEach((user) => {
+        if (item.peer.user_id === user.id) {
+          chat.id = user.id;
+          chat.title = `${user.first_name ? user.first_name : ''} ${user.last_name ? user.last_name : ''}`;
+          chat.access_hash = user.access_hash ? user.access_hash : '';
+          chat.avatar = user.photo ? user.photo.photo_small : '';
+          chat.type = 'user';
+        }
+      });
+    } else {
+      chats.forEach((channel) => {
+        if (item.peer.channel_id === channel.id || item.peer.chat_id === channel.id) {
+          chat.id = channel.id;
+          chat.title = channel.title;
+          chat.access_hash = channel.access_hash ? channel.access_hash : '';
+          chat.isChannel = true;
+          chat.avatar = channel.photo ? channel.photo.photo_small : '';
+          chat.type = !!item.peer.channel_id ? 'channel' : 'chat';
+        }
+      });
+    }
+    if (!!document.getElementById(`avatar-${chat.id}`)) {
+      chat.avatarNode = document.getElementById(`avatar-${chat.id}`).cloneNode();
+      chat.avatarNode.innerHTML = document.getElementById(`avatar-${chat.id}`).innerHTML;
+    }
+    this.addChat(chat, update);
+    if (!update || !!document.getElementById(`avatar-${chat.id}`)) {
+      if (chat.avatar) {
+        const inputLocation = chat.avatar;
+        inputLocation._ = 'inputFileLocation';
+        this.api.invokeApi('upload.getFile', {
+          location: inputLocation,
+          offset: 0,
+          limit: 1024 * 1024,
+        }).then((response) => {
+          const base64 = `data:image/jpeg;base64,${btoa(String.fromCharCode.apply(null, response.bytes))}`;
+          document.getElementById(`avatar-${chat.id}`).style.backgroundImage = `url(${base64})`;
         }).catch((error) => {
           console.error(error);
-        });
-      } else if (response.title) {
-        const titleArray = response.title.split(' ');
-        document.getElementById(chatPhotoId).innerText = titleArray.length === 1
-          ? titleArray[0].split('')[0]
-          : titleArray[0].split('')[0] + titleArray[1].split('')[0];
-      }
-    })();
-  }
-
-  chatList(CHATS_OFFSET_ID, CHATS_OFFSET_ORDER, UpdateMessages) {
-    const CHATS_LIMIT = this.LIMIT;
-    this.chatsObj = document.getElementById('chats');
-    this.client.send({
-      '@type': 'getChats',
-      offset_order: CHATS_OFFSET_ORDER,
-      offset_chat_id: CHATS_OFFSET_ID,
-      limit: CHATS_LIMIT,
-    }).then((result) => {
-      if (result.chat_ids.length > 0) {
-        result.chat_ids.forEach((item) => {
-          this.addChat(item, false);
+          document.getElementById(`avatar-${chat.id}`).innerHTML = this.getDefaultAvatarText(chat.title);
+          document.getElementById(`avatar-${chat.id}`).style.backgroundColor = this.getRandomColor();
         });
       } else {
-        const chatsInfo = document.createElement('div');
-        chatsInfo.innerHTML = 'Chats are not found';
-        chatsInfo.style.textAlign = 'center';
-        this.chatsObj.prepend(chatsInfo);
+        document.getElementById(`avatar-${chat.id}`).innerHTML = this.getDefaultAvatarText(chat.title);
+        document.getElementById(`avatar-${chat.id}`).style.backgroundColor = this.getRandomColor();
       }
-      if (UpdateMessages) {
-        const chatStorage = storage.getObject('chat');
-        if (chatStorage) {
-          (async () => {
-            const chat = await this.client.send({
-              '@type': 'getChat',
-              chat_id: chatStorage.id,
-            });
-            this.messageList(chat, chat.last_message, false);
-          })();
-        } else if (result.chat_ids.length > 0) {
-          (async () => {
-            const chat = await this.client.send({
-              '@type': 'getChat',
-              chat_id: result.chat_ids[0],
-            });
-            this.messageList(chat, chat.last_message, false);
-          })();
-        } else {
-          const messagesInfo = document.createElement('div');
-          messagesInfo.innerHTML = 'There are no messages...';
-          messagesInfo.style.textAlign = 'center';
-          messagesInfo.style.paddingTop = '20px';
-          messagesInfo.style.fontSize = '24px';
-          messagesInfo.style.opacity = '0.5';
-          const chatInfo = document.createElement('div');
-          chatInfo.innerHTML = 'Please choose the chat';
-          chatInfo.style.padding = '20px';
-          chatInfo.style.fontSize = '18px';
-          chatInfo.style.opacity = '0.5';
-          this.messageObj.prepend(messagesInfo);
-          this.chatInfo.prepend(chatInfo);
-        }
-      }
-    }).catch((error) => {
-      console.error(error);
-    });
+    }
   }
 
-  connectDB(f) {
-    const request = indexedDB.open('tdlib', 1);
-    request.onerror = function (err) {
-      console.error(err);
-    };
-    request.onsuccess = function () {
-      f(request.result);
-    };
+  scrollChats(chatsObj) {
+    if ((chatsObj.scrollHeight - chatsObj.offsetHeight) === chatsObj.scrollTop) {
+      if(!this.chatsWereLoaded) {
+        this.getChats(this.chatsOffset);
+      }
+    }
   }
 
-  getFile(fileId, fileOdjId, photoHeight) {
-    this.connectDB((db) => {
-      const request = db.transaction(['keyvaluepairs'], 'readonly').objectStore('keyvaluepairs').get(fileId);
-      request.onerror = (e) => console.error(e);
-      request.onsuccess = () => {
-        const imgFile = request.result ? request.result : -1;
-        const URL = window.URL || window.webkitURL;
-        if (imgFile !== -1) {
-          const imgURL = URL.createObjectURL(imgFile);
-          const imgElement = document.getElementById(fileOdjId);
-          imgElement.style.backgroundImage = `url(${imgURL})`;
-          if (photoHeight) {
-            imgElement.style.paddingTop = `${photoHeight}%`;
+  getMessage(message) {
+    if (message.message) {
+      return message.message;
+    }
+    if (!!message.media) {
+      let mediaType;
+      switch (message.media['_']) {
+        case 'messageMediaDocument': {
+          if (!!message.media.document.attributes) {
+            message.media.document.attributes.forEach((item) => {
+              if (!mediaType) {
+                switch (item['_']) {
+                  case 'documentAttributeSticker': {
+                    mediaType = item.alt + ' Sticker';
+                    break;
+                  }
+                  case 'documentAttributeFilename': {
+                    mediaType = item.file_name;
+                    break;
+                  }
+                  case 'documentAttributeAudio': {
+                    if (!!item.pFlags.voice) {
+                      mediaType = 'Voice Message';
+                    } else {
+                      mediaType = 'Audio';
+                    }
+                  }
+                }
+              }
+            });
+          } else {
+            mediaType = 'Document';
           }
-        } else {
-          setTimeout(() => this.getFile(fileId, fileOdjId), 500);
+          break;
         }
-      };
-    });
+        case 'messageMediaPhoto': {
+          mediaType = message.media.caption ? `🖼️${message.media.caption}` : 'Photo';
+          break;
+        }
+        case 'messageMediaGeo': {
+          mediaType = 'Location';
+          break;
+        }
+        default:
+          console.log('MEDIAA', message);
+      }
+      return mediaType;
+    }
+    // TODO Indetify users
+    if (message['_'] === 'messageService') {
+      let messageService;
+      switch (message.action['_']) {
+        case 'messageActionChatAddUser' : {
+          messageService = 'join the group';
+          break;
+        }
+        case 'messageActionCustomAction' : {
+          messageService = message.action.message;
+          break;
+        }
+        case 'messageActionChatMigrateTo' : {
+          messageService = 'messageActionChatMigrateTo';
+          break;
+        }
+        case 'messageActionChatDeleteUser' : {
+          messageService = 'messageActionChatDeleteUser';
+          break;
+        }
+        case "messageActionChatEditTitle" : {
+          messageService = `channel renamed to "${message.action.title}"`;
+          break;
+        }
+      }
+      return messageService;
+    }
+  }
+
+  getDefaultAvatarText(title) {
+    if (!!title) {
+      const avatarText = title.split(' ');
+      if (avatarText.length === 1) {
+        return avatarText[0].charAt(0) + avatarText[0].charAt(1);
+      } else {
+        return avatarText[0].charAt(0) + avatarText[1].charAt(0);
+      }
+    } else {
+      return '';
+    }
+  }
+
+  getRandomColor() {
+    const colors = ['#28a745', '#d73a49', '#6f42c1', '#0366d6', '#f66a0a'];
+    return colors[Math.floor(Math.random() * 5)];
+  }
+
+  addChat(chat, update = false) {
+    const chatPhotoId = `avatar-${chat.id}`;
+    const chatView = document.createElement('div');
+    chatView.className = 'chats__item';
+    chatView.id = `chat-${chat.id}`;
+    chatView.innerHTML = `
+    ${chat.avatarNode ? '' : `<div id='${chatPhotoId}' class="chats__item-avatar"></div>`}
+    <div class="chats__item-title">
+        <div class="chats__item-title-text" title="${chat.title}">${chat.title}</div>
+        ${chat.mute ? `<div class="chats__item-mute-icon"></div>` : ''}
+    </div>
+    <div class="chats__item-last">${chat.arrow ? 'You: ' : ''}${this.getMessage(chat.message)}</div>
+    <div class="chats__item-time">
+        ${chat.arrow ? `<div class="${chat.arrowClass}"></div>` : ''}
+        ${chat.date}
+    </div>
+    ${chat.pinned && !chat.unread_count ? `<div class="chats__item-pinned"></div>` : ''}
+    ${chat.unread_count ? `<div class="chats__item-unread ${chat.mute ? 'chats__item-unread_mute' : ''}">${chat.unread_count}</div>` : ''}`;
+    chatView.addEventListener('click', () => this.setActiveChat(chat));
+    chatView.addEventListener('click', () => this.setChatInfo(chat));
+    if (chat.avatarNode) {
+      chatView.prepend(chat.avatarNode);
+    }
+    if (update) {
+      this.deleteChat(chat.id);
+      if (chat.pinned) {
+        this.chatsPinnedObj.prepend(chatView);
+      } else {
+        this.chatsObj.prepend(chatView);
+      }
+    } else {
+      if (chat.pinned) {
+        this.chatsPinnedObj.append(chatView);
+      } else {
+        this.chatsObj.append(chatView);
+      }
+    }
+  }
+
+  deleteChat(id) {
+    if(!!document.getElementById(`chat-${id}`)) {
+      document.getElementById(`chat-${id}`).remove();
+    }
+  }
+
+  updateChat(type, message) {
+    console.log('type, message', type, message);
+    switch (type) {
+      case 'updateNewMessage' : {
+        const { from_id, to_id } = message;
+        if (!!to_id.chat_id) {
+          this.getChats(0, to_id.chat_id);
+        } else {
+          const updateId = from_id === this.userAuth.id ? to_id.user_id : from_id;
+          this.getChats(0, updateId);
+        }
+        break;
+      }
+      case "updateEditChannelMessage" : {
+        const { to_id } = message;
+        this.getChats(0, to_id.channel_id);
+        break;
+      }
+      case 'updateNewChannelMessage' : {
+        const { to_id } = message;
+        this.getChats(0, to_id.channel_id);
+        break;
+      }
+      case 'updateShortMessage' : {
+        this.getChats(0, message.user_id);
+        break;
+      }
+      case 'updateShortSentMessage' : {
+        debugger;
+        this.getChats(0, message.user_id);
+        break;
+      }
+      case 'updateShortChatMessage' : {
+        this.getChats(0, message.chat_id);
+        break;
+      }
+      default :
+        break;
+    }
   }
 
   render() {
-    // this.messagesScroll = document.getElementById('messagesScroll');
+    // Chat list init
     this.chatInfo = document.getElementById('chatInfo');
-    // this.chatsScroll = document.getElementById('chatsScroll');
-    // this.messageObj = document.getElementById('messages');
-    // this.messagesScroll.onscroll = () => this.scrollMessages(this.messagesScroll);
-    // this.chatsScroll.onscroll = () => this.scrollChats(this.chatsScroll);
-    // this.chatList(0, '9223372036854775807', true);
-
-    this.chatList = new ChatList(this);
-    this.messageList = new MessageList(this.onUpdate);
-    this.chatList.init();
-    this.messageList.init();
-    // this.api.subscribe(this.userAuth.id, (update) => this.onUpdate(update));
-    // this.client.onUpdate = (update) => this.onUpdate(update);
+    this.chatsObj = document.getElementById('chats');
+    this.chatsPinnedObj = document.getElementById('pinnedChats');
+    this.chatsScroll = document.getElementById('chatsScroll');
+    this.getChats();
+    this.chatsScroll.onscroll = () => this.scrollChats(this.chatsScroll);
+    // Message list init
+    this.messagesScroll = document.getElementById('messagesScroll');
+    this.messageObj = document.getElementById('messages');
+    this.messagesScroll.onscroll = () => this.scrollMessages();
+    // Subscribe to updatesx
+    this.api.subscribe(this.userAuth.id, (update) => this.onUpdate(update));
   }
 }
 export default Messenger;
