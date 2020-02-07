@@ -31,16 +31,28 @@ class Messenger {
   }
 
   // NEW STAFF
+  setChatInfo(chat) {
+    console.log('setChatInfo', chat);
+  }
+
   setActiveChat(chat) {
     if (document.querySelector('.chats__item_active')) {
       document.querySelector('.chats__item_active').classList.remove('chats__item_active');
     }
     const chatElement = document.getElementById(`chat-${chat.id}`);
     chatElement.classList.add('chats__item_active');
-    const peer = this.api.getInputPeerByID(chat.id, chat.access_hash, chat.isChannel);
-    const messageList = new MessageList();
-    messageList.init();
-    messageList.loadMessages(peer);
+    // this.setChatInfo(chat);
+    if(!!!this.messageList) {
+      this.messageList = new MessageList();
+      this.messageList.init();
+    }
+    const params = {
+      id: chat.type === 'user' ? chat.id : -chat.id,
+      type: chat.type
+    };
+
+    this.messageList.loadMessages(params, true);
+
   }
 
   onUpdate(update) {
