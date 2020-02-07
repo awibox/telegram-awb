@@ -14,26 +14,29 @@ class ChatList {
     this.chatsScroll = '';
     this.chatsObj = '';
     this.chatsPinnedObj = '';
+    this.chatsWasLoaded = false;
   }
 
   scrollChats(chatsObj) {
     if ((chatsObj.scrollHeight - chatsObj.offsetHeight) === chatsObj.scrollTop) {
-      this.getChats(this.chatsOffset);
+      if(!this.chatsWasLoaded) {
+        this.getChats(this.chatsOffset);
+      }
     }
   }
 
   getMessage(message) {
-    if(message.message) {
+    if (message.message) {
       return message.message;
     }
-    if(!!message.media) {
+    if (!!message.media) {
       let mediaType;
       switch (message.media['_']) {
         case 'messageMediaDocument': {
-          if(!!message.media.document.attributes) {
+          if (!!message.media.document.attributes) {
             message.media.document.attributes.forEach((item) => {
-              if(!mediaType) {
-                switch(item['_']) {
+              if (!mediaType) {
+                switch (item['_']) {
                   case 'documentAttributeSticker': {
                     mediaType = item.alt + ' Sticker';
                     break;
@@ -43,10 +46,10 @@ class ChatList {
                     break;
                   }
                   case 'documentAttributeAudio': {
-                    if(!!item.pFlags.voice) {
-                      mediaType = 'Voice Message'
+                    if (!!item.pFlags.voice) {
+                      mediaType = 'Voice Message';
                     } else {
-                      mediaType = 'Audio'
+                      mediaType = 'Audio';
                     }
                   }
                 }
@@ -65,14 +68,15 @@ class ChatList {
           mediaType = 'Location';
           break;
         }
-        default: console.log('MEDIAA', message);
+        default:
+          console.log('MEDIAA', message);
       }
       return mediaType;
     }
     // TODO Indetify users
-    if(message['_'] === "messageService") {
+    if (message['_'] === 'messageService') {
       let messageService;
-      switch(message.action['_']) {
+      switch (message.action['_']) {
         case 'messageActionChatAddUser' : {
           messageService = 'join the group';
           break;
@@ -95,9 +99,9 @@ class ChatList {
   }
 
   getDefaultAvatarText(title) {
-    if(!!title) {
+    if (!!title) {
       const avatarText = title.split(' ');
-      if(avatarText.length === 1) {
+      if (avatarText.length === 1) {
         return avatarText[0].charAt(0) + avatarText[0].charAt(1);
       } else {
         return avatarText[0].charAt(0) + avatarText[1].charAt(0);
@@ -121,28 +125,28 @@ class ChatList {
     ${chat.avatarNode ? '' : `<div id='${chatPhotoId}' class="chats__item-avatar"></div>`}
     <div class="chats__item-title">
         <div class="chats__item-title-text" title="${chat.title}">${chat.title}</div>
-        ${chat.mute ? `<div class="chats__item-mute-icon"></div>`: ''}
+        ${chat.mute ? `<div class="chats__item-mute-icon"></div>` : ''}
     </div>
     <div class="chats__item-last">${chat.arrow ? 'You: ' : ''}${this.getMessage(chat.message)}</div>
     <div class="chats__item-time">
-        ${chat.arrow ? `<div class="${chat.arrowClass}"></div>`: ''}
+        ${chat.arrow ? `<div class="${chat.arrowClass}"></div>` : ''}
         ${chat.date}
     </div>
     ${chat.pinned && !chat.unread_count ? `<div class="chats__item-pinned"></div>` : ''}
     ${chat.unread_count ? `<div class="chats__item-unread ${chat.mute ? 'chats__item-unread_mute' : ''}">${chat.unread_count}</div>` : ''}`;
     chatView.addEventListener('click', () => this.setActiveChat(chat));
-    if(chat.avatarNode) {
+    if (chat.avatarNode) {
       chatView.prepend(chat.avatarNode);
     }
     if (update) {
       this.deleteChat(chat.id);
-      if(chat.pinned) {
+      if (chat.pinned) {
         this.chatsPinnedObj.prepend(chatView);
       } else {
         this.chatsObj.prepend(chatView);
       }
     } else {
-      if(chat.pinned) {
+      if (chat.pinned) {
         this.chatsPinnedObj.append(chatView);
       } else {
         this.chatsObj.append(chatView);
@@ -197,12 +201,12 @@ class ChatList {
         }
       });
     }
-    if(update) {
+    if (!!document.getElementById(`avatar-${chat.id}`)) {
       chat.avatarNode = document.getElementById(`avatar-${chat.id}`).cloneNode();
       chat.avatarNode.innerHTML = document.getElementById(`avatar-${chat.id}`).innerHTML;
     }
     this.addChat(chat, update);
-    if(!update) {
+    if (!update || !!document.getElementById(`avatar-${chat.id}`)) {
       if (chat.avatar) {
         this.api.getFile(chat.avatar).then((response) => {
           const base64 = `data:image/jpeg;base64,${btoa(String.fromCharCode.apply(null, response.bytes))}`;
@@ -221,17 +225,21 @@ class ChatList {
 
   getChats(chatsOffset, updateId = 0) {
     this.api.getDialogs(chatsOffset, this.limit).then((response) => {
-      const {result, offset} = response;
+      const { result, offset } = response;
       const {
         dialogs, messages, chats, users,
       } = result;
+      if(dialogs.length < this.limit) {
+        this.chatsWasLoaded = true;
+      }
       console.log('getChats', result);
       this.chatsOffset = offset;
       dialogs.forEach((item) => {
-        if(!updateId) {
+        if (!updateId) {
           this.configureChat(item, messages, chats, users);
         } else {
-          if(item.peer.channel_id === updateId || item.peer.user_id === updateId || item.peer.chat_id === updateId) {
+          debugger;
+          if (item.peer.channel_id === updateId || item.peer.user_id === updateId || item.peer.chat_id === updateId) {
             this.configureChat(item, messages, chats, users, true);
           }
         }
@@ -240,24 +248,39 @@ class ChatList {
   }
 
   deleteChat(id) {
-    document.getElementById(`chat-${id}`).remove();
+    if(!!document.getElementById(`chat-${id}`)) {
+      document.getElementById(`chat-${id}`).remove();
+    }
   }
 
-  updateChat(type, message){
+  updateChat(type, message) {
     console.log('type, message', type, message);
-    if(type === 'updateNewMessage') {
-      const { from_id, to_id } = message;
-      if(!!to_id.chat_id) {
-        this.getChats(0, to_id.chat_id);
-      } else {
-        const updateId = from_id === this.userAuth.id ? to_id.user_id : from_id;
-        this.getChats(0, updateId);
+    switch (type) {
+      case 'updateNewMessage' : {
+        const { from_id, to_id } = message;
+        if (!!to_id.chat_id) {
+          this.getChats(0, to_id.chat_id);
+        } else {
+          const updateId = from_id === this.userAuth.id ? to_id.user_id : from_id;
+          this.getChats(0, updateId);
+        }
+        break;
       }
-
-    }
-    if(type === "updateNewChannelMessage") {
-      const { to_id } = message;
-      this.getChats(0, to_id.channel_id);
+      case 'updateNewChannelMessage' : {
+        const { to_id } = message;
+        this.getChats(0, to_id.channel_id);
+        break;
+      }
+      case 'updateShortMessage' : {
+        this.getChats(0, message.user_id);
+        break;
+      }
+      case 'updateShortChatMessage' : {
+        this.getChats(0, message.chat_id);
+        break;
+      }
+      default :
+        break;
     }
   }
 
