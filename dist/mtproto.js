@@ -51,10 +51,10 @@ d=(h[l++]|h[l++]<<8|h[l++]<<16|h[l++]<<24)>>>0;(a.length&4294967295)!==d&&n(Erro
 !function(r){if("object"==typeof exports)module.exports=r();else if("function"==typeof define&&define.amd)define(r);else{var e;"undefined"!=typeof window?e=window:"undefined"!=typeof global?e=global:"undefined"!=typeof self&&(e=self),e.ContainerModule=r()}}(function(){return function r(e,n,t){function i(s,u){if(!n[s]){if(!e[s]){var f="function"==typeof require&&require;if(!u&&f)return f(s,!0);if(o)return o(s,!0);throw new Error("Cannot find module '"+s+"'")}var R=n[s]={exports:{}};e[s][0].call(R.exports,function(r){var n=e[s][1][r];return i(n?n:r)},R,R.exports,r,e,n,t)}return n[s].exports}for(var o="function"==typeof require&&require,s=0;s<t.length;s++)i(t[s]);return i}({1:[function(r,e,n){e.exports=r("./lib/ioc")},{"./lib/ioc":2}],2:[function(r,e,n){function t(){this._modules={}}function i(r,e,n){if(!r.isReady()){if(e.indexOf(r._name)!==-1)throw new Error(s.format(u.ERROR_CIRCULAR_DEPENDENCY,[r._name]));var t=[];r._deps.forEach(function(o){var f=n[o];if(!s.isDefined(f))throw new Error(s.format(u.ERROR_MODULE_NOT_FOUND,[o]));f.isReady()||(e.push(r._name),i(f,e,n),e.pop()),t.push(f.getInstance())}),r.build(t)}}var o=r("./module"),s=r("./utils"),u=r("./strings");t.prototype.register=function(r,e,n){if(!s.isString(r))throw new Error(u.ERROR_MODULE_NAME_INCORRECT);if(s.isDefined(this._modules[r]))throw new Error(s.format(u.ERROR_MODULE_ALREADY_DEFINED,[r]));if(s.isFunction(e)&&(n=e,e=[]),!s.isArray(e)||!s.isFunction(n))throw new Error(u.ERROR_PARAMETERS_INCORRECT);return s.isArray(n.dependencies)&&(e=s.union(e,n.dependencies)),this._modules[r]=new o(r,e,n),this},t.prototype.resolve=function(r){if(!s.isDefined(this._modules[r]))throw new Error(s.format(u.ERROR_MODULE_NOT_FOUND,[r]));return this._modules[r].getInstance()},t.prototype.init=function(){for(var r in this._modules)this._modules.hasOwnProperty(r)&&i(this._modules[r],[],this._modules);return this},e.exports=t},{"./module":3,"./strings":4,"./utils":5}],3:[function(r,e,n){function t(r,e,n){this._name=r,this._deps=e,this._ctor=n}var i=r("./utils"),o=r("./strings");t.prototype.isReady=function(){return i.isDefined(this._instance)},t.prototype.build=function(r){if(this.isReady())throw new Error(i.format(o.ERROR_MODULE_ALREADY_INITIALIZED,[this._name]));if(this._instance=this._ctor.apply(null,r),!this.isReady())throw new Error(i.format(o.ERROR_MODULE_INITIALIZE,[this._name]))},t.prototype.getInstance=function(){if(!this.isReady())throw new Error(i.format(o.ERROR_MODULE_NOT_INITIALIZED,[this._name]));return this._instance},e.exports=t},{"./strings":4,"./utils":5}],4:[function(r,e,n){e.exports={ERROR_CIRCULAR_DEPENDENCY:"{0}: Circular dependency",ERROR_MODULE_ALREADY_DEFINED:"{0}: Module is already defined",ERROR_MODULE_ALREADY_INITIALIZED:"{0}: Module is already initialized",ERROR_MODULE_INITIALIZE:"{0}: Module return empty result",ERROR_MODULE_NAME_INCORRECT:"Incorrect module name",ERROR_MODULE_NOT_INITIALIZED:"{0}: Module is not initialized",ERROR_MODULE_NOT_FOUND:"{0}: Module not found",ERROR_PARAMETERS_INCORRECT:"Incorrect parameters"}},{}],5:[function(r,e,n){function t(r){return"string"==typeof r}function i(r){return"function"==typeof r}function o(r){return Array.isArray(r)}function s(r){return"undefined"!=typeof r}function u(r,e){return r.replace(/\{(\d+)}/g,function(r,n){return e[parseInt(n)]})}function f(){for(var r=Array.prototype.slice.call(arguments),e=r[0],n=1;n<r.length;n++){var t=r[n];for(var i in t)t.hasOwnProperty(i)&&s(t[i])&&(e[i]=t[i])}return e}function R(){for(var r=Array.prototype.slice.call(arguments),e=[],n=0;n<r.length;n++){var t=r[n];if(!o(t))throw new Error(u("Argument {0} is not array",[n+1]));for(var i=0;i<t.length;i++)e.push(t[i])}return e}n.isString=t,n.isFunction=i,n.isArray=o,n.isDefined=s,n.format=u,n.extend=f,n.union=R},{}]},{},[1])(1)});
 var CryptoJS=CryptoJS||function(a,b){var c={},d=c.lib={},e=d.Base=function(){function a(){}return{extend:function(b){a.prototype=this;var c=new a;return b&&c.mixIn(b),c.hasOwnProperty("init")||(c.init=function(){c.$super.init.apply(this,arguments)}),c.init.prototype=c,c.$super=this,c},create:function(){var a=this.extend();return a.init.apply(a,arguments),a},init:function(){},mixIn:function(a){for(var b in a)a.hasOwnProperty(b)&&(this[b]=a[b]);a.hasOwnProperty("toString")&&(this.toString=a.toString)},clone:function(){return this.init.prototype.extend(this)}}}(),f=d.WordArray=e.extend({init:function(a,c){a=this.words=a||[],c!=b?this.sigBytes=c:this.sigBytes=4*a.length},toString:function(a){return(a||h).stringify(this)},concat:function(a){var b=this.words,c=a.words,d=this.sigBytes,e=a.sigBytes;if(this.clamp(),d%4)for(var f=0;e>f;f++){var g=c[f>>>2]>>>24-f%4*8&255;b[d+f>>>2]|=g<<24-(d+f)%4*8}else if(c.length>65535)for(var f=0;e>f;f+=4)b[d+f>>>2]=c[f>>>2];else for(var f=0;f<c.length;f++)b.push(c[f]);return this.sigBytes+=e,this},clamp:function(){var b=this.words,c=this.sigBytes;b[c>>>2]&=4294967295<<32-c%4*8,b.length=a.ceil(c/4)},clone:function(){var a=e.clone.call(this);return a.words=this.words.slice(0),a},random:function(b){for(var c=[],d=0;b>d;d+=4)c.push(4294967296*a.random()|0);return new f.init(c,b)}}),g=c.enc={},h=g.Hex={stringify:function(a){for(var b=a.words,c=a.sigBytes,d=[],e=0;c>e;e++){var f=b[e>>>2]>>>24-e%4*8&255;d.push((f>>>4).toString(16)),d.push((15&f).toString(16))}return d.join("")},parse:function(a){for(var b=a.length,c=[],d=0;b>d;d+=2)c[d>>>3]|=parseInt(a.substr(d,2),16)<<24-d%8*4;return new f.init(c,b/2)}},i=g.Latin1={stringify:function(a){for(var b=a.words,c=a.sigBytes,d=[],e=0;c>e;e++){var f=b[e>>>2]>>>24-e%4*8&255;d.push(String.fromCharCode(f))}return d.join("")},parse:function(a){for(var b=a.length,c=[],d=0;b>d;d++)c[d>>>2]|=(255&a.charCodeAt(d))<<24-d%4*8;return new f.init(c,b)}},j=g.Utf8={stringify:function(a){try{return decodeURIComponent(escape(i.stringify(a)))}catch(b){throw new Error("Malformed UTF-8 data")}},parse:function(a){return i.parse(unescape(encodeURIComponent(a)))}},k=d.BufferedBlockAlgorithm=e.extend({reset:function(){this._data=new f.init,this._nDataBytes=0},_append:function(a){"string"==typeof a&&(a=j.parse(a)),this._data.concat(a),this._nDataBytes+=a.sigBytes},_process:function(b){var c=this._data,d=c.words,e=c.sigBytes,g=this.blockSize,h=4*g,i=e/h;i=b?a.ceil(i):a.max((0|i)-this._minBufferSize,0);var j=i*g,k=a.min(4*j,e);if(j){for(var l=0;j>l;l+=g)this._doProcessBlock(d,l);var m=d.splice(0,j);c.sigBytes-=k}return new f.init(m,k)},clone:function(){var a=e.clone.call(this);return a._data=this._data.clone(),a},_minBufferSize:0}),l=(d.Hasher=k.extend({cfg:e.extend(),init:function(a){this.cfg=this.cfg.extend(a),this.reset()},reset:function(){k.reset.call(this),this._doReset()},update:function(a){return this._append(a),this._process(),this},finalize:function(a){a&&this._append(a);var b=this._doFinalize();return b},blockSize:16,_createHelper:function(a){return function(b,c){return new a.init(c).finalize(b)}},_createHmacHelper:function(a){return function(b,c){return new l.HMAC.init(a,c).finalize(b)}}}),c.algo={});return c}(Math);CryptoJS.lib.Cipher||function(a){var b=CryptoJS,c=b.lib,d=c.Base,e=c.WordArray,f=c.BufferedBlockAlgorithm,g=b.enc,h=(g.Utf8,g.Base64),i=b.algo,j=i.EvpKDF,k=c.Cipher=f.extend({cfg:d.extend(),createEncryptor:function(a,b){return this.create(this._ENC_XFORM_MODE,a,b)},createDecryptor:function(a,b){return this.create(this._DEC_XFORM_MODE,a,b)},init:function(a,b,c){this.cfg=this.cfg.extend(c),this._xformMode=a,this._key=b,this.reset()},reset:function(){f.reset.call(this),this._doReset()},process:function(a){return this._append(a),this._process()},finalize:function(a){a&&this._append(a);var b=this._doFinalize();return b},keySize:4,ivSize:4,_ENC_XFORM_MODE:1,_DEC_XFORM_MODE:2,_createHelper:function(){function a(a){return"string"==typeof a?w:t}return function(b){return{encrypt:function(c,d,e){return a(d).encrypt(b,c,d,e)},decrypt:function(c,d,e){return a(d).decrypt(b,c,d,e)}}}}()}),l=(c.StreamCipher=k.extend({_doFinalize:function(){var a=this._process(!0);return a},blockSize:1}),b.mode={}),m=c.BlockCipherMode=d.extend({createEncryptor:function(a,b){return this.Encryptor.create(a,b)},createDecryptor:function(a,b){return this.Decryptor.create(a,b)},init:function(a,b){this._cipher=a,this._iv=b}}),n=l.CBC=function(){function b(b,c,d){var e=this._iv;if(e){var f=e;this._iv=a}else var f=this._prevBlock;for(var g=0;d>g;g++)b[c+g]^=f[g]}var c=m.extend();return c.Encryptor=c.extend({processBlock:function(a,c){var d=this._cipher,e=d.blockSize;b.call(this,a,c,e),d.encryptBlock(a,c),this._prevBlock=a.slice(c,c+e)}}),c.Decryptor=c.extend({processBlock:function(a,c){var d=this._cipher,e=d.blockSize,f=a.slice(c,c+e);d.decryptBlock(a,c),b.call(this,a,c,e),this._prevBlock=f}}),c}(),o=(l.IGE=function(){function b(a,b,c,d){for(var e=0;d>e;e++)a[c+e]^=b[e]}var c=m.extend();return c.Encryptor=c.extend({processBlock:function(c,d){var e=this._cipher,f=e.blockSize;this._ivp===a&&(this._ivp=this._iv.slice(0,f),this._iv2p=this._iv.slice(f,f+f));var g=c.slice(d,d+f);b(c,this._ivp,d,f),e.encryptBlock(c,d),b(c,this._iv2p,d,f),this._ivp=c.slice(d,d+f),this._iv2p=g}}),c.Decryptor=c.extend({processBlock:function(c,d){var e=this._cipher,f=e.blockSize;this._ivp===a&&(this._ivp=this._iv.slice(0,f),this._iv2p=this._iv.slice(f,2*f));var g=c.slice(d,d+f);b(c,this._iv2p,d,f),e.decryptBlock(c,d),b(c,this._ivp,d,f),this._ivp=g,this._iv2p=c.slice(d,d+f)}}),c}(),b.pad={}),p=o.Pkcs7={pad:function(a,b){for(var c=4*b,d=c-a.sigBytes%c,f=d<<24|d<<16|d<<8|d,g=[],h=0;d>h;h+=4)g.push(f);var i=e.create(g,d);a.concat(i)},unpad:function(a){var b=255&a.words[a.sigBytes-1>>>2];a.sigBytes-=b}},q=(o.NoPadding={pad:function(){},unpad:function(){}},c.BlockCipher=k.extend({cfg:k.cfg.extend({mode:n,padding:p}),reset:function(){k.reset.call(this);var a=this.cfg,b=a.iv,c=a.mode;if(this._xformMode==this._ENC_XFORM_MODE)var d=c.createEncryptor;else{var d=c.createDecryptor;this._minBufferSize=1}this._mode=d.call(c,this,b&&b.words)},_doProcessBlock:function(a,b){this._mode.processBlock(a,b)},_doFinalize:function(){var a=this.cfg.padding;if(this._xformMode==this._ENC_XFORM_MODE){a.pad(this._data,this.blockSize);var b=this._process(!0)}else{var b=this._process(!0);a.unpad(b)}return b},blockSize:4}),c.CipherParams=d.extend({init:function(a){this.mixIn(a)},toString:function(a){return(a||this.formatter).stringify(this)}})),r=b.format={},s=r.OpenSSL={stringify:function(a){var b=a.ciphertext,c=a.salt;if(c)var d=e.create([1398893684,1701076831]).concat(c).concat(b);else var d=b;return d.toString(h)},parse:function(a){var b=h.parse(a),c=b.words;if(1398893684==c[0]&&1701076831==c[1]){var d=e.create(c.slice(2,4));c.splice(0,4),b.sigBytes-=16}return q.create({ciphertext:b,salt:d})}},t=c.SerializableCipher=d.extend({cfg:d.extend({format:s}),encrypt:function(a,b,c,d){d=this.cfg.extend(d);var e=a.createEncryptor(c,d),f=e.finalize(b),g=e.cfg;return q.create({ciphertext:f,key:c,iv:g.iv,algorithm:a,mode:g.mode,padding:g.padding,blockSize:a.blockSize,formatter:d.format})},decrypt:function(a,b,c,d){d=this.cfg.extend(d),b=this._parse(b,d.format);var e=a.createDecryptor(c,d).finalize(b.ciphertext);return e},_parse:function(a,b){return"string"==typeof a?b.parse(a,this):a}}),u=b.kdf={},v=u.OpenSSL={execute:function(a,b,c,d){d||(d=e.random(8));var f=j.create({keySize:b+c}).compute(a,d),g=e.create(f.words.slice(b),4*c);return f.sigBytes=4*b,q.create({key:f,iv:g,salt:d})}},w=c.PasswordBasedCipher=t.extend({cfg:t.cfg.extend({kdf:v}),encrypt:function(a,b,c,d){d=this.cfg.extend(d);var e=d.kdf.execute(c,a.keySize,a.ivSize);d.iv=e.iv;var f=t.encrypt.call(this,a,b,e.key,d);return f.mixIn(e),f},decrypt:function(a,b,c,d){d=this.cfg.extend(d),b=this._parse(b,d.format);var e=d.kdf.execute(c,a.keySize,a.ivSize,b.salt);d.iv=e.iv;var f=t.decrypt.call(this,a,b,e.key,d);return f}})}(),function(){var a=CryptoJS,b=a.lib,c=b.BlockCipher,d=a.algo,e=[],f=[],g=[],h=[],i=[],j=[],k=[],l=[],m=[],n=[];!function(){for(var a=[],b=0;256>b;b++)128>b?a[b]=b<<1:a[b]=b<<1^283;for(var c=0,d=0,b=0;256>b;b++){var o=d^d<<1^d<<2^d<<3^d<<4;o=o>>>8^255&o^99,e[c]=o,f[o]=c;var p=a[c],q=a[p],r=a[q],s=257*a[o]^16843008*o;g[c]=s<<24|s>>>8,h[c]=s<<16|s>>>16,i[c]=s<<8|s>>>24,j[c]=s;var s=16843009*r^65537*q^257*p^16843008*c;k[o]=s<<24|s>>>8,l[o]=s<<16|s>>>16,m[o]=s<<8|s>>>24,n[o]=s,c?(c=p^a[a[a[r^p]]],d^=a[a[d]]):c=d=1}}();var o=[0,1,2,4,8,16,32,64,128,27,54],p=d.AES=c.extend({_doReset:function(){for(var a=this._key,b=a.words,c=a.sigBytes/4,d=this._nRounds=c+6,f=4*(d+1),g=this._keySchedule=[],h=0;f>h;h++)if(c>h)g[h]=b[h];else{var i=g[h-1];h%c?c>6&&h%c==4&&(i=e[i>>>24]<<24|e[i>>>16&255]<<16|e[i>>>8&255]<<8|e[255&i]):(i=i<<8|i>>>24,i=e[i>>>24]<<24|e[i>>>16&255]<<16|e[i>>>8&255]<<8|e[255&i],i^=o[h/c|0]<<24),g[h]=g[h-c]^i}for(var j=this._invKeySchedule=[],p=0;f>p;p++){var h=f-p;if(p%4)var i=g[h];else var i=g[h-4];4>p||4>=h?j[p]=i:j[p]=k[e[i>>>24]]^l[e[i>>>16&255]]^m[e[i>>>8&255]]^n[e[255&i]]}},encryptBlock:function(a,b){this._doCryptBlock(a,b,this._keySchedule,g,h,i,j,e)},decryptBlock:function(a,b){var c=a[b+1];a[b+1]=a[b+3],a[b+3]=c,this._doCryptBlock(a,b,this._invKeySchedule,k,l,m,n,f);var c=a[b+1];a[b+1]=a[b+3],a[b+3]=c},_doCryptBlock:function(a,b,c,d,e,f,g,h){for(var i=this._nRounds,j=a[b]^c[0],k=a[b+1]^c[1],l=a[b+2]^c[2],m=a[b+3]^c[3],n=4,o=1;i>o;o++){var p=d[j>>>24]^e[k>>>16&255]^f[l>>>8&255]^g[255&m]^c[n++],q=d[k>>>24]^e[l>>>16&255]^f[m>>>8&255]^g[255&j]^c[n++],r=d[l>>>24]^e[m>>>16&255]^f[j>>>8&255]^g[255&k]^c[n++],s=d[m>>>24]^e[j>>>16&255]^f[k>>>8&255]^g[255&l]^c[n++];j=p,k=q,l=r,m=s}var p=(h[j>>>24]<<24|h[k>>>16&255]<<16|h[l>>>8&255]<<8|h[255&m])^c[n++],q=(h[k>>>24]<<24|h[l>>>16&255]<<16|h[m>>>8&255]<<8|h[255&j])^c[n++],r=(h[l>>>24]<<24|h[m>>>16&255]<<16|h[j>>>8&255]<<8|h[255&k])^c[n++],s=(h[m>>>24]<<24|h[j>>>16&255]<<16|h[k>>>8&255]<<8|h[255&l])^c[n++];a[b]=p,a[b+1]=q,a[b+2]=r,a[b+3]=s},keySize:8});a.AES=c._createHelper(p)}(),function(a){var b=CryptoJS,c=b.lib,d=c.WordArray,e=c.Hasher,f=b.algo,g=[],h=[];!function(){function b(b){for(var c=a.sqrt(b),d=2;c>=d;d++)if(!(b%d))return!1;return!0}function c(a){return 4294967296*(a-(0|a))|0}for(var d=2,e=0;64>e;)b(d)&&(8>e&&(g[e]=c(a.pow(d,.5))),h[e]=c(a.pow(d,1/3)),e++),d++}();var i=[],j=f.SHA256=e.extend({_doReset:function(){this._hash=new d.init(g.slice(0))},_doProcessBlock:function(a,b){for(var c=this._hash.words,d=c[0],e=c[1],f=c[2],g=c[3],j=c[4],k=c[5],l=c[6],m=c[7],n=0;64>n;n++){if(16>n)i[n]=0|a[b+n];else{var o=i[n-15],p=(o<<25|o>>>7)^(o<<14|o>>>18)^o>>>3,q=i[n-2],r=(q<<15|q>>>17)^(q<<13|q>>>19)^q>>>10;i[n]=p+i[n-7]+r+i[n-16]}var s=j&k^~j&l,t=d&e^d&f^e&f,u=(d<<30|d>>>2)^(d<<19|d>>>13)^(d<<10|d>>>22),v=(j<<26|j>>>6)^(j<<21|j>>>11)^(j<<7|j>>>25),w=m+v+s+h[n]+i[n],x=u+t;m=l,l=k,k=j,j=g+w|0,g=f,f=e,e=d,d=w+x|0}c[0]=c[0]+d|0,c[1]=c[1]+e|0,c[2]=c[2]+f|0,c[3]=c[3]+g|0,c[4]=c[4]+j|0,c[5]=c[5]+k|0,c[6]=c[6]+l|0,c[7]=c[7]+m|0},_doFinalize:function(){var b=this._data,c=b.words,d=8*this._nDataBytes,e=8*b.sigBytes;return c[e>>>5]|=128<<24-e%32,c[(e+64>>>9<<4)+14]=a.floor(d/4294967296),c[(e+64>>>9<<4)+15]=d,b.sigBytes=4*c.length,this._process(),this._hash},clone:function(){var a=e.clone.call(this);return a._hash=this._hash.clone(),a}});b.SHA256=e._createHelper(j),b.HmacSHA256=e._createHmacHelper(j)}(Math);
 function BigInteger(a,b,c){null!=a&&("number"==typeof a?this.fromNumber(a,b,c):null==b&&"string"!=typeof a?this.fromString(a,256):this.fromString(a,b))}function nbi(){return new BigInteger(null)}function am1(a,b,c,d,e,f){for(;--f>=0;){var g=b*this[a++]+c[d]+e;e=Math.floor(g/67108864),c[d++]=67108863&g}return e}function am2(a,b,c,d,e,f){for(var g=32767&b,h=b>>15;--f>=0;){var i=32767&this[a],j=this[a++]>>15,k=h*i+j*g;i=g*i+((32767&k)<<15)+c[d]+(1073741823&e),e=(i>>>30)+(k>>>15)+h*j+(e>>>30),c[d++]=1073741823&i}return e}function am3(a,b,c,d,e,f){for(var g=16383&b,h=b>>14;--f>=0;){var i=16383&this[a],j=this[a++]>>14,k=h*i+j*g;i=g*i+((16383&k)<<14)+c[d]+e,e=(i>>28)+(k>>14)+h*j,c[d++]=268435455&i}return e}function int2char(a){return BI_RM.charAt(a)}function intAt(a,b){var c=BI_RC[a.charCodeAt(b)];return null==c?-1:c}function bnpCopyTo(a){for(var b=this.t-1;b>=0;--b)a[b]=this[b];a.t=this.t,a.s=this.s}function bnpFromInt(a){this.t=1,this.s=0>a?-1:0,a>0?this[0]=a:-1>a?this[0]=a+this.DV:this.t=0}function nbv(a){var b=nbi();return b.fromInt(a),b}function bnpFromString(a,b,c){var d;if(16==b)d=4;else if(8==b)d=3;else if(256==b)d=8;else if(2==b)d=1;else if(32==b)d=5;else{if(4!=b)return void this.fromRadix(a,b);d=2}this.t=0,this.s=0;for(var e=a.length,f=!1,g=0;--e>=0;){var h=8==d?255&a[e]:intAt(a,e);0>h?"-"==a.charAt(e)&&(f=!0):(f=!1,0==g?this[this.t++]=h:g+d>this.DB?(this[this.t-1]|=(h&(1<<this.DB-g)-1)<<g,this[this.t++]=h>>this.DB-g):this[this.t-1]|=h<<g,g+=d,g>=this.DB&&(g-=this.DB))}8==d&&0!=(128&a[0])&&c&&(this.s=-1,g>0&&(this[this.t-1]|=(1<<this.DB-g)-1<<g)),this.clamp(),f&&BigInteger.ZERO.subTo(this,this)}function bnpClamp(){for(var a=this.s&this.DM;this.t>0&&this[this.t-1]==a;)--this.t}function bnToString(a){if(this.s<0)return"-"+this.negate().toString(a);var b;if(16==a)b=4;else if(8==a)b=3;else if(2==a)b=1;else if(32==a)b=5;else{if(4!=a)return this.toRadix(a);b=2}var c,d=(1<<b)-1,e=!1,f="",g=this.t,h=this.DB-g*this.DB%b;if(g-- >0)for(h<this.DB&&(c=this[g]>>h)>0&&(e=!0,f=int2char(c));g>=0;)b>h?(c=(this[g]&(1<<h)-1)<<b-h,c|=this[--g]>>(h+=this.DB-b)):(c=this[g]>>(h-=b)&d,0>=h&&(h+=this.DB,--g)),c>0&&(e=!0),e&&(f+=int2char(c));return e?f:"0"}function bnNegate(){var a=nbi();return BigInteger.ZERO.subTo(this,a),a}function bnAbs(){return this.s<0?this.negate():this}function bnCompareTo(a){var b=this.s-a.s;if(0!=b)return b;var c=this.t;if(b=c-a.t,0!=b)return this.s<0?-b:b;for(;--c>=0;)if(0!=(b=this[c]-a[c]))return b;return 0}function nbits(a){var b,c=1;return 0!=(b=a>>>16)&&(a=b,c+=16),0!=(b=a>>8)&&(a=b,c+=8),0!=(b=a>>4)&&(a=b,c+=4),0!=(b=a>>2)&&(a=b,c+=2),0!=(b=a>>1)&&(a=b,c+=1),c}function bnBitLength(){return this.t<=0?0:this.DB*(this.t-1)+nbits(this[this.t-1]^this.s&this.DM)}function bnpDLShiftTo(a,b){var c;for(c=this.t-1;c>=0;--c)b[c+a]=this[c];for(c=a-1;c>=0;--c)b[c]=0;b.t=this.t+a,b.s=this.s}function bnpDRShiftTo(a,b){for(var c=a;c<this.t;++c)b[c-a]=this[c];b.t=Math.max(this.t-a,0),b.s=this.s}function bnpLShiftTo(a,b){var c,d=a%this.DB,e=this.DB-d,f=(1<<e)-1,g=Math.floor(a/this.DB),h=this.s<<d&this.DM;for(c=this.t-1;c>=0;--c)b[c+g+1]=this[c]>>e|h,h=(this[c]&f)<<d;for(c=g-1;c>=0;--c)b[c]=0;b[g]=h,b.t=this.t+g+1,b.s=this.s,b.clamp()}function bnpRShiftTo(a,b){b.s=this.s;var c=Math.floor(a/this.DB);if(c>=this.t)return void(b.t=0);var d=a%this.DB,e=this.DB-d,f=(1<<d)-1;b[0]=this[c]>>d;for(var g=c+1;g<this.t;++g)b[g-c-1]|=(this[g]&f)<<e,b[g-c]=this[g]>>d;d>0&&(b[this.t-c-1]|=(this.s&f)<<e),b.t=this.t-c,b.clamp()}function bnpSubTo(a,b){for(var c=0,d=0,e=Math.min(a.t,this.t);e>c;)d+=this[c]-a[c],b[c++]=d&this.DM,d>>=this.DB;if(a.t<this.t){for(d-=a.s;c<this.t;)d+=this[c],b[c++]=d&this.DM,d>>=this.DB;d+=this.s}else{for(d+=this.s;c<a.t;)d-=a[c],b[c++]=d&this.DM,d>>=this.DB;d-=a.s}b.s=0>d?-1:0,-1>d?b[c++]=this.DV+d:d>0&&(b[c++]=d),b.t=c,b.clamp()}function bnpMultiplyTo(a,b){var c=this.abs(),d=a.abs(),e=c.t;for(b.t=e+d.t;--e>=0;)b[e]=0;for(e=0;e<d.t;++e)b[e+c.t]=c.am(0,d[e],b,e,0,c.t);b.s=0,b.clamp(),this.s!=a.s&&BigInteger.ZERO.subTo(b,b)}function bnpSquareTo(a){for(var b=this.abs(),c=a.t=2*b.t;--c>=0;)a[c]=0;for(c=0;c<b.t-1;++c){var d=b.am(c,b[c],a,2*c,0,1);(a[c+b.t]+=b.am(c+1,2*b[c],a,2*c+1,d,b.t-c-1))>=b.DV&&(a[c+b.t]-=b.DV,a[c+b.t+1]=1)}a.t>0&&(a[a.t-1]+=b.am(c,b[c],a,2*c,0,1)),a.s=0,a.clamp()}function bnpDivRemTo(a,b,c){var d=a.abs();if(!(d.t<=0)){var e=this.abs();if(e.t<d.t)return null!=b&&b.fromInt(0),void(null!=c&&this.copyTo(c));null==c&&(c=nbi());var f=nbi(),g=this.s,h=a.s,i=this.DB-nbits(d[d.t-1]);i>0?(d.lShiftTo(i,f),e.lShiftTo(i,c)):(d.copyTo(f),e.copyTo(c));var j=f.t,k=f[j-1];if(0!=k){var l=k*(1<<this.F1)+(j>1?f[j-2]>>this.F2:0),m=this.FV/l,n=(1<<this.F1)/l,o=1<<this.F2,p=c.t,q=p-j,r=null==b?nbi():b;for(f.dlShiftTo(q,r),c.compareTo(r)>=0&&(c[c.t++]=1,c.subTo(r,c)),BigInteger.ONE.dlShiftTo(j,r),r.subTo(f,f);f.t<j;)f[f.t++]=0;for(;--q>=0;){var s=c[--p]==k?this.DM:Math.floor(c[p]*m+(c[p-1]+o)*n);if((c[p]+=f.am(0,s,c,q,0,j))<s)for(f.dlShiftTo(q,r),c.subTo(r,c);c[p]<--s;)c.subTo(r,c)}null!=b&&(c.drShiftTo(j,b),g!=h&&BigInteger.ZERO.subTo(b,b)),c.t=j,c.clamp(),i>0&&c.rShiftTo(i,c),0>g&&BigInteger.ZERO.subTo(c,c)}}}function bnMod(a){var b=nbi();return this.abs().divRemTo(a,null,b),this.s<0&&b.compareTo(BigInteger.ZERO)>0&&a.subTo(b,b),b}function Classic(a){this.m=a}function cConvert(a){return a.s<0||a.compareTo(this.m)>=0?a.mod(this.m):a}function cRevert(a){return a}function cReduce(a){a.divRemTo(this.m,null,a)}function cMulTo(a,b,c){a.multiplyTo(b,c),this.reduce(c)}function cSqrTo(a,b){a.squareTo(b),this.reduce(b)}function bnpInvDigit(){if(this.t<1)return 0;var a=this[0];if(0==(1&a))return 0;var b=3&a;return b=b*(2-(15&a)*b)&15,b=b*(2-(255&a)*b)&255,b=b*(2-((65535&a)*b&65535))&65535,b=b*(2-a*b%this.DV)%this.DV,b>0?this.DV-b:-b}function Montgomery(a){this.m=a,this.mp=a.invDigit(),this.mpl=32767&this.mp,this.mph=this.mp>>15,this.um=(1<<a.DB-15)-1,this.mt2=2*a.t}function montConvert(a){var b=nbi();return a.abs().dlShiftTo(this.m.t,b),b.divRemTo(this.m,null,b),a.s<0&&b.compareTo(BigInteger.ZERO)>0&&this.m.subTo(b,b),b}function montRevert(a){var b=nbi();return a.copyTo(b),this.reduce(b),b}function montReduce(a){for(;a.t<=this.mt2;)a[a.t++]=0;for(var b=0;b<this.m.t;++b){var c=32767&a[b],d=c*this.mpl+((c*this.mph+(a[b]>>15)*this.mpl&this.um)<<15)&a.DM;for(c=b+this.m.t,a[c]+=this.m.am(0,d,a,b,0,this.m.t);a[c]>=a.DV;)a[c]-=a.DV,a[++c]++}a.clamp(),a.drShiftTo(this.m.t,a),a.compareTo(this.m)>=0&&a.subTo(this.m,a)}function montSqrTo(a,b){a.squareTo(b),this.reduce(b)}function montMulTo(a,b,c){a.multiplyTo(b,c),this.reduce(c)}function bnpIsEven(){return 0==(this.t>0?1&this[0]:this.s)}function bnpExp(a,b){if(a>4294967295||1>a)return BigInteger.ONE;var c=nbi(),d=nbi(),e=b.convert(this),f=nbits(a)-1;for(e.copyTo(c);--f>=0;)if(b.sqrTo(c,d),(a&1<<f)>0)b.mulTo(d,e,c);else{var g=c;c=d,d=g}return b.revert(c)}function bnModPowInt(a,b){var c;return c=256>a||b.isEven()?new Classic(b):new Montgomery(b),this.exp(a,c)}function bnClone(){var a=nbi();return this.copyTo(a),a}function bnIntValue(){if(this.s<0){if(1==this.t)return this[0]-this.DV;if(0==this.t)return-1}else{if(1==this.t)return this[0];if(0==this.t)return 0}return(this[1]&(1<<32-this.DB)-1)<<this.DB|this[0]}function bnByteValue(){return 0==this.t?this.s:this[0]<<24>>24}function bnShortValue(){return 0==this.t?this.s:this[0]<<16>>16}function bnpChunkSize(a){return Math.floor(Math.LN2*this.DB/Math.log(a))}function bnSigNum(){return this.s<0?-1:this.t<=0||1==this.t&&this[0]<=0?0:1}function bnpToRadix(a){if(null==a&&(a=10),0==this.signum()||2>a||a>36)return"0";var b=this.chunkSize(a),c=Math.pow(a,b),d=nbv(c),e=nbi(),f=nbi(),g="";for(this.divRemTo(d,e,f);e.signum()>0;)g=(c+f.intValue()).toString(a).substr(1)+g,e.divRemTo(d,e,f);return f.intValue().toString(a)+g}function bnpFromRadix(a,b){this.fromInt(0),null==b&&(b=10);for(var c=this.chunkSize(b),d=Math.pow(b,c),e=!1,f=0,g=0,h=0;h<a.length;++h){var i=intAt(a,h);0>i?"-"==a.charAt(h)&&0==this.signum()&&(e=!0):(g=b*g+i,++f>=c&&(this.dMultiply(d),this.dAddOffset(g,0),f=0,g=0))}f>0&&(this.dMultiply(Math.pow(b,f)),this.dAddOffset(g,0)),e&&BigInteger.ZERO.subTo(this,this)}function bnpFromNumber(a,b,c){if("number"==typeof b)if(2>a)this.fromInt(1);else for(this.fromNumber(a,c),this.testBit(a-1)||this.bitwiseTo(BigInteger.ONE.shiftLeft(a-1),op_or,this),this.isEven()&&this.dAddOffset(1,0);!this.isProbablePrime(b);)this.dAddOffset(2,0),this.bitLength()>a&&this.subTo(BigInteger.ONE.shiftLeft(a-1),this);else{var d=new Array,e=7&a;d.length=(a>>3)+1,b.nextBytes(d),e>0?d[0]&=(1<<e)-1:d[0]=0,this.fromString(d,256)}}function bnToByteArray(a){var b=this.t,c=new Array;c[0]=this.s;var d,e=this.DB-b*this.DB%8,f=0;if(b-- >0)for(e<this.DB&&(d=this[b]>>e)!=(this.s&this.DM)>>e&&(c[f++]=d|this.s<<this.DB-e);b>=0;)8>e?(d=(this[b]&(1<<e)-1)<<8-e,d|=this[--b]>>(e+=this.DB-8)):(d=this[b]>>(e-=8)&255,0>=e&&(e+=this.DB,--b)),a&&0!=(128&d)&&(d|=-256),0==f&&(128&this.s)!=(128&d)&&++f,(f>0||d!=this.s)&&(c[f++]=d);return c}function bnEquals(a){return 0==this.compareTo(a)}function bnMin(a){return this.compareTo(a)<0?this:a}function bnMax(a){return this.compareTo(a)>0?this:a}function bnpBitwiseTo(a,b,c){var d,e,f=Math.min(a.t,this.t);for(d=0;f>d;++d)c[d]=b(this[d],a[d]);if(a.t<this.t){for(e=a.s&this.DM,d=f;d<this.t;++d)c[d]=b(this[d],e);c.t=this.t}else{for(e=this.s&this.DM,d=f;d<a.t;++d)c[d]=b(e,a[d]);c.t=a.t}c.s=b(this.s,a.s),c.clamp()}function op_and(a,b){return a&b}function bnAnd(a){var b=nbi();return this.bitwiseTo(a,op_and,b),b}function op_or(a,b){return a|b}function bnOr(a){var b=nbi();return this.bitwiseTo(a,op_or,b),b}function op_xor(a,b){return a^b}function bnXor(a){var b=nbi();return this.bitwiseTo(a,op_xor,b),b}function op_andnot(a,b){return a&~b}function bnAndNot(a){var b=nbi();return this.bitwiseTo(a,op_andnot,b),b}function bnNot(){for(var a=nbi(),b=0;b<this.t;++b)a[b]=this.DM&~this[b];return a.t=this.t,a.s=~this.s,a}function bnShiftLeft(a){var b=nbi();return 0>a?this.rShiftTo(-a,b):this.lShiftTo(a,b),b}function bnShiftRight(a){var b=nbi();return 0>a?this.lShiftTo(-a,b):this.rShiftTo(a,b),b}function lbit(a){if(0==a)return-1;var b=0;return 0==(65535&a)&&(a>>=16,b+=16),0==(255&a)&&(a>>=8,b+=8),0==(15&a)&&(a>>=4,b+=4),0==(3&a)&&(a>>=2,b+=2),0==(1&a)&&++b,b}function bnGetLowestSetBit(){for(var a=0;a<this.t;++a)if(0!=this[a])return a*this.DB+lbit(this[a]);return this.s<0?this.t*this.DB:-1}function cbit(a){for(var b=0;0!=a;)a&=a-1,++b;return b}function bnBitCount(){for(var a=0,b=this.s&this.DM,c=0;c<this.t;++c)a+=cbit(this[c]^b);return a}function bnTestBit(a){var b=Math.floor(a/this.DB);return b>=this.t?0!=this.s:0!=(this[b]&1<<a%this.DB)}function bnpChangeBit(a,b){var c=BigInteger.ONE.shiftLeft(a);return this.bitwiseTo(c,b,c),c}function bnSetBit(a){return this.changeBit(a,op_or)}function bnClearBit(a){return this.changeBit(a,op_andnot)}function bnFlipBit(a){return this.changeBit(a,op_xor)}function bnpAddTo(a,b){for(var c=0,d=0,e=Math.min(a.t,this.t);e>c;)d+=this[c]+a[c],b[c++]=d&this.DM,d>>=this.DB;if(a.t<this.t){for(d+=a.s;c<this.t;)d+=this[c],b[c++]=d&this.DM,d>>=this.DB;d+=this.s}else{for(d+=this.s;c<a.t;)d+=a[c],b[c++]=d&this.DM,d>>=this.DB;d+=a.s}b.s=0>d?-1:0,d>0?b[c++]=d:-1>d&&(b[c++]=this.DV+d),b.t=c,b.clamp()}function bnAdd(a){var b=nbi();return this.addTo(a,b),b}function bnSubtract(a){var b=nbi();return this.subTo(a,b),b}function bnMultiply(a){var b=nbi();return this.multiplyTo(a,b),b}function bnSquare(){var a=nbi();return this.squareTo(a),a}function bnDivide(a){var b=nbi();return this.divRemTo(a,b,null),b}function bnRemainder(a){var b=nbi();return this.divRemTo(a,null,b),b}function bnDivideAndRemainder(a){var b=nbi(),c=nbi();return this.divRemTo(a,b,c),new Array(b,c)}function bnpDMultiply(a){this[this.t]=this.am(0,a-1,this,0,0,this.t),++this.t,this.clamp()}function bnpDAddOffset(a,b){if(0!=a){for(;this.t<=b;)this[this.t++]=0;for(this[b]+=a;this[b]>=this.DV;)this[b]-=this.DV,++b>=this.t&&(this[this.t++]=0),++this[b]}}function NullExp(){}function nNop(a){return a}function nMulTo(a,b,c){a.multiplyTo(b,c)}function nSqrTo(a,b){a.squareTo(b)}function bnPow(a){return this.exp(a,new NullExp)}function bnpMultiplyLowerTo(a,b,c){var d=Math.min(this.t+a.t,b);for(c.s=0,c.t=d;d>0;)c[--d]=0;var e;for(e=c.t-this.t;e>d;++d)c[d+this.t]=this.am(0,a[d],c,d,0,this.t);for(e=Math.min(a.t,b);e>d;++d)this.am(0,a[d],c,d,0,b-d);c.clamp()}function bnpMultiplyUpperTo(a,b,c){--b;var d=c.t=this.t+a.t-b;for(c.s=0;--d>=0;)c[d]=0;for(d=Math.max(b-this.t,0);d<a.t;++d)c[this.t+d-b]=this.am(b-d,a[d],c,0,0,this.t+d-b);c.clamp(),c.drShiftTo(1,c)}function Barrett(a){this.r2=nbi(),this.q3=nbi(),BigInteger.ONE.dlShiftTo(2*a.t,this.r2),this.mu=this.r2.divide(a),this.m=a}function barrettConvert(a){if(a.s<0||a.t>2*this.m.t)return a.mod(this.m);if(a.compareTo(this.m)<0)return a;var b=nbi();return a.copyTo(b),this.reduce(b),b}function barrettRevert(a){return a}function barrettReduce(a){for(a.drShiftTo(this.m.t-1,this.r2),a.t>this.m.t+1&&(a.t=this.m.t+1,a.clamp()),this.mu.multiplyUpperTo(this.r2,this.m.t+1,this.q3),this.m.multiplyLowerTo(this.q3,this.m.t+1,this.r2);a.compareTo(this.r2)<0;)a.dAddOffset(1,this.m.t+1);for(a.subTo(this.r2,a);a.compareTo(this.m)>=0;)a.subTo(this.m,a)}function barrettSqrTo(a,b){a.squareTo(b),this.reduce(b)}function barrettMulTo(a,b,c){a.multiplyTo(b,c),this.reduce(c)}function bnModPow(a,b){var c,d,e=a.bitLength(),f=nbv(1);if(0>=e)return f;c=18>e?1:48>e?3:144>e?4:768>e?5:6,d=8>e?new Classic(b):b.isEven()?new Barrett(b):new Montgomery(b);var g=new Array,h=3,i=c-1,j=(1<<c)-1;if(g[1]=d.convert(this),c>1){var k=nbi();for(d.sqrTo(g[1],k);j>=h;)g[h]=nbi(),d.mulTo(k,g[h-2],g[h]),h+=2}var l,m,n=a.t-1,o=!0,p=nbi();for(e=nbits(a[n])-1;n>=0;){for(e>=i?l=a[n]>>e-i&j:(l=(a[n]&(1<<e+1)-1)<<i-e,n>0&&(l|=a[n-1]>>this.DB+e-i)),h=c;0==(1&l);)l>>=1,--h;if((e-=h)<0&&(e+=this.DB,--n),o)g[l].copyTo(f),o=!1;else{for(;h>1;)d.sqrTo(f,p),d.sqrTo(p,f),h-=2;h>0?d.sqrTo(f,p):(m=f,f=p,p=m),d.mulTo(p,g[l],f)}for(;n>=0&&0==(a[n]&1<<e);)d.sqrTo(f,p),m=f,f=p,p=m,--e<0&&(e=this.DB-1,--n)}return d.revert(f)}function bnGCD(a){var b=this.s<0?this.negate():this.clone(),c=a.s<0?a.negate():a.clone();if(b.compareTo(c)<0){var d=b;b=c,c=d}var e=b.getLowestSetBit(),f=c.getLowestSetBit();if(0>f)return b;for(f>e&&(f=e),f>0&&(b.rShiftTo(f,b),c.rShiftTo(f,c));b.signum()>0;)(e=b.getLowestSetBit())>0&&b.rShiftTo(e,b),(e=c.getLowestSetBit())>0&&c.rShiftTo(e,c),b.compareTo(c)>=0?(b.subTo(c,b),b.rShiftTo(1,b)):(c.subTo(b,c),c.rShiftTo(1,c));return f>0&&c.lShiftTo(f,c),c}function bnpModInt(a){if(0>=a)return 0;var b=this.DV%a,c=this.s<0?a-1:0;if(this.t>0)if(0==b)c=this[0]%a;else for(var d=this.t-1;d>=0;--d)c=(b*c+this[d])%a;return c}function bnModInverse(a){var b=a.isEven();if(this.isEven()&&b||0==a.signum())return BigInteger.ZERO;for(var c=a.clone(),d=this.clone(),e=nbv(1),f=nbv(0),g=nbv(0),h=nbv(1);0!=c.signum();){for(;c.isEven();)c.rShiftTo(1,c),b?(e.isEven()&&f.isEven()||(e.addTo(this,e),f.subTo(a,f)),e.rShiftTo(1,e)):f.isEven()||f.subTo(a,f),f.rShiftTo(1,f);for(;d.isEven();)d.rShiftTo(1,d),b?(g.isEven()&&h.isEven()||(g.addTo(this,g),h.subTo(a,h)),g.rShiftTo(1,g)):h.isEven()||h.subTo(a,h),h.rShiftTo(1,h);c.compareTo(d)>=0?(c.subTo(d,c),b&&e.subTo(g,e),f.subTo(h,f)):(d.subTo(c,d),b&&g.subTo(e,g),h.subTo(f,h))}return 0!=d.compareTo(BigInteger.ONE)?BigInteger.ZERO:h.compareTo(a)>=0?h.subtract(a):h.signum()<0?(h.addTo(a,h),h.signum()<0?h.add(a):h):h}function bnIsProbablePrime(a){var b,c=this.abs();if(1==c.t&&c[0]<=lowprimes[lowprimes.length-1]){for(b=0;b<lowprimes.length;++b)if(c[0]==lowprimes[b])return!0;return!1}if(c.isEven())return!1;for(b=1;b<lowprimes.length;){for(var d=lowprimes[b],e=b+1;e<lowprimes.length&&lplim>d;)d*=lowprimes[e++];for(d=c.modInt(d);e>b;)if(d%lowprimes[b++]==0)return!1}return c.millerRabin(a)}function bnpMillerRabin(a){var b=this.subtract(BigInteger.ONE),c=b.getLowestSetBit();if(0>=c)return!1;var d=b.shiftRight(c);a=a+1>>1,a>lowprimes.length&&(a=lowprimes.length);for(var e=nbi(),f=0;a>f;++f){e.fromInt(lowprimes[Math.floor(Math.random()*lowprimes.length)]);var g=e.modPow(d,this);if(0!=g.compareTo(BigInteger.ONE)&&0!=g.compareTo(b)){for(var h=1;h++<c&&0!=g.compareTo(b);)if(g=g.modPowInt(2,this),0==g.compareTo(BigInteger.ONE))return!1;if(0!=g.compareTo(b))return!1}}return!0}function rng_seed_int(a){rng_pool[rng_pptr++]^=255&a,rng_pool[rng_pptr++]^=a>>8&255,rng_pool[rng_pptr++]^=a>>16&255,rng_pool[rng_pptr++]^=a>>24&255,rng_pptr>=rng_psize&&(rng_pptr-=rng_psize)}function rng_seed_time(){rng_seed_int((new Date).getTime())}function rng_get_byte(){if(null==rng_state){for(rng_seed_time(),rng_state=prng_newstate(),rng_state.init(rng_pool),rng_pptr=0;rng_pptr<rng_pool.length;++rng_pptr)rng_pool[rng_pptr]=0;rng_pptr=0}return rng_state.next()}function rng_get_bytes(a){var b;for(b=0;b<a.length;++b)a[b]=rng_get_byte()}function SecureRandom(){}function Arcfour(){this.i=0,this.j=0,this.S=new Array}function ARC4init(a){var b,c,d;for(b=0;256>b;++b)this.S[b]=b;for(c=0,b=0;256>b;++b)c=c+this.S[b]+a[b%a.length]&255,d=this.S[b],this.S[b]=this.S[c],this.S[c]=d;this.i=0,this.j=0}function ARC4next(){var a;return this.i=this.i+1&255,this.j=this.j+this.S[this.i]&255,a=this.S[this.i],this.S[this.i]=this.S[this.j],this.S[this.j]=a,this.S[a+this.S[this.i]&255]}function prng_newstate(){return new Arcfour}var dbits,canary=0xdeadbeefcafe,j_lm=15715070==(16777215&canary);j_lm&&"Microsoft Internet Explorer"==navigator.appName?(BigInteger.prototype.am=am2,dbits=30):j_lm&&"Netscape"!=navigator.appName?(BigInteger.prototype.am=am1,dbits=26):(BigInteger.prototype.am=am3,dbits=28),BigInteger.prototype.DB=dbits,BigInteger.prototype.DM=(1<<dbits)-1,BigInteger.prototype.DV=1<<dbits;var BI_FP=52;BigInteger.prototype.FV=Math.pow(2,BI_FP),BigInteger.prototype.F1=BI_FP-dbits,BigInteger.prototype.F2=2*dbits-BI_FP;var BI_RM="0123456789abcdefghijklmnopqrstuvwxyz",BI_RC=new Array,rr,vv;for(rr="0".charCodeAt(0),vv=0;9>=vv;++vv)BI_RC[rr++]=vv;for(rr="a".charCodeAt(0),vv=10;36>vv;++vv)BI_RC[rr++]=vv;for(rr="A".charCodeAt(0),vv=10;36>vv;++vv)BI_RC[rr++]=vv;Classic.prototype.convert=cConvert,Classic.prototype.revert=cRevert,Classic.prototype.reduce=cReduce,Classic.prototype.mulTo=cMulTo,Classic.prototype.sqrTo=cSqrTo,Montgomery.prototype.convert=montConvert,Montgomery.prototype.revert=montRevert,Montgomery.prototype.reduce=montReduce,Montgomery.prototype.mulTo=montMulTo,Montgomery.prototype.sqrTo=montSqrTo,BigInteger.prototype.copyTo=bnpCopyTo,BigInteger.prototype.fromInt=bnpFromInt,BigInteger.prototype.fromString=bnpFromString,BigInteger.prototype.clamp=bnpClamp,BigInteger.prototype.dlShiftTo=bnpDLShiftTo,BigInteger.prototype.drShiftTo=bnpDRShiftTo,BigInteger.prototype.lShiftTo=bnpLShiftTo,BigInteger.prototype.rShiftTo=bnpRShiftTo,BigInteger.prototype.subTo=bnpSubTo,BigInteger.prototype.multiplyTo=bnpMultiplyTo,BigInteger.prototype.squareTo=bnpSquareTo,BigInteger.prototype.divRemTo=bnpDivRemTo,BigInteger.prototype.invDigit=bnpInvDigit,BigInteger.prototype.isEven=bnpIsEven,BigInteger.prototype.exp=bnpExp,BigInteger.prototype.toString=bnToString,BigInteger.prototype.negate=bnNegate,BigInteger.prototype.abs=bnAbs,BigInteger.prototype.compareTo=bnCompareTo,BigInteger.prototype.bitLength=bnBitLength,BigInteger.prototype.mod=bnMod,BigInteger.prototype.modPowInt=bnModPowInt,BigInteger.ZERO=nbv(0),BigInteger.ONE=nbv(1),NullExp.prototype.convert=nNop,NullExp.prototype.revert=nNop,NullExp.prototype.mulTo=nMulTo,NullExp.prototype.sqrTo=nSqrTo,Barrett.prototype.convert=barrettConvert,Barrett.prototype.revert=barrettRevert,Barrett.prototype.reduce=barrettReduce,Barrett.prototype.mulTo=barrettMulTo,Barrett.prototype.sqrTo=barrettSqrTo;var lowprimes=[2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97,101,103,107,109,113,127,131,137,139,149,151,157,163,167,173,179,181,191,193,197,199,211,223,227,229,233,239,241,251,257,263,269,271,277,281,283,293,307,311,313,317,331,337,347,349,353,359,367,373,379,383,389,397,401,409,419,421,431,433,439,443,449,457,461,463,467,479,487,491,499,503,509,521,523,541,547,557,563,569,571,577,587,593,599,601,607,613,617,619,631,641,643,647,653,659,661,673,677,683,691,701,709,719,727,733,739,743,751,757,761,769,773,787,797,809,811,821,823,827,829,839,853,857,859,863,877,881,883,887,907,911,919,929,937,941,947,953,967,971,977,983,991,997],lplim=(1<<26)/lowprimes[lowprimes.length-1];BigInteger.prototype.chunkSize=bnpChunkSize,BigInteger.prototype.toRadix=bnpToRadix,BigInteger.prototype.fromRadix=bnpFromRadix,BigInteger.prototype.fromNumber=bnpFromNumber,BigInteger.prototype.bitwiseTo=bnpBitwiseTo,BigInteger.prototype.changeBit=bnpChangeBit,BigInteger.prototype.addTo=bnpAddTo,BigInteger.prototype.dMultiply=bnpDMultiply,BigInteger.prototype.dAddOffset=bnpDAddOffset,BigInteger.prototype.multiplyLowerTo=bnpMultiplyLowerTo,BigInteger.prototype.multiplyUpperTo=bnpMultiplyUpperTo,BigInteger.prototype.modInt=bnpModInt,BigInteger.prototype.millerRabin=bnpMillerRabin,BigInteger.prototype.clone=bnClone,BigInteger.prototype.intValue=bnIntValue,BigInteger.prototype.byteValue=bnByteValue,BigInteger.prototype.shortValue=bnShortValue,BigInteger.prototype.signum=bnSigNum,BigInteger.prototype.toByteArray=bnToByteArray,BigInteger.prototype.equals=bnEquals,BigInteger.prototype.min=bnMin,BigInteger.prototype.max=bnMax,BigInteger.prototype.and=bnAnd,BigInteger.prototype.or=bnOr,BigInteger.prototype.xor=bnXor,BigInteger.prototype.andNot=bnAndNot,BigInteger.prototype.not=bnNot,BigInteger.prototype.shiftLeft=bnShiftLeft,BigInteger.prototype.shiftRight=bnShiftRight,BigInteger.prototype.getLowestSetBit=bnGetLowestSetBit,BigInteger.prototype.bitCount=bnBitCount,BigInteger.prototype.testBit=bnTestBit,BigInteger.prototype.setBit=bnSetBit,BigInteger.prototype.clearBit=bnClearBit,BigInteger.prototype.flipBit=bnFlipBit,BigInteger.prototype.add=bnAdd,BigInteger.prototype.subtract=bnSubtract,BigInteger.prototype.multiply=bnMultiply,BigInteger.prototype.divide=bnDivide,BigInteger.prototype.remainder=bnRemainder,BigInteger.prototype.divideAndRemainder=bnDivideAndRemainder,BigInteger.prototype.modPow=bnModPow,BigInteger.prototype.modInverse=bnModInverse,BigInteger.prototype.pow=bnPow,BigInteger.prototype.gcd=bnGCD,BigInteger.prototype.isProbablePrime=bnIsProbablePrime,BigInteger.prototype.square=bnSquare;var rng_state,rng_pool,rng_pptr;if(null==rng_pool){rng_pool=new Array,rng_pptr=0;var global="undefined"!=typeof window?window:this,t;if(global&&global.crypto&&global.crypto.getRandomValues){var ua=new Uint8Array(32);for(global.crypto.getRandomValues(ua),t=0;32>t;++t)rng_pool[rng_pptr++]=ua[t]}if("Netscape"==navigator.appName&&navigator.appVersion<"5"&&global&&global.crypto){var z=global.crypto.random(32);for(t=0;t<z.length;++t)rng_pool[rng_pptr++]=255&z.charCodeAt(t)}for(;rng_psize>rng_pptr;)t=Math.floor(65536*Math.random()),rng_pool[rng_pptr++]=t>>>8,rng_pool[rng_pptr++]=255&t;rng_pptr=0,rng_seed_time()}SecureRandom.prototype.nextBytes=rng_get_bytes,Arcfour.prototype.init=ARC4init,Arcfour.prototype.next=ARC4next;var rng_psize=256;
-function $httpModule($q) {
+function httpServiceModule(queryService) {
     return {
         post: function (url, data) {
-            var defer = $q.defer();
+            var defer = queryService.defer();
             var xhr = new XMLHttpRequest();
 
             xhr.open('POST', url, true);
@@ -75,17 +75,17 @@ function $httpModule($q) {
     };
 }
 
-$httpModule.dependencies = [
-    '$q'
+httpServiceModule.dependencies = [
+    'queryService'
 ];
 
-function $intervalModule() {
+function intervalServiceModule() {
     return setInterval;
 }
 
-$intervalModule.dependencies = [];
+intervalServiceModule.dependencies = [];
 
-function $qModule() {
+function queryServiceModule() {
   var arr = [];
   var document = window.document;
   var getProto = Object.getPrototypeOf;
@@ -646,17 +646,17 @@ function $qModule() {
   };
 }
 
-$qModule.dependencies = [];
+queryServiceModule.dependencies = [];
 
-function $rootScopeModule() {
+function rootServiceModule() {
     return {};
 }
 
-$rootScopeModule.dependencies = [];
+rootServiceModule.dependencies = [];
 
-function $timeoutModule($q) {
+function timeoutServiceModule(queryService) {
     var timeout = function (cb, t) {
-        var defer = $q.defer();
+        var defer = queryService.defer();
         var promise = defer.promise;
 
         promise.__timeoutID = setTimeout(function () {
@@ -677,8 +677,8 @@ function $timeoutModule($q) {
     return timeout;
 }
 
-$timeoutModule.dependencies = [
-    '$q'
+timeoutServiceModule.dependencies = [
+    'queryService'
 ];
 
 function AppChatsManagerModule() {
@@ -806,7 +806,7 @@ AppPeersManagerModule.dependencies = [
     'AppUsersManager'
 ];
 
-function AppProfileManagerModule(AppChatsManager, AppUsersManager, MtpApiManager, $q) {
+function AppProfileManagerModule(AppChatsManager, AppUsersManager, MtpApiManager, queryService) {
     var chatsFull = {};
     var chatFullPromises = {};
 
@@ -818,7 +818,7 @@ function AppProfileManagerModule(AppChatsManager, AppUsersManager, MtpApiManager
             var chat = AppChatsManager.getChat(id);
             if (chat.version == chatsFull[id].participants.version ||
                 chat.pFlags.left) {
-                return $q.when(chatsFull[id]);
+                return queryService.when(chatsFull[id]);
             }
         }
         if (chatFullPromises[id] !== undefined) {
@@ -900,7 +900,7 @@ function AppProfileManagerModule(AppChatsManager, AppUsersManager, MtpApiManager
 
     function getChannelFull(id, force) {
         if (chatsFull[id] !== undefined && !force) {
-            return $q.when(chatsFull[id]);
+            return queryService.when(chatsFull[id]);
         }
         if (chatFullPromises[id] !== undefined) {
             return chatFullPromises[id];
@@ -925,7 +925,7 @@ function AppProfileManagerModule(AppChatsManager, AppUsersManager, MtpApiManager
                     error.handled = true;
                 });
             } else {
-                participantsPromise = $q.when();
+                participantsPromise = queryService.when();
             }
             return participantsPromise.then(function () {
                 delete chatFullPromises[id];
@@ -934,7 +934,7 @@ function AppProfileManagerModule(AppChatsManager, AppUsersManager, MtpApiManager
                 return fullChannel;
             });
         }, function (error) {
-            return $q.reject(error);
+            return queryService.reject(error);
         });
     }
 
@@ -947,7 +947,7 @@ AppProfileManagerModule.dependencies = [
     'AppChatsManager',
     'AppUsersManager',
     'MtpApiManager',
-    '$q'
+    'queryService'
 ];
 
 function AppUsersManagerModule(Storage, MtpApiManager) {
@@ -1063,37 +1063,37 @@ AppUsersManagerModule.dependencies = [
     'MtpApiManager'
 ];
 
-function CryptoWorkerModule($timeout) {
+function CryptoWorkerModule(timeoutService) {
     return {
         sha1Hash: function (bytes) {
-            return $timeout(function () {
+            return timeoutService(function () {
                 return sha1HashSync(bytes);
             });
         },
         sha256Hash: function (bytes) {
-            return $timeout(function () {
+            return timeoutService(function () {
                 return sha256HashSync(bytes);
             });
         },
         aesEncrypt: function (bytes, keyBytes, ivBytes) {
-            return $timeout(function () {
+            return timeoutService(function () {
                 return convertToArrayBuffer(aesEncryptSync(bytes, keyBytes, ivBytes));
             });
         },
         aesDecrypt: function (encryptedBytes, keyBytes, ivBytes) {
-            return $timeout(function () {
+            return timeoutService(function () {
                 return convertToArrayBuffer(aesDecryptSync(encryptedBytes, keyBytes, ivBytes));
             });
         },
         factorize: function (bytes) {
             bytes = convertToByteArray(bytes);
 
-            return $timeout(function () {
+            return timeoutService(function () {
                 return pqPrimeFactorization(bytes);
             });
         },
         modPow: function (x, y, m) {
-            return $timeout(function () {
+            return timeoutService(function () {
                 return bytesModPow(x, y, m);
             });
         }
@@ -1101,10 +1101,10 @@ function CryptoWorkerModule($timeout) {
 }
 
 CryptoWorkerModule.dependencies = [
-    '$timeout'
+    'timeoutService'
 ];
 
-function FileSaverModule($timeout) {
+function FileSaverModule(timeoutService) {
     function save(bytes, fileName) {
         // TODO: Improve
         var a = document.createElement('a');
@@ -1122,7 +1122,7 @@ function FileSaverModule($timeout) {
         a.download = fileName;
         a.click();
 
-        $timeout(function() {
+        timeoutService(function() {
             window.URL.revokeObjectURL(a.href);
             a.remove();
         }, 100);
@@ -1134,7 +1134,7 @@ function FileSaverModule($timeout) {
 }
 
 FileSaverModule.dependencies = [
-    '$timeout'
+    'timeoutService'
 ];
 
 function forEach(obj, iterator, context) {
@@ -1215,8 +1215,8 @@ function noop() {
 
 }
 
-function IdleManagerModule($rootScope, $timeout) {
-    $rootScope.idle = {isIDLE: false};
+function IdleManagerModule(rootService, timeoutService) {
+    rootService.idle = {isIDLE: false};
 
     var toPromise, started = false;
     var hidden = 'hidden';
@@ -1256,7 +1256,6 @@ function IdleManagerModule($rootScope, $timeout) {
     }
 
     function onEvent(e) {
-        // console.log('event', e.type);
         if (e.type == 'mousemove') {
             var e = e.originalEvent || e;
             if (e && e.movementX === 0 && e.movementY === 0) {
@@ -1270,10 +1269,9 @@ function IdleManagerModule($rootScope, $timeout) {
             isIDLE = true;
         }
 
-        $timeout.cancel(toPromise);
+        timeoutService.cancel(toPromise);
         if (!isIDLE) {
-            // console.log('update timeout');
-            toPromise = $timeout(function () {
+            toPromise = timeoutService(function () {
                 onEvent({type: 'timeout'});
             }, 30000);
         }
@@ -1285,11 +1283,11 @@ function IdleManagerModule($rootScope, $timeout) {
 }
 
 IdleManagerModule.dependencies = [
-    '$rootScope',
-    '$timeout',
+    'rootService',
+    'timeoutService',
 ];
 
-function StorageModule($q) {
+function StorageModule(queryService) {
     var methods = {};
 
     forEach(['get', 'set', 'remove'], function (methodName) {
@@ -1297,7 +1295,7 @@ function StorageModule($q) {
             ConfigStorage.prefix('t_');
         }
         methods[methodName] = function () {
-            var deferred = $q.defer(),
+            var deferred = queryService.defer(),
                 args = toArray(arguments);
 
             args.push(function (result) {
@@ -1314,7 +1312,7 @@ function StorageModule($q) {
 }
 
 StorageModule.dependencies = [
-    '$q'
+    'queryService'
 ];
 
 function TelegramMeWebServiceModule(Storage) {
@@ -1593,23 +1591,18 @@ function sha1BytesSync (bytes) {
 }
 
 function sha256HashSync (bytes) {
-  // console.log(dT(), 'SHA-2 hash start', bytes.byteLength || bytes.length);
   var hashWords = CryptoJS.SHA256(bytesToWords(bytes));
-  // console.log(dT(), 'SHA-2 hash finish');
-
   return bytesFromWords(hashWords);
 }
 
 function rsaEncrypt (publicKey, bytes) {
   bytes = addPadding(bytes, 255);
 
-  // console.log('RSA encrypt start');
   var N = new BigInteger(publicKey.modulus, 16),
       E = new BigInteger(publicKey.exponent, 16),
       X = new BigInteger(bytes),
       encryptedBigInt = X.modPowInt(E, N),
       encryptedBytes  = bytesFromBigInt(encryptedBigInt, 256);
-  // console.log('RSA encrypt finish');
 
   return encryptedBytes;
 }
@@ -1641,7 +1634,6 @@ function addPadding(bytes, blockSize, zeroes) {
 function aesEncryptSync (bytes, keyBytes, ivBytes) {
   var len = bytes.byteLength || bytes.length;
 
-  // console.log(dT(), 'AES encrypt start', len/*, bytesToHex(keyBytes), bytesToHex(ivBytes)*/);
   bytes = addPadding(bytes);
 
   var encryptedWords = CryptoJS.AES.encrypt(bytesToWords(bytes), bytesToWords(keyBytes), {
@@ -1651,14 +1643,12 @@ function aesEncryptSync (bytes, keyBytes, ivBytes) {
   }).ciphertext;
 
   var encryptedBytes = bytesFromWords(encryptedWords);
-  // console.log(dT(), 'AES encrypt finish');
 
   return encryptedBytes;
 }
 
 function aesDecryptSync (encryptedBytes, keyBytes, ivBytes) {
 
-  // console.log(dT(), 'AES decrypt start', encryptedBytes.length);
   var decryptedWords = CryptoJS.AES.decrypt({ciphertext: bytesToWords(encryptedBytes)}, bytesToWords(keyBytes), {
     iv: bytesToWords(ivBytes),
     padding: CryptoJS.pad.NoPadding,
@@ -1666,7 +1656,6 @@ function aesDecryptSync (encryptedBytes, keyBytes, ivBytes) {
   });
 
   var bytes = bytesFromWords(decryptedWords);
-  // console.log(dT(), 'AES decrypt finish');
 
   return bytes;
 }
@@ -1683,8 +1672,6 @@ function pqPrimeFactorization (pqBytes) {
   var what = new BigInteger(pqBytes),
       result = false;
 
-  // console.log(dT(), 'PQ start', pqBytes, what.toString(16), what.bitLength());
-
   try {
     result = pqPrimeLeemon(str2bigInt(what.toString(16), 16, Math.ceil(64 / bpe) + 1))
   } catch (e) {
@@ -1698,17 +1685,11 @@ function pqPrimeFactorization (pqBytes) {
     } catch (e) {
       console.error('Pq long Exception', e);
     }
-    // console.timeEnd('PQ long');
   }
-  // console.log(result);
 
   if (result === false) {
-    // console.time('pq BigInt');
     result = pqPrimeBigInteger(what);
-    // console.timeEnd('pq BigInt');
   }
-
-  // console.log(dT(), 'PQ finish');
 
   return result;
 }
@@ -1913,8 +1894,6 @@ function pqPrimeLeemon (what) {
     P = g;
     Q = x;
   }
-
-  // console.log(dT(), 'done', bigInt2str(what, 10), bigInt2str(P, 10), bigInt2str(Q, 10));
 
   return [bytesFromLeemonBigInt(P), bytesFromLeemonBigInt(Q), it];
 }
@@ -2282,7 +2261,6 @@ if (!Function.prototype.bind) {
 
   this.createBuffer();
 
-  // this.debug = options.debug !== undefined ? options.debug : Config.Modes.debug;
   this.mtproto = options.mtproto || false;
   return this;
 }
@@ -2616,7 +2594,6 @@ function TLDeserialization (buffer, options) {
   this.intView  = new Uint32Array(this.buffer);
   this.byteView = new Uint8Array(this.buffer);
 
-  // this.debug = options.debug !== undefined ? options.debug : Config.Modes.debug;
   this.mtproto = options.mtproto || false;
   return this;
 }
@@ -2971,7 +2948,7 @@ function safeReplaceObject (wasObject, newObject) {
   }
 }
 
-function MtpApiFileManagerModule(MtpApiManager, $q) {
+function MtpApiFileManagerModule(MtpApiManager, queryService) {
     var cachedFs = false;
     var cachedFsPromise = false;
     var cachedSavePromises = {};
@@ -2987,7 +2964,7 @@ function MtpApiFileManagerModule(MtpApiManager, $q) {
             downloadActives[dcID] = 0
         }
         var downloadPull = downloadPulls[dcID];
-        var deferred = $q.defer();
+        var deferred = queryService.defer();
         downloadPull.push({cb: cb, deferred: deferred, activeDelta: activeDelta});
         setZeroTimeout(function () {
             downloadCheck(dcID);
@@ -3037,7 +3014,7 @@ function MtpApiFileManagerModule(MtpApiManager, $q) {
             activeDelta = 2;
 
         if (!fileSize) {
-            return $q.reject({type: 'EMPTY_FILE'});
+            return queryService.reject({type: 'EMPTY_FILE'});
         }
 
         if (fileSize > 67108864) {
@@ -3051,11 +3028,11 @@ function MtpApiFileManagerModule(MtpApiManager, $q) {
         var totalParts = Math.ceil(fileSize / partSize);
 
         if (totalParts > 3000) {
-            return $q.reject({type: 'FILE_TOO_BIG'});
+            return queryService.reject({type: 'FILE_TOO_BIG'});
         }
 
         var fileID = [nextRandomInt(0xFFFFFFFF), nextRandomInt(0xFFFFFFFF)],
-            deferred = $q.defer(),
+            deferred = queryService.defer(),
             errorHandler = function (error) {
                 // console.error('Up Error', error);
                 deferred.reject(error);
@@ -3076,7 +3053,7 @@ function MtpApiFileManagerModule(MtpApiManager, $q) {
         for (offset = 0; offset < fileSize; offset += partSize) {
             (function (offset, part) {
                 downloadRequest('upload', function () {
-                    var uploadDeferred = $q.defer();
+                    var uploadDeferred = queryService.defer();
 
                     var reader = new FileReader();
                     var blob = file.slice(offset, offset + partSize);
@@ -3105,7 +3082,6 @@ function MtpApiFileManagerModule(MtpApiManager, $q) {
                                 deferred.resolve(resultInputFile);
                                 resolved = true;
                             } else {
-                                console.log(dT(), 'Progress', doneParts * partSize / fileSize);
                                 deferred.notify({done: doneParts * partSize, total: fileSize});
                             }
                         }, errorHandler);
@@ -3119,7 +3095,6 @@ function MtpApiFileManagerModule(MtpApiManager, $q) {
         }
 
         deferred.promise.cancel = function () {
-            console.log('cancel upload', canceled, resolved);
             if (!canceled && !resolved) {
                 canceled = true;
                 errorHandler({type: 'UPLOAD_CANCELED'});
@@ -3135,11 +3110,11 @@ function MtpApiFileManagerModule(MtpApiManager, $q) {
 }
 
 MtpApiFileManagerModule.dependencies = [
-    'MtpApiManager', 
-    '$q'
+    'MtpApiManager',
+    'queryService'
 ];
 
-function MtpApiManagerModule(MtpSingleInstanceService, MtpNetworkerFactory, MtpAuthorizer, Storage, TelegramMeWebService, qSync, $q, CryptoWorker) {
+function MtpApiManagerModule(MtpSingleInstanceService, MtpNetworkerFactory, MtpAuthorizer, Storage, TelegramMeWebService, qSync, queryService, CryptoWorker) {
     var cachedNetworkers = {},
         cachedUploadNetworkers = {},
         cachedExportPromise = {},
@@ -3169,7 +3144,6 @@ function MtpApiManagerModule(MtpSingleInstanceService, MtpNetworkerFactory, MtpA
             user_auth: fullUserAuth
         });
         telegramMeNotify(true);
-        debugger;
         baseDcID = dcID;
     }
 
@@ -3185,7 +3159,7 @@ function MtpApiManagerModule(MtpSingleInstanceService, MtpNetworkerFactory, MtpA
                     logoutPromises.push(mtpInvokeApi('auth.logOut', {}, {dcID: i + 1}));
                 }
             }
-            return $q.all(logoutPromises).then(function () {
+            return queryService.all(logoutPromises).then(function () {
                 Storage.remove('dc', 'user_auth');
                 baseDcID = false;
                 telegramMeNotify(false);
@@ -3224,7 +3198,6 @@ function MtpApiManagerModule(MtpSingleInstanceService, MtpNetworkerFactory, MtpA
 
             var authKeyHex = result[0],
                 serverSaltHex = result[1];
-            // console.log('ass', dcID, authKeyHex, serverSaltHex);
             if (authKeyHex && authKeyHex.length == 512) {
                 var authKey = bytesFromHex(authKeyHex);
                 var serverSalt = bytesFromHex(serverSaltHex);
@@ -3233,7 +3206,7 @@ function MtpApiManagerModule(MtpSingleInstanceService, MtpNetworkerFactory, MtpA
             }
 
             if (!options.createNetworker) {
-                return $q.reject({type: 'AUTH_KEY_EMPTY', code: 401});
+                return queryService.reject({type: 'AUTH_KEY_EMPTY', code: 401});
             }
 
             return MtpAuthorizer.auth(dcID).then(function (auth) {
@@ -3244,8 +3217,7 @@ function MtpApiManagerModule(MtpSingleInstanceService, MtpNetworkerFactory, MtpA
 
                 return cache[dcID] = MtpNetworkerFactory.getNetworker(dcID, auth.authKey, auth.serverSalt, options);
             }, function (error) {
-                console.log('Get networker error', error, error.stack);
-                return $q.reject(error);
+                return queryService.reject(error);
             });
         });
     }
@@ -3253,7 +3225,7 @@ function MtpApiManagerModule(MtpSingleInstanceService, MtpNetworkerFactory, MtpA
     // function mtpInvokeApi(method, params, options) {
     //     options = options || {};
     //
-    //     var deferred = $q.defer(),
+    //     var deferred = queryService.defer(),
     //         rejectPromise = function (error) {
     //             // if (!error) {
     //             //     error = {type: 'ERROR_EMPTY'};
@@ -3301,7 +3273,7 @@ function MtpApiManagerModule(MtpSingleInstanceService, MtpNetworkerFactory, MtpA
     //                 }
     //                 else if (error.code == 401 && baseDcID && dcID != baseDcID) {
     //                     if (cachedExportPromise[dcID] === undefined) {
-    //                         var exportDeferred = $q.defer();
+    //                         var exportDeferred = queryService.defer();
     //
     //                         mtpInvokeApi('auth.exportAuthorization', {dc_id: dcID}, {noErrorBox: true}).then(function (exportedAuth) {
     //                             mtpInvokeApi('auth.importAuthorization', {
@@ -3384,7 +3356,7 @@ function MtpApiManagerModule(MtpSingleInstanceService, MtpNetworkerFactory, MtpA
     function mtpInvokeApi(method, params, options) {
         options = options || {};
 
-        var deferred = $q.defer();
+        var deferred = queryService.defer();
 
         var rejectPromise = function (error) {
             deferred.reject(error);
@@ -3401,7 +3373,6 @@ function MtpApiManagerModule(MtpSingleInstanceService, MtpNetworkerFactory, MtpA
                   rejectPromise(error);
               });
         };
-        console.log('baseDcID', baseDcID);
         mtpGetNetworker(baseDcID || 2, options).then(performRequest, rejectPromise);
 
         return deferred.promise;
@@ -3449,11 +3420,11 @@ MtpApiManagerModule.dependencies = [
     'Storage',
     'TelegramMeWebService',
     'qSync',
-    '$q',
+    'queryService',
     'CryptoWorker'
 ];
 
-function MtpAuthorizerModule(MtpTimeManager, MtpDcConfigurator, MtpRsaKeysManager, CryptoWorker, MtpSecureRandom, $q, $timeout, $http) {
+function MtpAuthorizerModule(MtpTimeManager, MtpDcConfigurator, MtpRsaKeysManager, CryptoWorker, MtpSecureRandom, queryService, timeoutService, httpService) {
     var chromeMatches = navigator.userAgent.match(/Chrome\/(\d+(\.\d+)?)/),
         chromeVersion = chromeMatches && parseFloat(chromeMatches[1]) || false,
         xhrSendBuffer = !('ArrayBufferView' in window) && (!chromeVersion || chromeVersion < 30);
@@ -3482,17 +3453,17 @@ function MtpAuthorizerModule(MtpTimeManager, MtpDcConfigurator, MtpRsaKeysManage
         var url = MtpDcConfigurator.chooseServer(dcID);
         var baseError = {code: 406, type: 'NETWORK_BAD_RESPONSE', url: url};
         try {
-            requestPromise = $http.post(url, requestData, {
+            requestPromise = httpService.post(url, requestData, {
                 responseType: 'arraybuffer',
                 transformRequest: null
             });
         } catch (e) {
-            requestPromise = $q.reject(extend(baseError, {originalError: e}));
+            requestPromise = queryService.reject(extend(baseError, {originalError: e}));
         }
         return requestPromise.then(
             function (result) {
                 if (!result.data || !result.data.byteLength) {
-                    return $q.reject(baseError);
+                    return queryService.reject(baseError);
                 }
 
                 try {
@@ -3502,7 +3473,7 @@ function MtpAuthorizerModule(MtpTimeManager, MtpDcConfigurator, MtpRsaKeysManage
                     var msg_len = deserializer.fetchInt('msg_len');
 
                 } catch (e) {
-                    return $q.reject(extend(baseError, {originalError: e}));
+                    return queryService.reject(extend(baseError, {originalError: e}));
                 }
 
                 return deserializer;
@@ -3511,7 +3482,7 @@ function MtpAuthorizerModule(MtpTimeManager, MtpDcConfigurator, MtpRsaKeysManage
                 if (!error.message && !error.type) {
                     error = extend(baseError, {originalError: error});
                 }
-                return $q.reject(error);
+                return queryService.reject(error);
             }
         );
     }
@@ -3523,7 +3494,6 @@ function MtpAuthorizerModule(MtpTimeManager, MtpDcConfigurator, MtpRsaKeysManage
 
         request.storeMethod('req_pq', {nonce: auth.nonce});
 
-        console.log(dT(), 'Send req_pq', bytesToHex(auth.nonce));
         mtpSendPlainRequest(auth.dcID, request.getBuffer()).then(function (deserializer) {
             var response = deserializer.fetchObject('ResPQ');
 
@@ -3538,31 +3508,24 @@ function MtpAuthorizerModule(MtpTimeManager, MtpDcConfigurator, MtpRsaKeysManage
             auth.serverNonce = response.server_nonce;
             auth.pq = response.pq;
             auth.fingerprints = response.server_public_key_fingerprints;
-
-            console.log(dT(), 'Got ResPQ', bytesToHex(auth.serverNonce), bytesToHex(auth.pq), auth.fingerprints);
-
             auth.publicKey = MtpRsaKeysManager.select(auth.fingerprints);
 
             if (!auth.publicKey) {
                 throw new Error('No public key found');
             }
 
-            console.log(dT(), 'PQ factorization start', auth.pq);
             CryptoWorker.factorize(auth.pq).then(function (pAndQ) {
                 auth.p = pAndQ[0];
                 auth.q = pAndQ[1];
-                console.log(dT(), 'PQ factorization done', pAndQ[2]);
                 mtpSendReqDhParams(auth);
             }, function (error) {
-                console.log('Worker error', error, error.stack);
                 deferred.reject(error);
             });
         }, function (error) {
-            console.error(dT(), 'req_pq error', error.message);
             deferred.reject(error);
         });
 
-        $timeout(function () {
+        timeoutService(function () {
             MtpRsaKeysManager.prepare();
         });
     }
@@ -3596,7 +3559,6 @@ function MtpAuthorizerModule(MtpTimeManager, MtpDcConfigurator, MtpRsaKeysManage
             encrypted_data: rsaEncrypt(auth.publicKey, dataWithHash)
         });
 
-        console.log(dT(), 'Send req_DH_params');
         mtpSendPlainRequest(auth.dcID, request.getBuffer()).then(function (deserializer) {
             var response = deserializer.fetchObject('Server_DH_Params', 'RESPONSE');
 
@@ -3665,7 +3627,6 @@ function MtpAuthorizerModule(MtpTimeManager, MtpDcConfigurator, MtpRsaKeysManage
             throw new Error('server_DH_inner_data serverNonce mismatch');
         }
 
-        console.log(dT(), 'Done decrypting answer');
         auth.g = response.g;
         auth.dhPrime = response.dh_prime;
         auth.gA = response.g_a;
@@ -3709,7 +3670,6 @@ function MtpAuthorizerModule(MtpTimeManager, MtpDcConfigurator, MtpRsaKeysManage
                 encrypted_data: encryptedData
             });
 
-            console.log(dT(), 'Send set_client_DH_params');
             mtpSendPlainRequest(auth.dcID, request.getBuffer()).then(function (deserializer) {
                 var response = deserializer.fetchObject('Set_client_DH_params_answer');
 
@@ -3733,7 +3693,6 @@ function MtpAuthorizerModule(MtpTimeManager, MtpDcConfigurator, MtpRsaKeysManage
                         authKeyAux = authKeyHash.slice(0, 8),
                         authKeyID = authKeyHash.slice(-8);
 
-                    console.log(dT(), 'Got Set_client_DH_params_answer', response._);
                     switch (response._) {
                         case 'dh_gen_ok':
                             var newNonceHash1 = sha1BytesSync(auth.newNonce.concat([1], authKeyAux)).slice(-16);
@@ -3796,16 +3755,16 @@ function MtpAuthorizerModule(MtpTimeManager, MtpDcConfigurator, MtpRsaKeysManage
         }
 
         if (!MtpDcConfigurator.chooseServer(dcID)) {
-            return $q.reject(new Error('No server found for dc ' + dcID));
+            return queryService.reject(new Error('No server found for dc ' + dcID));
         }
 
         var auth = {
             dcID: dcID,
             nonce: nonce,
-            deferred: $q.defer()
+            deferred: queryService.defer()
         };
 
-        $timeout(function () {
+        timeoutService(function () {
             mtpSendReqPQ(auth);
         });
 
@@ -3824,14 +3783,14 @@ function MtpAuthorizerModule(MtpTimeManager, MtpDcConfigurator, MtpRsaKeysManage
 }
 
 MtpAuthorizerModule.dependencies = [
-    'MtpTimeManager', 
-    'MtpDcConfigurator', 
-    'MtpRsaKeysManager', 
-    'CryptoWorker', 
-    'MtpSecureRandom', 
-    '$q', 
-    '$timeout', 
-    '$http'
+    'MtpTimeManager',
+    'MtpDcConfigurator',
+    'MtpRsaKeysManager',
+    'CryptoWorker',
+    'MtpSecureRandom',
+    'queryService',
+    'timeoutService',
+    'httpService'
 ];
 
 function MtpDcConfiguratorModule() {
@@ -3872,7 +3831,7 @@ function MtpDcConfiguratorModule() {
 
 MtpDcConfiguratorModule.dependencies = [];
 
-function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, CryptoWorker, MtpDcConfigurator, $timeout, $interval, $q, $http) {
+function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, CryptoWorker, MtpDcConfigurator, timeoutService, intervalService, queryService, httpService) {
     var updatesProcessor,
         akStopped = false,
         chromeMatches = navigator.userAgent.match(/Chrome\/(\d+(\.\d+)?)/),
@@ -3916,7 +3875,7 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
         this.pendingResends = [];
         this.connectionInited = false;
 
-        $interval(this.checkLongPoll.bind(this), 10000);
+        intervalService(this.checkLongPoll.bind(this), 10000);
 
         this.checkLongPoll();
     }
@@ -4048,7 +4007,6 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
 
     MtpNetworker.prototype.checkLongPoll = function (force) {
         var isClean = this.cleanupSent();
-        // console.log('Check lp', this.longPollPending, tsNow(), this.dcID, isClean);
         if (this.longPollPending && tsNow() < this.longPollPending ||
             this.offline ||
             akStopped) {
@@ -4073,7 +4031,6 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
             self = this;
 
         this.longPollPending = tsNow() + maxWait;
-        // console.log('Set lp', this.longPollPending, tsNow());
 
         this.wrapMtpCall('http_wait', {
             max_delay: 500,
@@ -4086,13 +4043,13 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
             delete self.longPollPending;
             setZeroTimeout(self.checkLongPoll.bind(self));
         }, function () {
-            console.log('Long-poll failed');
+            console.error('Long-poll failed');
         });
 
     };
 
     MtpNetworker.prototype.pushMessage = function (message, options) {
-        var deferred = $q.defer();
+        var deferred = queryService.defer();
 
         this.sentMessages[message.msg_id] = extend(message, options || {}, {deferred: deferred});
         this.pendingMessages[message.msg_id] = 0;
@@ -4117,9 +4074,6 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
         } else {
             this.pendingMessages[messageID] = value;
         }
-
-        // console.log('Resend due', messageID, this.pendingMessages);
-
         this.sheduleRequest(delay);
     };
 
@@ -4148,7 +4102,7 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
         sha1dText.set(msgKey, 0);
         sha1dText.set(authKey.subarray(x + 96, x + 128), 16);
         promises.sha1d = CryptoWorker.sha1Hash(sha1dText);
-        return $q.all(promises).then(function (result) {
+        return queryService.all(promises).then(function (result) {
             var aesKey = new Uint8Array(32),
                 aesIv = new Uint8Array(32),
                 sha1a = new Uint8Array(result.sha1a),
@@ -4170,8 +4124,7 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
     };
 
     MtpNetworker.prototype.checkConnection = function (event) {
-        console.log(dT(), 'Check connection', event);
-        $timeout.cancel(this.checkConnectionPromise);
+        timeoutService.cancel(this.checkConnectionPromise);
 
         var serializer = new TLSerialization({mtproto: true}),
             pingID = [nextRandomInt(0xFFFFFFFF), nextRandomInt(0xFFFFFFFF)];
@@ -4188,14 +4141,12 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
         this.sendEncryptedRequest(pingMessage, {timeout: 15000}).then(function (result) {
             self.toggleOffline(false);
         }, function () {
-            console.log(dT(), 'Delay ', self.checkConnectionPeriod * 1000);
-            self.checkConnectionPromise = $timeout(self.checkConnection.bind(self), parseInt(self.checkConnectionPeriod * 1000));
+            self.checkConnectionPromise = timeoutService(self.checkConnection.bind(self), parseInt(self.checkConnectionPeriod * 1000));
             self.checkConnectionPeriod = Math.min(60, self.checkConnectionPeriod * 1.5);
         })
     };
 
     MtpNetworker.prototype.toggleOffline = function (enabled) {
-        // console.log('toggle ', enabled, this.dcID, this.iii);
         if (this.offline !== undefined && this.offline == enabled) {
             return false;
         }
@@ -4203,14 +4154,14 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
         this.offline = enabled;
 
         if (this.offline) {
-            $timeout.cancel(this.nextReqPromise);
+            timeoutService.cancel(this.nextReqPromise);
             delete this.nextReq;
 
             if (this.checkConnectionPeriod < 1.5) {
                 this.checkConnectionPeriod = 0;
             }
 
-            this.checkConnectionPromise = $timeout(this.checkConnection.bind(this), parseInt(this.checkConnectionPeriod * 1000));
+            this.checkConnectionPromise = timeoutService(this.checkConnection.bind(this), parseInt(this.checkConnectionPeriod * 1000));
             this.checkConnectionPeriod = Math.min(30, (1 + this.checkConnectionPeriod) * 1.5);
 
             this.onOnlineCb = this.checkConnection.bind(this);
@@ -4226,15 +4177,13 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
                 document.body.removeEventListener('online', this.onOnlineCb);
                 document.body.removeEventListener('focus', this.onOnlineCb);
             }
-            $timeout.cancel(this.checkConnectionPromise);
+            timeoutService.cancel(this.checkConnectionPromise);
         }
 
     };
 
     MtpNetworker.prototype.performSheduledRequest = function () {
-        // console.log(dT(), 'sheduled', this.dcID, this.iii);
         if (this.offline || akStopped) {
-            console.log(dT(), 'Cancel sheduled');
             return false;
         }
         delete this.nextReq;
@@ -4243,7 +4192,6 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
             for (var i = 0; i < this.pendingAcks.length; i++) {
                 ackMsgIDs.push(this.pendingAcks[i]);
             }
-            // console.log('acking messages', ackMsgIDs);
             this.wrapMtpMessage({_: 'msgs_ack', msg_ids: ackMsgIDs}, {notContentRelated: true, noShedule: true});
         }
 
@@ -4253,7 +4201,6 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
             for (var i = 0; i < this.pendingResends.length; i++) {
                 resendMsgIDs.push(this.pendingResends[i]);
             }
-            // console.log('resendReq messages', resendMsgIDs);
             this.wrapMtpMessage({_: 'msg_resend_req', msg_ids: resendMsgIDs}, resendOpts);
             this.lastResendReq = {req_msg_id: resendOpts.messageID, resend_msg_ids: resendMsgIDs};
         }
@@ -4296,8 +4243,6 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
                     else if (message.longPoll) {
                         hasHttpWait = true;
                     }
-                } else {
-                    // console.log(message, messageID);
                 }
                 delete self.pendingMessages[messageID];
             }
@@ -4318,7 +4263,6 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
         }
 
         if (!messages.length) {
-            // console.log('no sheduled messages');
             return;
         }
 
@@ -4367,7 +4311,6 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
         var self = this;
         this.sendEncryptedRequest(message).then(function (result) {
             self.toggleOffline(false);
-            // console.log('parse for', message);
             self.parseResponse(result.data).then(function (response) {
                 if (Config.Modes.debug) {
                     console.log(dT(), 'Server response', self.dcID, response);
@@ -4393,7 +4336,7 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
 
             });
         }, function (error) {
-            console.log('Encrypted request failed', error);
+            console.error('Encrypted request failed', error);
 
             if (message.container) {
                 forEach(message.inner, function (msgID) {
@@ -4424,14 +4367,10 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
     MtpNetworker.prototype.getEncryptedMessage = function (bytes) {
         var self = this;
 
-        // console.log(dT(), 'Start encrypt', bytes.byteLength);
         return CryptoWorker.sha1Hash(bytes).then(function (bytesHash) {
-            // console.log(dT(), 'after hash');
             var msgKey = new Uint8Array(bytesHash).subarray(4, 20);
             return self.getMsgKeyIv(msgKey, true).then(function (keyIv) {
-                // console.log(dT(), 'after msg key iv');
                 return CryptoWorker.aesEncrypt(bytes, keyIv[0], keyIv[1]).then(function (encryptedBytes) {
-                    // console.log(dT(), 'Finish encrypt');
                     return {
                         bytes: encryptedBytes,
                         msgKey: msgKey
@@ -4442,9 +4381,7 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
     };
 
     MtpNetworker.prototype.getDecryptedMessage = function (msgKey, encryptedData) {
-        // console.log(dT(), 'get decrypted start');
         return this.getMsgKeyIv(msgKey, false).then(function (keyIv) {
-            // console.log(dT(), 'after msg key iv');
             return CryptoWorker.aesDecrypt(encryptedData, keyIv[0], keyIv[1]);
         });
     };
@@ -4452,8 +4389,6 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
     MtpNetworker.prototype.sendEncryptedRequest = function (message, options) {
         var self = this;
         options = options || {};
-        // console.log(dT(), 'Send encrypted'/*, message*/);
-        // console.trace();
         var data = new TLSerialization({startMaxLength: message.body.length + 64});
 
         data.storeIntBytes(this.serverSalt, 64, 'salt');
@@ -4466,7 +4401,6 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
         data.storeRawBytes(message.body, 'message_data');
 
         return this.getEncryptedMessage(data.getBuffer()).then(function (encryptedResult) {
-            // console.log(dT(), 'Got encrypted out message'/*, encryptedResult*/);
             var request = new TLSerialization({startMaxLength: encryptedResult.bytes.byteLength + 256});
             request.storeIntBytes(self.authKeyID, 64, 'auth_key_id');
             request.storeIntBytes(encryptedResult.msgKey, 128, 'msg_key');
@@ -4483,14 +4417,14 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
                     responseType: 'arraybuffer',
                     transformRequest: null
                 });
-                requestPromise = $http.post(url, requestData, options);
+                requestPromise = httpService.post(url, requestData, options);
             } catch (e) {
-                requestPromise = $q.reject(e);
+                requestPromise = queryService.reject(e);
             }
             return requestPromise.then(
                 function (result) {
                     if (!result.data || !result.data.byteLength) {
-                        return $q.reject(baseError);
+                        return queryService.reject(baseError);
                     }
                     return result;
                 },
@@ -4507,14 +4441,13 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
                     if (!error.message && !error.type) {
                         error = extend(baseError, {type: 'NETWORK_BAD_REQUEST', originalError: error});
                     }
-                    return $q.reject(error);
+                    return queryService.reject(error);
                 }
             );
         });
     };
 
     MtpNetworker.prototype.parseResponse = function (responseBuffer) {
-        // console.log(dT(), 'Start parsing response');
         var self = this;
 
         var deserializer = new TLDeserialization(responseBuffer);
@@ -4527,7 +4460,6 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
             encryptedData = deserializer.fetchRawBytes(responseBuffer.byteLength - deserializer.getOffset(), true, 'encrypted_data');
 
         return this.getDecryptedMessage(msgKey, encryptedData).then(function (dataWithPadding) {
-            // console.log(dT(), 'after decrypt');
             var deserializer = new TLDeserialization(dataWithPadding, {mtproto: true});
 
             var salt = deserializer.fetchIntBytes(64, false, 'salt');
@@ -4538,7 +4470,6 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
 
             var messageBody = deserializer.fetchRawBytes(false, true, 'message_data');
 
-            // console.log(dT(), 'before hash');
             var hashData = convertToUint8Array(dataWithPadding).subarray(0, deserializer.getOffset());
 
             return CryptoWorker.sha1Hash(hashData).then(function (dataHash) {
@@ -4565,11 +4496,8 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
                                 result.body = {_: 'parse_error', error: e};
                             }
                             if (this.offset != offset + result.bytes) {
-                                // console.warn(dT(), 'set offset', this.offset, offset, result.bytes);
-                                // console.log(dT(), result);
                                 this.offset = offset + result.bytes;
                             }
-                            // console.log(dT(), 'override message', result);
                         },
                         mt_rpc_result: function (result, field) {
                             result.req_msg_id = this.fetchLong(field + '[req_msg_id]');
@@ -4582,7 +4510,6 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
                                 return;
                             }
                             result.result = this.fetchObject(type, field + '[result]');
-                            // console.log(dT(), 'override rpc_result', sentMessage, type, result);
                         }
                     }
                 };
@@ -4620,12 +4547,9 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
             return false;
         }
 
-        // console.log(dT(), 'shedule req', delay);
-        // console.trace();
-
-        $timeout.cancel(this.nextReqPromise);
+        timeoutService.cancel(this.nextReqPromise);
         if (delay > 0) {
-            this.nextReqPromise = $timeout(this.performSheduledRequest.bind(this), delay || 0);
+            this.nextReqPromise = timeoutService(this.performSheduledRequest.bind(this), delay || 0);
         } else {
             setZeroTimeout(this.performSheduledRequest.bind(this))
         }
@@ -4634,13 +4558,11 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
     };
 
     MtpNetworker.prototype.ackMessage = function (msgID) {
-        // console.log('ack message', msgID);
         this.pendingAcks.push(msgID);
         this.sheduleRequest(30000);
     };
 
     MtpNetworker.prototype.reqResendMessage = function (msgID) {
-        console.log(dT(), 'Req resend', msgID);
         this.pendingResends.push(msgID);
         this.sheduleRequest(100);
     };
@@ -4648,22 +4570,17 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
     MtpNetworker.prototype.cleanupSent = function () {
         var self = this;
         var notEmpty = false;
-        // console.log('clean start', this.dcID/*, this.sentMessages*/);
         forEach(this.sentMessages, function (message, msgID) {
-            // console.log('clean iter', msgID, message);
             if (message.notContentRelated && self.pendingMessages[msgID] === undefined) {
-                // console.log('clean notContentRelated', msgID);
                 delete self.sentMessages[msgID];
             }
             else if (message.container) {
                 for (var i = 0; i < message.inner.length; i++) {
                     if (self.sentMessages[message.inner[i]] !== undefined) {
-                        // console.log('clean failed, found', msgID, message.inner[i], self.sentMessages[message.inner[i]].seq_no);
                         notEmpty = true;
                         return;
                     }
                 }
-                // console.log('clean container', msgID);
                 delete self.sentMessages[msgID];
             } else {
                 notEmpty = true;
@@ -4700,7 +4617,6 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
 
 
     MtpNetworker.prototype.processMessage = function (message, messageID, sessionID) {
-        // console.log('process message', message, messageID, sessionID);
         switch (message._) {
             case 'msg_container':
                 var len = message.messages.length;
@@ -4710,10 +4626,8 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
                 break;
 
             case 'bad_server_salt':
-                console.log(dT(), 'Bad server salt', message);
                 var sentMessage = this.sentMessages[message.bad_msg_id];
                 if (!sentMessage || sentMessage.seq_no != message.bad_msg_seqno) {
-                    console.log(message.bad_msg_id, message.bad_msg_seqno);
                     throw new Error('Bad server salt for invalid message');
                 }
 
@@ -4723,10 +4637,8 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
                 break;
 
             case 'bad_msg_notification':
-                console.log(dT(), 'Bad msg notification', message);
                 var sentMessage = this.sentMessages[message.bad_msg_id];
                 if (!sentMessage || sentMessage.seq_no != message.bad_msg_seqno) {
-                    console.log(message.bad_msg_id, message.bad_msg_seqno);
                     throw new Error('Bad msg notification for invalid message');
                 }
 
@@ -4734,7 +4646,6 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
                     if (MtpTimeManager.applyServerTime(
                             bigStringInt(messageID).shiftRight(32).toString(10)
                         )) {
-                        console.log(dT(), 'Update session');
                         this.updateSession();
                     }
                     var badMessage = this.updateSentMessage(message.bad_msg_id);
@@ -4803,7 +4714,6 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
                     var deferred = sentMessage.deferred;
                     if (message.result._ == 'rpc_error') {
                         var error = this.processError(message.result);
-                        console.log(dT(), 'Rpc error', error)
                         if (deferred) {
                             deferred.reject(error)
                         }
@@ -4820,7 +4730,6 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
                                         dRes = message.result;
                                     }
                                 }
-                                console.log(dT(), 'Rpc response', dRes);
                             }
                             sentMessage.deferred.resolve(message.result);
                         }
@@ -4836,7 +4745,6 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
             default:
                 this.ackMessage(messageID);
 
-                // console.log('Update', message);
                 if (updatesProcessor) {
                     updatesProcessor(message);
                 }
@@ -4877,10 +4785,10 @@ MtpNetworkerFactoryModule.dependencies = [
     'Storage',
     'CryptoWorker',
     'MtpDcConfigurator',
-    '$timeout',
-    '$interval',
-    '$q',
-    '$http'
+    'timeoutService',
+    'intervalService',
+    'queryService',
+    'httpService'
 ];
 
 function MtpRsaKeysManagerModule() {
@@ -4962,7 +4870,7 @@ function MtpSecureRandomModule() {
 MtpSecureRandomModule.dependencies = [
 ];
 
-function MtpSingleInstanceServiceModule(IdleManager, Storage, MtpNetworkerFactory, $interval, $rootScope, $timeout) {
+function MtpSingleInstanceServiceModule(IdleManager, Storage, MtpNetworkerFactory, intervalService, rootService, timeoutService) {
     var instanceID = nextRandomInt(0xFFFFFFFF);
     var started = false;
     var masterInstance = false;
@@ -4975,7 +4883,7 @@ function MtpSingleInstanceServiceModule(IdleManager, Storage, MtpNetworkerFactor
 
             IdleManager.start();
 
-            $interval(checkInstance, 5000);
+            intervalService(checkInstance, 5000);
             checkInstance();
 
             try {
@@ -4993,12 +4901,11 @@ function MtpSingleInstanceServiceModule(IdleManager, Storage, MtpNetworkerFactor
         if (masterInstance || deactivated) {
             return false;
         }
-        console.log(dT(), 'deactivate');
         deactivatePromise = false;
         deactivated = true;
         clearInstance();
 
-        $rootScope.idle.deactivated = true;
+        rootService.idle.deactivated = true;
     }
 
     function checkInstance() {
@@ -5006,14 +4913,13 @@ function MtpSingleInstanceServiceModule(IdleManager, Storage, MtpNetworkerFactor
             return false;
         }
         var time = tsNow();
-        var idle = $rootScope.idle && $rootScope.idle.isIDLE;
+        var idle = rootService.idle && rootService.idle.isIDLE;
         var newInstance = {id: instanceID, idle: idle, time: time};
 
         Storage.get('xt_instance', 'xt_idle_instance').then(function (result) {
             var curInstance = result[0],
                 idleInstance = result[1];
 
-            // console.log(dT(), 'check instance', newInstance, curInstance, idleInstance);
             if (!idle || !curInstance ||
                 curInstance.id == instanceID ||
                 curInstance.time < time - 60000) {
@@ -5029,7 +4935,7 @@ function MtpSingleInstanceServiceModule(IdleManager, Storage, MtpNetworkerFactor
                 }
                 masterInstance = true;
                 if (deactivatePromise) {
-                    $timeout.cancel(deactivatePromise);
+                    timeoutService.cancel(deactivatePromise);
                     deactivatePromise = false;
                 }
             } else {
@@ -5038,7 +4944,7 @@ function MtpSingleInstanceServiceModule(IdleManager, Storage, MtpNetworkerFactor
                     MtpNetworkerFactory.stopAll();
                     console.warn(dT(), 'now idle instance', newInstance);
                     if (!deactivatePromise) {
-                        deactivatePromise = $timeout(deactivateInstance, 30000);
+                        deactivatePromise = timeoutService(deactivateInstance, 30000);
                     }
                 }
                 masterInstance = false;
@@ -5055,9 +4961,9 @@ MtpSingleInstanceServiceModule.dependencies = [
     'IdleManager',
     'Storage',
     'MtpNetworkerFactory',
-    '$interval',
-    '$rootScope',
-    '$timeout',
+    'intervalService',
+    'rootService',
+    'timeoutService',
 ];
 
 function MtpTimeManagerModule(Storage) {
@@ -5095,7 +5001,6 @@ function MtpTimeManagerModule(Storage) {
 
         lastMessageID = [0, 0];
         timeOffset = newTimeOffset;
-        console.log(dT(), 'Apply server time', serverTime, localTime, newTimeOffset, changed);
 
         return changed;
     }
@@ -5110,7 +5015,7 @@ MtpTimeManagerModule.dependencies = [
     'Storage'
 ];
 
-function TelegramApiModule(MtpApiManager, AppPeersManager, MtpApiFileManager, AppUsersManager, AppProfileManager, AppChatsManager, MtpNetworkerFactory, FileSaver, $q, $timeout) {
+function TelegramApiModule(MtpApiManager, AppPeersManager, MtpApiFileManager, AppUsersManager, AppProfileManager, AppChatsManager, MtpNetworkerFactory, FileSaver, queryService, timeoutService) {
     var options = {dcID: 2, createNetworker: true};
 
     MtpNetworkerFactory.setUpdatesProcessor(function(message) {
@@ -5212,8 +5117,7 @@ function TelegramApiModule(MtpApiManager, AppPeersManager, MtpApiFileManager, Ap
     }
 
     function checkPasswordHash(salt, password) {
-        const deferred = $q.defer();
-        debugger;
+        const deferred = queryService.defer();
         MtpApiManager.makePasswordHash(salt, password).then((passwordHash) => {
             MtpApiManager.invokeApi('auth.checkPassword', { password_hash: passwordHash }, this.options).then(function(){
                 MtpApiManager.invokeApi('users.getFullUser', { id: {_: 'inputUserSelf'} }).then(function(result){
@@ -5223,7 +5127,7 @@ function TelegramApiModule(MtpApiManager, AppPeersManager, MtpApiFileManager, Ap
                 });
                 deferred.resolve();
             }, (error) => {
-                console.log('check password error', error);
+                console.error('check password error', error);
                 deferred.reject(error);
             });
         });
@@ -5576,7 +5480,7 @@ function TelegramApiModule(MtpApiManager, AppPeersManager, MtpApiFileManager, Ap
         var size = 15728640;
         var limit = 524288;
         var offset = 0;
-        var done = $q.defer();
+        var done = queryService.defer();
         var bytes = [];
 
         if (doc.size > size) {
@@ -5615,7 +5519,7 @@ function TelegramApiModule(MtpApiManager, AppPeersManager, MtpApiFileManager, Ap
             }
         }
 
-        $timeout(download);
+        timeoutService(download);
 
         return done.promise;
     }
@@ -5709,7 +5613,7 @@ function TelegramApiModule(MtpApiManager, AppPeersManager, MtpApiFileManager, Ap
         var size = 15728640;
         var limit = 524288;
         var offset = 0;
-        var done = $q.defer();
+        var done = queryService.defer();
         var bytes = [];
 
         if (photoSize.size > size) {
@@ -5742,7 +5646,7 @@ function TelegramApiModule(MtpApiManager, AppPeersManager, MtpApiFileManager, Ap
             }
         }
 
-        $timeout(download);
+        timeoutService(download);
 
         return done.promise;
     }
@@ -5778,7 +5682,7 @@ function TelegramApiModule(MtpApiManager, AppPeersManager, MtpApiFileManager, Ap
         }
 
         var peer = AppPeersManager.getPeer(id);
-        var defer = $q.defer();
+        var defer = queryService.defer();
 
         if (!peer.deleted) {
             return defer.resolve(peer).promise;
@@ -5922,8 +5826,8 @@ TelegramApiModule.dependencies = [
     'AppChatsManager',
     'MtpNetworkerFactory',
     'FileSaver',
-    '$q',
-    '$timeout'
+    'queryService',
+    'timeoutService'
 ];
 
 // Create container
@@ -5947,11 +5851,11 @@ builder.register('MtpSingleInstanceService', MtpSingleInstanceServiceModule);
 builder.register('MtpTimeManager', MtpTimeManagerModule);
 
 // Register helps modules
-builder.register('$http', $httpModule);
-builder.register('$interval', $intervalModule);
-builder.register('$q', $qModule);
-builder.register('$rootScope', $rootScopeModule);
-builder.register('$timeout', $timeoutModule);
+builder.register('httpService', httpServiceModule);
+builder.register('intervalService', intervalServiceModule);
+builder.register('queryService', queryServiceModule);
+builder.register('rootService', rootServiceModule);
+builder.register('timeoutService', timeoutServiceModule);
 
 // Register other modules
 builder.register('CryptoWorker', CryptoWorkerModule);

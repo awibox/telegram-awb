@@ -1,4 +1,4 @@
-function MtpApiManagerModule(MtpSingleInstanceService, MtpNetworkerFactory, MtpAuthorizer, Storage, TelegramMeWebService, qSync, $q, CryptoWorker) {
+function MtpApiManagerModule(MtpSingleInstanceService, MtpNetworkerFactory, MtpAuthorizer, Storage, TelegramMeWebService, qSync, queryService, CryptoWorker) {
     var cachedNetworkers = {},
         cachedUploadNetworkers = {},
         cachedExportPromise = {},
@@ -43,7 +43,7 @@ function MtpApiManagerModule(MtpSingleInstanceService, MtpNetworkerFactory, MtpA
                     logoutPromises.push(mtpInvokeApi('auth.logOut', {}, {dcID: i + 1}));
                 }
             }
-            return $q.all(logoutPromises).then(function () {
+            return queryService.all(logoutPromises).then(function () {
                 Storage.remove('dc', 'user_auth');
                 baseDcID = false;
                 telegramMeNotify(false);
@@ -90,7 +90,7 @@ function MtpApiManagerModule(MtpSingleInstanceService, MtpNetworkerFactory, MtpA
             }
 
             if (!options.createNetworker) {
-                return $q.reject({type: 'AUTH_KEY_EMPTY', code: 401});
+                return queryService.reject({type: 'AUTH_KEY_EMPTY', code: 401});
             }
 
             return MtpAuthorizer.auth(dcID).then(function (auth) {
@@ -101,7 +101,7 @@ function MtpApiManagerModule(MtpSingleInstanceService, MtpNetworkerFactory, MtpA
 
                 return cache[dcID] = MtpNetworkerFactory.getNetworker(dcID, auth.authKey, auth.serverSalt, options);
             }, function (error) {
-                return $q.reject(error);
+                return queryService.reject(error);
             });
         });
     }
@@ -109,7 +109,7 @@ function MtpApiManagerModule(MtpSingleInstanceService, MtpNetworkerFactory, MtpA
     // function mtpInvokeApi(method, params, options) {
     //     options = options || {};
     //
-    //     var deferred = $q.defer(),
+    //     var deferred = queryService.defer(),
     //         rejectPromise = function (error) {
     //             // if (!error) {
     //             //     error = {type: 'ERROR_EMPTY'};
@@ -157,7 +157,7 @@ function MtpApiManagerModule(MtpSingleInstanceService, MtpNetworkerFactory, MtpA
     //                 }
     //                 else if (error.code == 401 && baseDcID && dcID != baseDcID) {
     //                     if (cachedExportPromise[dcID] === undefined) {
-    //                         var exportDeferred = $q.defer();
+    //                         var exportDeferred = queryService.defer();
     //
     //                         mtpInvokeApi('auth.exportAuthorization', {dc_id: dcID}, {noErrorBox: true}).then(function (exportedAuth) {
     //                             mtpInvokeApi('auth.importAuthorization', {
@@ -240,7 +240,7 @@ function MtpApiManagerModule(MtpSingleInstanceService, MtpNetworkerFactory, MtpA
     function mtpInvokeApi(method, params, options) {
         options = options || {};
 
-        var deferred = $q.defer();
+        var deferred = queryService.defer();
 
         var rejectPromise = function (error) {
             deferred.reject(error);
@@ -304,6 +304,6 @@ MtpApiManagerModule.dependencies = [
     'Storage',
     'TelegramMeWebService',
     'qSync',
-    '$q',
+    'queryService',
     'CryptoWorker'
 ];

@@ -19,11 +19,11 @@ builder.register('MtpSingleInstanceService', MtpSingleInstanceServiceModule);
 builder.register('MtpTimeManager', MtpTimeManagerModule);
 
 // Register helps modules
-builder.register('$http', $httpModule);
-builder.register('$interval', $intervalModule);
-builder.register('$q', $qModule);
-builder.register('$rootScope', $rootScopeModule);
-builder.register('$timeout', $timeoutModule);
+builder.register('httpService', httpServiceModule);
+builder.register('intervalService', intervalServiceModule);
+builder.register('queryService', queryServiceModule);
+builder.register('rootService', rootServiceModule);
+builder.register('timeoutService', timeoutServiceModule);
 
 // Register other modules
 builder.register('CryptoWorker', CryptoWorkerModule);

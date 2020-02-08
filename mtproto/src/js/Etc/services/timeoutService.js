@@ -1,6 +1,6 @@
-function $timeoutModule($q) {
+function timeoutServiceModule(queryService) {
     var timeout = function (cb, t) {
-        var defer = $q.defer();
+        var defer = queryService.defer();
         var promise = defer.promise;
 
         promise.__timeoutID = setTimeout(function () {
@@ -21,6 +21,6 @@ function $timeoutModule($q) {
     return timeout;
 }
 
-$timeoutModule.dependencies = [
-    '$q'
+timeoutServiceModule.dependencies = [
+    'queryService'
 ];
