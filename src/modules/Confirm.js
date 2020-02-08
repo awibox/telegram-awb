@@ -41,7 +41,9 @@ class Confirm {
             });
           } else {
             console.error(error);
-            this.state.confirmCodeInput.className = addClass(this.state.confirmCodeInput.className, 'confirm__input_error');
+            if(error.code !== 420) {
+              this.state.confirmCodeInput.className = addClass(this.state.confirmCodeInput.className, 'confirm__input_error');
+            }
           }
         });
     }
