@@ -215,11 +215,7 @@ function TelegramApiModule(MtpApiManager, AppPeersManager, MtpApiFileManager, Ap
         Config.Server.Test = config.server.test;
         Config.Server.Production = config.server.production;
 
-        MtpApiManager.invokeApi('help.getNearestDc', {}, options).then(function(nearestDcResult) {
-            if (nearestDcResult.nearest_dc != nearestDcResult.this_dc) {
-                MtpApiManager.getNetworker(nearestDcResult.nearest_dc, {createNetworker: true});
-            }
-        });
+        MtpApiManager.getNetworker(options.dcID, {createNetworker: true});
     }
 
     /**

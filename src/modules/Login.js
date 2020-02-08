@@ -20,7 +20,6 @@ class Login {
   }
 
   sendPhoneNumber(phoneNumber) {
-    storage.set('phone', phoneNumber);
     if (this.isReadyForSending) {
       this.state.phoneNumberSendButton.innerText = 'PLEASE WAIT...';
       this.isReadyForSending = false;
@@ -134,21 +133,30 @@ class Login {
     this.state.countryInput.className = deleteClass(this.state.countryInput.className, 'login__input_focused');
   }
 
-  render() {
+  getCountryFromApi() {
+    console.log('getCountryFromApi');
     this.api.getCountry().then((response) => {
-      this.state.countryId = document.getElementById('countryId');
-      this.state.countryInput = document.getElementById('countryInput');
-      this.state.phoneNumber = document.getElementById('phoneNumber');
-      this.state.phoneNumberInput = document.getElementById('phoneInput');
-      this.state.phoneNumberSendButton = document.getElementById('phoneNumberButton');
-      this.state.phoneNumber.addEventListener('keyup', () => this.onChangePhone(phoneNumber.value));
-      this.state.countryId.addEventListener('keyup', () => this.countryBox(this.state.countryId.value));
-      this.state.countryId.addEventListener('focusin', () => this.onFocusCountry());
-      this.state.phoneNumber.addEventListener('focusin', () => this.onFocusPhone());
-      this.state.phoneNumberSendButton.addEventListener('click', () => this.sendPhoneNumber(phoneNumber.value));
-      this.state.countryArrow = document.getElementById('countryArrow');
+      console.log('response', response);
       this.getDefaultCountry(response.country);
-    });
+    }).catch((error) => {
+      console.log('error', error);
+      setTimeout(() => this.getCountryFromApi(), 300);
+    })
+  }
+
+  render() {
+    this.state.countryId = document.getElementById('countryId');
+    this.state.countryInput = document.getElementById('countryInput');
+    this.state.phoneNumber = document.getElementById('phoneNumber');
+    this.state.phoneNumberInput = document.getElementById('phoneInput');
+    this.state.phoneNumberSendButton = document.getElementById('phoneNumberButton');
+    this.state.phoneNumber.addEventListener('keyup', () => this.onChangePhone(phoneNumber.value));
+    this.state.countryId.addEventListener('keyup', () => this.countryBox(this.state.countryId.value));
+    this.state.countryId.addEventListener('focusin', () => this.onFocusCountry());
+    this.state.phoneNumber.addEventListener('focusin', () => this.onFocusPhone());
+    this.state.phoneNumberSendButton.addEventListener('click', () => this.sendPhoneNumber(phoneNumber.value));
+    this.state.countryArrow = document.getElementById('countryArrow');
+    this.getCountryFromApi();
   }
 }
 export default Login;

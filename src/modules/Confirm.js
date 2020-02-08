@@ -1,6 +1,5 @@
 import AuthApi from 'api/AuthApi';
 import Password from 'modules/Password';
-import storage from 'utils/storage';
 import { addClass, deleteClass } from 'utils/index';
 import 'styles/confirm.scss';
 import Messenger from 'modules/Messenger';
@@ -50,7 +49,7 @@ class Confirm {
 
   sendCodeForNewPhone(phoneNumber) {
     this.state.confirmPhone.style.color = '#000000';
-    if (phoneNumber !== storage.get('phone')) {
+    if (phoneNumber !== this.phoneNumber) {
       this.api.sendCode(phoneNumber).then((response) => {
         this.phoneNumber = phoneNumber;
         this.phoneCodeHash = response.phone_code_hash;
@@ -90,7 +89,7 @@ class Confirm {
     const confirmCode = document.getElementById('confirmCode');
     const editPhoneNumber = document.getElementById('editPhoneNumber');
     editPhoneNumber.addEventListener('click', () => this.changePhoneNumber());
-    this.state.confirmPhone.value = storage.get('phone');
+    this.state.confirmPhone.value = this.phoneNumber;
     this.state.confirmPhone.style.width = `${this.state.confirmPhone.value.length * 20}px`;
     this.state.confirmCodeInput.addEventListener('keyup', () => this.sendConfirmCode(confirmCode.value));
   }
