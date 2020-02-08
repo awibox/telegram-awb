@@ -124,7 +124,7 @@ class Messenger {
       ${message.message}
       </span>  
       <span class="messages__item-time">
-        ${ message.is_outgoing ? `${lastReadId >= item.id ? `<div class="arrow-read"></div>` : '<div class="arrow"></div>'}` : ''}
+        ${message.is_outgoing ? `${lastReadId >= item.id ? `<div class="arrow-read"></div>` : '<div class="arrow"></div>'}` : ''}
         ${message.date}
       </span>
     </div>`;
@@ -543,7 +543,16 @@ class Messenger {
     document.getElementById('chatsScroll').onscroll = () => this.scrollChats();
     document.getElementById('messagesScroll').onscroll = () => this.scrollMessages();
     // Subscribe to update
-    this.api.subscribe(this.userAuth.id, (update) => this.onUpdate(update));
+    const selt = this;
+    if(!!this.userAuth.id) {
+      this.api.subscribe(this.userAuth.id, (update) => this.onUpdate(update));
+    } else {
+      this.api.invokeApi('users.getFullUser', { id: {_: 'inputUserSelf'} }).then(function(result){
+        selt.api.subscribe(result.user.id, (update) => selt.onUpdate(update));
+        storage.setObject('user_auth', result.user);
+        this.userAuth = result.user;
+      });
+    }
     document.getElementById('sendButton').addEventListener('click', () => this.sendMessage());
     document.getElementById('sendInput').addEventListener('keyup', (e) => this.onKeyUpInput(e))
   }
