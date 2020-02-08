@@ -552,7 +552,7 @@ class Messenger {
     document.getElementById('messagesScroll').onscroll = () => this.scrollMessages();
     // Subscribe to update
     const selt = this;
-    if(!!this.userAuth.id) {
+    if(!!this.userAuth) {
       this.api.subscribe(this.userAuth.id, (update) => this.onUpdate(update));
     } else {
       this.api.invokeApi('users.getFullUser', { id: {_: 'inputUserSelf'} }).then(function(result){
