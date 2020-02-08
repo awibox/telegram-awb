@@ -29,7 +29,6 @@ function MtpSingleInstanceServiceModule(IdleManager, Storage, MtpNetworkerFactor
         if (masterInstance || deactivated) {
             return false;
         }
-        console.log(dT(), 'deactivate');
         deactivatePromise = false;
         deactivated = true;
         clearInstance();
@@ -49,7 +48,6 @@ function MtpSingleInstanceServiceModule(IdleManager, Storage, MtpNetworkerFactor
             var curInstance = result[0],
                 idleInstance = result[1];
 
-            // console.log(dT(), 'check instance', newInstance, curInstance, idleInstance);
             if (!idle || !curInstance ||
                 curInstance.id == instanceID ||
                 curInstance.time < time - 60000) {

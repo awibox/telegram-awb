@@ -28,7 +28,6 @@ function MtpApiManagerModule(MtpSingleInstanceService, MtpNetworkerFactory, MtpA
             user_auth: fullUserAuth
         });
         telegramMeNotify(true);
-        debugger;
         baseDcID = dcID;
     }
 
@@ -83,7 +82,6 @@ function MtpApiManagerModule(MtpSingleInstanceService, MtpNetworkerFactory, MtpA
 
             var authKeyHex = result[0],
                 serverSaltHex = result[1];
-            // console.log('ass', dcID, authKeyHex, serverSaltHex);
             if (authKeyHex && authKeyHex.length == 512) {
                 var authKey = bytesFromHex(authKeyHex);
                 var serverSalt = bytesFromHex(serverSaltHex);
@@ -103,7 +101,6 @@ function MtpApiManagerModule(MtpSingleInstanceService, MtpNetworkerFactory, MtpA
 
                 return cache[dcID] = MtpNetworkerFactory.getNetworker(dcID, auth.authKey, auth.serverSalt, options);
             }, function (error) {
-                console.log('Get networker error', error, error.stack);
                 return $q.reject(error);
             });
         });
@@ -260,7 +257,6 @@ function MtpApiManagerModule(MtpSingleInstanceService, MtpNetworkerFactory, MtpA
                   rejectPromise(error);
               });
         };
-        console.log('baseDcID', baseDcID);
         mtpGetNetworker(baseDcID || 2, options).then(performRequest, rejectPromise);
 
         return deferred.promise;
