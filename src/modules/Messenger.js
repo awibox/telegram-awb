@@ -546,21 +546,21 @@ class Messenger {
 
   render() {
     // Chat list init
+    const self = this;
     this.setChatLoader(true);
-    this.getChats();
-    document.getElementById('chatsScroll').onscroll = () => this.scrollChats();
-    document.getElementById('messagesScroll').onscroll = () => this.scrollMessages();
-    // Subscribe to update
-    const selt = this;
-    if(!!this.userAuth) {
+    if(this.userAuth) {
+      this.getChats();
       this.api.subscribe(this.userAuth.id, (update) => this.onUpdate(update));
     } else {
       this.api.invokeApi('users.getFullUser', { id: {_: 'inputUserSelf'} }).then(function(result){
-        selt.api.subscribe(result.user.id, (update) => selt.onUpdate(update));
         storage.setObject('user_auth', result.user);
-        this.userAuth = result.user;
+        self.userAuth = result.user;
+        self.getChats();
+        self.api.subscribe(result.user.id, (update) => selt.onUpdate(update));
       });
     }
+    document.getElementById('chatsScroll').onscroll = () => this.scrollChats();
+    document.getElementById('messagesScroll').onscroll = () => this.scrollMessages();
     document.getElementById('sendButton').addEventListener('click', () => this.sendMessage());
     document.getElementById('sendInput').addEventListener('keyup', (e) => this.onKeyUpInput(e))
   }
