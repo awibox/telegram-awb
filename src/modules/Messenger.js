@@ -111,11 +111,11 @@ class Messenger {
     });
 
     const messageView = document.createElement('div');
-    messageView.className = 'messages__item';
+    messageView.className = `messages__item ${item.arrow ? 'messages__item_arrow' : ''}`;
     messageView.id = `message-${message.id}`;
     const isOutgoing = message.is_outgoing;
     if (isOutgoing) {
-      messageView.className = 'messages__item messages__item_out';
+      messageView.className = `messages__item messages__item_out ${item.arrow ? 'messages__item_arrow' : ''}`;
     }
     messageView.innerHTML = `
     <div class="messages__item-avatar"></div>
@@ -153,6 +153,7 @@ class Messenger {
     this.params = params;
     this.api.getHistory(params).then((response) => {
       const { messages } = response;
+      console.log('getMEssage', messages)
       if(messages.length < this.limit) {
         this.messagesWereLoaded = true;
       }
@@ -160,7 +161,14 @@ class Messenger {
       if(!!messages[0].id) {
         this.scrollMessageId = messages[0].id;
       }
+      let fromId = 0;
       messages.forEach((item) => {
+        if(fromId === item.from_id) {
+          item.arrow = false;
+        } else {
+          item.arrow = true;
+          fromId = item.from_id;
+        }
         this.addMessage(item, false, firstLoad, lastReadId);
       });
       if (firstLoad) {
