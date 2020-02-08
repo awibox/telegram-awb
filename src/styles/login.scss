@@ -22,7 +22,6 @@ $titleSize: 32px;
     min-height: $logoSize;
     width: $logoSize;
     min-width: $logoSize;
-    background-image: url(img/login__logo@1x.png);
     background-size: contain;
     border-radius: 50%;
     margin-bottom: 45px;
@@ -206,16 +205,5 @@ $titleSize: 32px;
   z-index: 5;
   &.show {
     display: block;
-  }
-}
-@media 	only screen and (-webkit-min-device-pixel-ratio: 1.5),
-only screen and (min--moz-device-pixel-ratio: 1.5),
-only screen and (-o-min-device-pixel-ratio: 3/2),
-only screen and (min-resolution: 1.5dppx),
-only screen and (min-resolution: 144dpi)  {
-  .login {
-    &__logo {
-      background-image: url(img/login__logo@2x.png);
-    }
   }
 }

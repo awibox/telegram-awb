@@ -33,7 +33,6 @@ function MtpTimeManagerModule(Storage) {
 
         lastMessageID = [0, 0];
         timeOffset = newTimeOffset;
-        console.log(dT(), 'Apply server time', serverTime, localTime, newTimeOffset, changed);
 
         return changed;
     }
