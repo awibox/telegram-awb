@@ -172,6 +172,7 @@ class Messenger {
    */
 
   getChats(chatsOffset, updateId = 0) {
+    this.setChatLoader(true);
     this.api.getDialogs(chatsOffset, this.limit).then((response) => {
       const { result, offset } = response;
       const {
@@ -180,7 +181,6 @@ class Messenger {
       if(dialogs.length < this.limit) {
         this.chatsWereLoaded = true;
       }
-      console.log('getChats', result);
       this.chatsOffset = offset;
       dialogs.forEach((item) => {
         if (!updateId) {
@@ -194,7 +194,21 @@ class Messenger {
           }
         }
       });
+      console.log('ENDDD!!!!!!');
+      this.setChatLoader(false);
+    }).catch((error) => {
+      this.setChatLoader(false);
+      console.error(error);
     });
+  }
+
+  setChatLoader(start) {
+    const loaderObj = document.getElementById('chatLoader');
+    if(start) {
+      loaderObj.style.display = 'flex';
+    } else {
+      loaderObj.style.display = 'none';
+    }
   }
 
   configureChat(item, messages, chats, users, update = false) {
@@ -403,6 +417,7 @@ class Messenger {
       chatView.prepend(chat.avatarNode);
     }
     if (update) {
+
       this.deleteChat(chat.id);
       if (chat.pinned) {
         document.getElementById('pinnedChats').prepend(chatView);
@@ -416,6 +431,7 @@ class Messenger {
         document.getElementById('chats').append(chatView);
       }
     }
+    console.log('RENDER CHAT')
   }
 
   deleteChat(id) {
@@ -516,6 +532,7 @@ class Messenger {
 
   render() {
     // Chat list init
+    this.setChatLoader(true);
     this.getChats();
     document.getElementById('chatsScroll').onscroll = () => this.scrollChats();
     document.getElementById('messagesScroll').onscroll = () => this.scrollMessages();
