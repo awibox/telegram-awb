@@ -76,6 +76,7 @@ class Messenger {
     };
     this.currentChatId = params.id;
     this.loadMessages(params, true);
+    document.getElementById('sendMessage').style.display = 'flex';
   }
 
   /**
@@ -444,32 +445,64 @@ class Messenger {
         const { from_id, to_id } = update.message;
         if (!!to_id.chat_id) {
           this.getChats(0, to_id.chat_id);
+          if(-this.currentChatId === to_id.chat_id) {
+            this.addMessage(update.message, true);
+          }
         } else {
           const updateId = from_id === this.userAuth.id ? to_id.user_id : from_id;
           this.getChats(0, updateId);
+          if(this.currentChatId === from_id) {
+            this.addMessage(update.message, true);
+          }
         }
         break;
       }
       case "updateEditChannelMessage" : {
         const { to_id } = update.message;
         this.getChats(0, to_id.channel_id);
+        if(-this.currentChatId === to_id.channel_id) {
+          this.addMessage(update.message, true);
+        }
         break;
       }
       case 'updateNewChannelMessage' : {
         const { to_id } = update.message;
         this.getChats(0, to_id.channel_id);
+        if(-this.currentChatId === to_id.channel_id) {
+          this.addMessage(update.message, true);
+        }
         break;
       }
       case 'updateShortMessage' : {
         this.getChats(0, update.user_id);
+        if(this.currentChatId === update.user_id) {
+          this.addMessage(update, true);
+        }
         break;
       }
       case 'updateShortSentMessage' : {
-        this.getChats(0, this.currentChatId);
+        this.api.getMessages(update.id).then((response) => {
+          const { messages } = response;
+          const message = messages[0];
+          if (message.to_id['_'] === 'peerUser') {
+            this.getChats(0, message.to_id.user_id);
+          } else if(message.to_id['_'] ===  "peerChat") {
+            this.getChats(0, message.to_id.chat_id);
+          } else {
+            this.getChats(0, message.to_id.channel_id);
+          }
+          this.addMessage(message, true);
+        }).catch((e) => {
+          console.log(e)
+        });
+
         break;
       }
       case 'updateShortChatMessage' : {
         this.getChats(0, update.chat_id);
+        if(-this.currentChatId === update.chat_id) {
+          this.addMessage(update, true);
+        }
         break;
       }
       default :
