@@ -11,7 +11,7 @@ function MtpDcConfiguratorModule() {
             for (i = 0; i < dcOptions.length; i++) {
                 dcOption = dcOptions[i];
                 if (dcOption.id == dcID) {
-                    chosenServer = chooseProtocol() + '//' + dcOption.host + (dcOption.port != 80 ? ':' + dcOption.port : '') + '/apiw1';
+                    chosenServer = chooseProtocol() + '//' + (chooseProtocol() === 'https' ? dcOption.host : 'venus.web.telegram.org') + (dcOption.port != 80 ? ':' + dcOption.port : '') + '/apiw1';
                     break;
                 }
             }
