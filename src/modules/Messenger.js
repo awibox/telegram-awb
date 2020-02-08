@@ -69,6 +69,7 @@ class Messenger {
   }
 
   setActiveChat(chat) {
+    console.log('setActiveChat', chat)
     if (document.querySelector('.chats__item_active')) {
       document.querySelector('.chats__item_active').classList.remove('chats__item_active');
     }
@@ -79,7 +80,7 @@ class Messenger {
       type: chat.type
     };
     this.currentChatId = params.id;
-    this.loadMessages(params, true);
+    this.loadMessages(params, true, chat.lastReadId);
     document.getElementById('sendMessage').style.display = 'flex';
   }
 
@@ -99,13 +100,14 @@ class Messenger {
     }
   }
 
-  addMessage(item, update = false, firstLoad = false) {
+  addMessage(item, update = false, firstLoad = false, lastReadId) {
+    console.log('item', item);
     const message = new Object({
       id: item.id,
       message: item.message,
       timestamp: item.date,
       date: getTime(item.date),
-      is_outgoing: false,
+      is_outgoing: item.from_id === this.userAuth.id,
     });
 
     const messageView = document.createElement('div');
@@ -116,13 +118,16 @@ class Messenger {
       messageView.className = 'messages__item messages__item_out';
     }
     messageView.innerHTML = `
-      <div class="messages__item-avatar"></div>
-      <div class="messages__item-text">
+    <div class="messages__item-avatar"></div>
+    <div class="messages__item-text">
+      <span class="messages__item-text-content">
       ${message.message}
-      <div class="messages__item-time">
+      </span>  
+      <span class="messages__item-time">
+        ${ message.is_outgoing ? `${lastReadId >= item.id ? `<div class="arrow-read"></div>` : '<div class="arrow"></div>'}` : ''}
         ${message.date}
-      </div>
-      </div>`;
+      </span>
+    </div>`;
     if (!update) {
       document.getElementById('messages').prepend(messageView);
       if (firstLoad) {
@@ -139,11 +144,10 @@ class Messenger {
     }
   }
 
-  loadMessages(params, firstLoad = false) {
+  loadMessages(params, firstLoad = false, lastReadId) {
     if(firstLoad) {
       this.offset = 0;
       document.getElementById('messages').innerHTML = '';
-
     }
     params.take = this.limit;
     this.params = params;
@@ -157,7 +161,7 @@ class Messenger {
         this.scrollMessageId = messages[0].id;
       }
       messages.forEach((item) => {
-        this.addMessage(item, false, firstLoad);
+        this.addMessage(item, false, firstLoad, lastReadId);
       });
       if (firstLoad) {
           this.messagesWereLoaded = false;
@@ -172,7 +176,9 @@ class Messenger {
    */
 
   getChats(chatsOffset, updateId = 0) {
-    this.setChatLoader(true);
+    if(!updateId) {
+      this.setChatLoader(true);
+    }
     this.api.getDialogs(chatsOffset, this.limit).then((response) => {
       const { result, offset } = response;
       const {
@@ -215,6 +221,7 @@ class Messenger {
     const chat = new Object({
       arrow: '',
       arrowClass: item.read_outbox_max_id >= item.top_message ? 'arrow-read' : 'arrow',
+      lastReadId: item.read_outbox_max_id,
       id: '',
       access_hash: '',
       avatar: '',
@@ -459,7 +466,7 @@ class Messenger {
   }
 
   checkUpdate(update) {
-    console.log('checkUpdate', update);
+    // console.log('checkUpdate', update);
     switch (update['_']) {
       case 'updateNewMessage' : {
         const { from_id, to_id } = update.message;
@@ -515,7 +522,6 @@ class Messenger {
         }).catch((e) => {
           console.log(e)
         });
-
         break;
       }
       case 'updateShortChatMessage' : {
@@ -536,7 +542,7 @@ class Messenger {
     this.getChats();
     document.getElementById('chatsScroll').onscroll = () => this.scrollChats();
     document.getElementById('messagesScroll').onscroll = () => this.scrollMessages();
-    // Subscribe to updatesx
+    // Subscribe to update
     this.api.subscribe(this.userAuth.id, (update) => this.onUpdate(update));
     document.getElementById('sendButton').addEventListener('click', () => this.sendMessage());
     document.getElementById('sendInput').addEventListener('keyup', (e) => this.onKeyUpInput(e))
