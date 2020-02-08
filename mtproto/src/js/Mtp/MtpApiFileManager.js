@@ -132,7 +132,6 @@ function MtpApiFileManagerModule(MtpApiManager, $q) {
                                 deferred.resolve(resultInputFile);
                                 resolved = true;
                             } else {
-                                console.log(dT(), 'Progress', doneParts * partSize / fileSize);
                                 deferred.notify({done: doneParts * partSize, total: fileSize});
                             }
                         }, errorHandler);
@@ -146,7 +145,6 @@ function MtpApiFileManagerModule(MtpApiManager, $q) {
         }
 
         deferred.promise.cancel = function () {
-            console.log('cancel upload', canceled, resolved);
             if (!canceled && !resolved) {
                 canceled = true;
                 errorHandler({type: 'UPLOAD_CANCELED'});
@@ -162,6 +160,6 @@ function MtpApiFileManagerModule(MtpApiManager, $q) {
 }
 
 MtpApiFileManagerModule.dependencies = [
-    'MtpApiManager', 
+    'MtpApiManager',
     '$q'
 ];

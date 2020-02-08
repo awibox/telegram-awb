@@ -101,7 +101,6 @@ function TelegramApiModule(MtpApiManager, AppPeersManager, MtpApiFileManager, Ap
 
     function checkPasswordHash(salt, password) {
         const deferred = $q.defer();
-        debugger;
         MtpApiManager.makePasswordHash(salt, password).then((passwordHash) => {
             MtpApiManager.invokeApi('auth.checkPassword', { password_hash: passwordHash }, this.options).then(function(){
                 MtpApiManager.invokeApi('users.getFullUser', { id: {_: 'inputUserSelf'} }).then(function(result){
@@ -111,7 +110,7 @@ function TelegramApiModule(MtpApiManager, AppPeersManager, MtpApiFileManager, Ap
                 });
                 deferred.resolve();
             }, (error) => {
-                console.log('check password error', error);
+                console.error('check password error', error);
                 deferred.reject(error);
             });
         });
