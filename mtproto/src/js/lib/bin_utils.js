@@ -215,23 +215,18 @@ function sha1BytesSync (bytes) {
 }
 
 function sha256HashSync (bytes) {
-  // console.log(dT(), 'SHA-2 hash start', bytes.byteLength || bytes.length);
   var hashWords = CryptoJS.SHA256(bytesToWords(bytes));
-  // console.log(dT(), 'SHA-2 hash finish');
-
   return bytesFromWords(hashWords);
 }
 
 function rsaEncrypt (publicKey, bytes) {
   bytes = addPadding(bytes, 255);
 
-  // console.log('RSA encrypt start');
   var N = new BigInteger(publicKey.modulus, 16),
       E = new BigInteger(publicKey.exponent, 16),
       X = new BigInteger(bytes),
       encryptedBigInt = X.modPowInt(E, N),
       encryptedBytes  = bytesFromBigInt(encryptedBigInt, 256);
-  // console.log('RSA encrypt finish');
 
   return encryptedBytes;
 }
@@ -263,7 +258,6 @@ function addPadding(bytes, blockSize, zeroes) {
 function aesEncryptSync (bytes, keyBytes, ivBytes) {
   var len = bytes.byteLength || bytes.length;
 
-  // console.log(dT(), 'AES encrypt start', len/*, bytesToHex(keyBytes), bytesToHex(ivBytes)*/);
   bytes = addPadding(bytes);
 
   var encryptedWords = CryptoJS.AES.encrypt(bytesToWords(bytes), bytesToWords(keyBytes), {
@@ -273,14 +267,12 @@ function aesEncryptSync (bytes, keyBytes, ivBytes) {
   }).ciphertext;
 
   var encryptedBytes = bytesFromWords(encryptedWords);
-  // console.log(dT(), 'AES encrypt finish');
 
   return encryptedBytes;
 }
 
 function aesDecryptSync (encryptedBytes, keyBytes, ivBytes) {
 
-  // console.log(dT(), 'AES decrypt start', encryptedBytes.length);
   var decryptedWords = CryptoJS.AES.decrypt({ciphertext: bytesToWords(encryptedBytes)}, bytesToWords(keyBytes), {
     iv: bytesToWords(ivBytes),
     padding: CryptoJS.pad.NoPadding,
@@ -288,7 +280,6 @@ function aesDecryptSync (encryptedBytes, keyBytes, ivBytes) {
   });
 
   var bytes = bytesFromWords(decryptedWords);
-  // console.log(dT(), 'AES decrypt finish');
 
   return bytes;
 }
@@ -305,8 +296,6 @@ function pqPrimeFactorization (pqBytes) {
   var what = new BigInteger(pqBytes),
       result = false;
 
-  // console.log(dT(), 'PQ start', pqBytes, what.toString(16), what.bitLength());
-
   try {
     result = pqPrimeLeemon(str2bigInt(what.toString(16), 16, Math.ceil(64 / bpe) + 1))
   } catch (e) {
@@ -320,17 +309,11 @@ function pqPrimeFactorization (pqBytes) {
     } catch (e) {
       console.error('Pq long Exception', e);
     }
-    // console.timeEnd('PQ long');
   }
-  // console.log(result);
 
   if (result === false) {
-    // console.time('pq BigInt');
     result = pqPrimeBigInteger(what);
-    // console.timeEnd('pq BigInt');
   }
-
-  // console.log(dT(), 'PQ finish');
 
   return result;
 }
@@ -535,8 +518,6 @@ function pqPrimeLeemon (what) {
     P = g;
     Q = x;
   }
-
-  // console.log(dT(), 'done', bigInt2str(what, 10), bigInt2str(P, 10), bigInt2str(Q, 10));
 
   return [bytesFromLeemonBigInt(P), bytesFromLeemonBigInt(Q), it];
 }

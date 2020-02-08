@@ -39,7 +39,6 @@ function IdleManagerModule($rootScope, $timeout) {
     }
 
     function onEvent(e) {
-        // console.log('event', e.type);
         if (e.type == 'mousemove') {
             var e = e.originalEvent || e;
             if (e && e.movementX === 0 && e.movementY === 0) {
@@ -55,7 +54,6 @@ function IdleManagerModule($rootScope, $timeout) {
 
         $timeout.cancel(toPromise);
         if (!isIDLE) {
-            // console.log('update timeout');
             toPromise = $timeout(function () {
                 onEvent({type: 'timeout'});
             }, 30000);

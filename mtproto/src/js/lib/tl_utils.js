@@ -12,7 +12,6 @@
 
   this.createBuffer();
 
-  // this.debug = options.debug !== undefined ? options.debug : Config.Modes.debug;
   this.mtproto = options.mtproto || false;
   return this;
 }
@@ -346,7 +345,6 @@ function TLDeserialization (buffer, options) {
   this.intView  = new Uint32Array(this.buffer);
   this.byteView = new Uint8Array(this.buffer);
 
-  // this.debug = options.debug !== undefined ? options.debug : Config.Modes.debug;
   this.mtproto = options.mtproto || false;
   return this;
 }
