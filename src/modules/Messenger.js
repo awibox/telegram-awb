@@ -11,19 +11,13 @@ class Messenger {
     // Settings
     this.limit = 20;
     // Objects
-    this.chatsScroll = '';
     // State
     this.currentChatId = 0;
     this.params = '';
     this.scrollMessageId = '';
     this.offset = 0;
-    this.messagesScroll = '';
-    this.messageObj = '';
     this.messagesWereLoaded = true;
     this.chatsOffset = 0;
-    this.chatsScroll = '';
-    this.chatsObj = '';
-    this.chatsPinnedObj = '';
     this.chatsWereLoaded = false;
   }
 
@@ -34,10 +28,20 @@ class Messenger {
   sendMessage() {
     const self = this;
     if(this.currentChatId) {
-      this.api.sendMessage(this.currentChatId, document.getElementById('sendInput').innerHTML).then(function(response) {
-        document.getElementById('sendInput').innerHTML = '';
-        self.onUpdate(response);
-      });
+      if(document.getElementById('sendInput').innerHTML) {
+        this.api.sendMessage(this.currentChatId, document.getElementById('sendInput').innerHTML).then(function(response) {
+          document.getElementById('sendInput').innerHTML = '';
+          self.onUpdate(response);
+        });
+      }
+    }
+  }
+
+  onKeyUpInput(e) {
+    console.log(e);
+    e.preventDefault();
+    if(e.key === 'Enter') {
+      this.sendMessage();
     }
   }
 
@@ -84,7 +88,7 @@ class Messenger {
    */
 
   scrollMessages() {
-    if (this.messagesScroll.scrollTop === 0) {
+    if (document.getElementById('messagesScroll').scrollTop === 0) {
       if(!this.messagesWereLoaded) {
         const params = {
           ...this.params,
@@ -120,26 +124,26 @@ class Messenger {
       </div>
       </div>`;
     if (!update) {
-      this.messageObj.prepend(messageView);
+      document.getElementById('messages').prepend(messageView);
       if (firstLoad) {
-        setTimeout(() => {
-          this.messagesScroll.scrollTop = this.messagesScroll.scrollHeight;
-        }, 200);
+          const messagesScroll = document.getElementById('messagesScroll');
+          messagesScroll.scrollTop = messagesScroll.scrollHeight;
       } else {
-        setTimeout(() => {
-          this.messagesScroll.scrollTop = document.getElementById(`message-${this.scrollMessageId}`).offsetTop;
-        }, 200);
+        const messagesScroll = document.getElementById('messagesScroll');
+        messagesScroll.scrollTop = document.getElementById(`message-${this.scrollMessageId}`).offsetTop;
       }
     } else {
-      this.messageObj.append(messageView);
-      this.messagesScroll.scrollTop = this.messagesScroll.scrollHeight;
+      document.getElementById('messages').append(messageView);
+      const messagesScroll = document.getElementById('messagesScroll');
+      messagesScroll.scrollTop = messagesScroll.scrollHeight;
     }
   }
 
   loadMessages(params, firstLoad = false) {
     if(firstLoad) {
       this.offset = 0;
-      this.messageObj.innerHTML = '';
+      document.getElementById('messages').innerHTML = '';
+
     }
     params.take = this.limit;
     this.params = params;
@@ -156,10 +160,9 @@ class Messenger {
         this.addMessage(item, false, firstLoad);
       });
       if (firstLoad) {
-        setTimeout(() => {
           this.messagesWereLoaded = false;
-          this.messagesScroll.scrollTop = this.messagesScroll.scrollHeight;
-        }, 200);
+          const messagesScroll = document.getElementById('messagesScroll');
+          messagesScroll.scrollTop = messagesScroll.scrollHeight;
       }
     });
   }
@@ -272,7 +275,8 @@ class Messenger {
     }
   }
 
-  scrollChats(chatsObj) {
+  scrollChats() {
+    const chatsObj = document.getElementById('chatsScroll');
     if ((chatsObj.scrollHeight - chatsObj.offsetHeight) === chatsObj.scrollTop) {
       if(!this.chatsWereLoaded) {
         this.getChats(this.chatsOffset);
@@ -401,15 +405,15 @@ class Messenger {
     if (update) {
       this.deleteChat(chat.id);
       if (chat.pinned) {
-        this.chatsPinnedObj.prepend(chatView);
+        document.getElementById('pinnedChats').prepend(chatView);
       } else {
-        this.chatsObj.prepend(chatView);
+        document.getElementById('chats').prepend(chatView);
       }
     } else {
       if (chat.pinned) {
-        this.chatsPinnedObj.append(chatView);
+        document.getElementById('pinnedChats').append(chatView);
       } else {
-        this.chatsObj.append(chatView);
+        document.getElementById('chats').append(chatView);
       }
     }
   }
@@ -512,19 +516,13 @@ class Messenger {
 
   render() {
     // Chat list init
-    this.chatInfo = document.getElementById('chatInfo');
-    this.chatsObj = document.getElementById('chats');
-    this.chatsPinnedObj = document.getElementById('pinnedChats');
-    this.chatsScroll = document.getElementById('chatsScroll');
     this.getChats();
-    this.chatsScroll.onscroll = () => this.scrollChats(this.chatsScroll);
-    // Message list init
-    this.messagesScroll = document.getElementById('messagesScroll');
-    this.messageObj = document.getElementById('messages');
-    this.messagesScroll.onscroll = () => this.scrollMessages();
+    document.getElementById('chatsScroll').onscroll = () => this.scrollChats();
+    document.getElementById('messagesScroll').onscroll = () => this.scrollMessages();
     // Subscribe to updatesx
     this.api.subscribe(this.userAuth.id, (update) => this.onUpdate(update));
-    document.getElementById('sendButton').addEventListener('click', () => this.sendMessage())
+    document.getElementById('sendButton').addEventListener('click', () => this.sendMessage());
+    document.getElementById('sendInput').addEventListener('keyup', (e) => this.onKeyUpInput(e))
   }
 }
 export default Messenger;
