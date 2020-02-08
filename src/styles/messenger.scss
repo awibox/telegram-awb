@@ -50,7 +50,6 @@ $topBarHeight: 60px;
   }
   &__messages {
     width: 100%;
-    height: 100%;
     position: relative;
     flex: 1 1 auto;
     &-container {
@@ -122,13 +121,12 @@ $topBarHeight: 60px;
     width: 100%;
     min-height: 95px;
     max-height: 300px;
-    height: 95px;
     display: flex;
     justify-content: center;
     box-sizing: border-box;
     padding: 20px 70px;
-    flex: 1 1 auto;
-    height: 100%;
+    flex: 0 1 auto;
+    height: max-content;
   }
 }
 .send-messages {
@@ -151,6 +149,16 @@ $topBarHeight: 60px;
     align-items: flex-end;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
     position: relative;
+    &:after {
+      content: '';
+      position: absolute;
+      right: -14px;
+      width: 14px;
+      height: 19px;
+      bottom: -2px;
+      border-radius: 0 0 0 22px;
+      box-shadow: -11px 9px 0px 4px #fff;
+    }
   }
   &__smiles {
     background-image: url('img/icons/smile_svg.svg');
@@ -168,7 +176,7 @@ $topBarHeight: 60px;
     margin-bottom: 20px;
     line-height: 15px;
     box-sizing: border-box;
-    max-height: 200px;
+    max-height: 190px;
     overflow: auto;
     padding-right: 55px;
   }
