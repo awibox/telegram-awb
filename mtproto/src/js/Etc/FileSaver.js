@@ -1,4 +1,4 @@
-function FileSaverModule($timeout) {
+function FileSaverModule(timeoutService) {
     function save(bytes, fileName) {
         // TODO: Improve
         var a = document.createElement('a');
@@ -16,7 +16,7 @@ function FileSaverModule($timeout) {
         a.download = fileName;
         a.click();
 
-        $timeout(function() {
+        timeoutService(function() {
             window.URL.revokeObjectURL(a.href);
             a.remove();
         }, 100);
@@ -28,5 +28,5 @@ function FileSaverModule($timeout) {
 }
 
 FileSaverModule.dependencies = [
-    '$timeout'
+    'timeoutService'
 ];

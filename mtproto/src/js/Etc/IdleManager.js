@@ -1,5 +1,5 @@
-function IdleManagerModule($rootScope, $timeout) {
-    $rootScope.idle = {isIDLE: false};
+function IdleManagerModule(rootService, timeoutService) {
+    rootService.idle = {isIDLE: false};
 
     var toPromise, started = false;
     var hidden = 'hidden';
@@ -52,9 +52,9 @@ function IdleManagerModule($rootScope, $timeout) {
             isIDLE = true;
         }
 
-        $timeout.cancel(toPromise);
+        timeoutService.cancel(toPromise);
         if (!isIDLE) {
-            toPromise = $timeout(function () {
+            toPromise = timeoutService(function () {
                 onEvent({type: 'timeout'});
             }, 30000);
         }
@@ -66,6 +66,6 @@ function IdleManagerModule($rootScope, $timeout) {
 }
 
 IdleManagerModule.dependencies = [
-    '$rootScope',
-    '$timeout',
+    'rootService',
+    'timeoutService',
 ];

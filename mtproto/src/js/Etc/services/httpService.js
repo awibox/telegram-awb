@@ -1,7 +1,7 @@
-function $httpModule($q) {
+function httpServiceModule(queryService) {
     return {
         post: function (url, data) {
-            var defer = $q.defer();
+            var defer = queryService.defer();
             var xhr = new XMLHttpRequest();
 
             xhr.open('POST', url, true);
@@ -22,6 +22,6 @@ function $httpModule($q) {
     };
 }
 
-$httpModule.dependencies = [
-    '$q'
+httpServiceModule.dependencies = [
+    'queryService'
 ];

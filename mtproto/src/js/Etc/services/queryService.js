@@ -1,4 +1,4 @@
-function $qModule() {
+function queryServiceModule() {
   var arr = [];
   var document = window.document;
   var getProto = Object.getPrototypeOf;
@@ -559,4 +559,4 @@ function $qModule() {
   };
 }
 
-$qModule.dependencies = [];
+queryServiceModule.dependencies = [];

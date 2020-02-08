@@ -1,4 +1,4 @@
-function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, CryptoWorker, MtpDcConfigurator, $timeout, $interval, $q, $http) {
+function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, CryptoWorker, MtpDcConfigurator, timeoutService, intervalService, queryService, httpService) {
     var updatesProcessor,
         akStopped = false,
         chromeMatches = navigator.userAgent.match(/Chrome\/(\d+(\.\d+)?)/),
@@ -42,7 +42,7 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
         this.pendingResends = [];
         this.connectionInited = false;
 
-        $interval(this.checkLongPoll.bind(this), 10000);
+        intervalService(this.checkLongPoll.bind(this), 10000);
 
         this.checkLongPoll();
     }
@@ -216,7 +216,7 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
     };
 
     MtpNetworker.prototype.pushMessage = function (message, options) {
-        var deferred = $q.defer();
+        var deferred = queryService.defer();
 
         this.sentMessages[message.msg_id] = extend(message, options || {}, {deferred: deferred});
         this.pendingMessages[message.msg_id] = 0;
@@ -269,7 +269,7 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
         sha1dText.set(msgKey, 0);
         sha1dText.set(authKey.subarray(x + 96, x + 128), 16);
         promises.sha1d = CryptoWorker.sha1Hash(sha1dText);
-        return $q.all(promises).then(function (result) {
+        return queryService.all(promises).then(function (result) {
             var aesKey = new Uint8Array(32),
                 aesIv = new Uint8Array(32),
                 sha1a = new Uint8Array(result.sha1a),
@@ -291,7 +291,7 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
     };
 
     MtpNetworker.prototype.checkConnection = function (event) {
-        $timeout.cancel(this.checkConnectionPromise);
+        timeoutService.cancel(this.checkConnectionPromise);
 
         var serializer = new TLSerialization({mtproto: true}),
             pingID = [nextRandomInt(0xFFFFFFFF), nextRandomInt(0xFFFFFFFF)];
@@ -308,7 +308,7 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
         this.sendEncryptedRequest(pingMessage, {timeout: 15000}).then(function (result) {
             self.toggleOffline(false);
         }, function () {
-            self.checkConnectionPromise = $timeout(self.checkConnection.bind(self), parseInt(self.checkConnectionPeriod * 1000));
+            self.checkConnectionPromise = timeoutService(self.checkConnection.bind(self), parseInt(self.checkConnectionPeriod * 1000));
             self.checkConnectionPeriod = Math.min(60, self.checkConnectionPeriod * 1.5);
         })
     };
@@ -321,14 +321,14 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
         this.offline = enabled;
 
         if (this.offline) {
-            $timeout.cancel(this.nextReqPromise);
+            timeoutService.cancel(this.nextReqPromise);
             delete this.nextReq;
 
             if (this.checkConnectionPeriod < 1.5) {
                 this.checkConnectionPeriod = 0;
             }
 
-            this.checkConnectionPromise = $timeout(this.checkConnection.bind(this), parseInt(this.checkConnectionPeriod * 1000));
+            this.checkConnectionPromise = timeoutService(this.checkConnection.bind(this), parseInt(this.checkConnectionPeriod * 1000));
             this.checkConnectionPeriod = Math.min(30, (1 + this.checkConnectionPeriod) * 1.5);
 
             this.onOnlineCb = this.checkConnection.bind(this);
@@ -344,7 +344,7 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
                 document.body.removeEventListener('online', this.onOnlineCb);
                 document.body.removeEventListener('focus', this.onOnlineCb);
             }
-            $timeout.cancel(this.checkConnectionPromise);
+            timeoutService.cancel(this.checkConnectionPromise);
         }
 
     };
@@ -584,14 +584,14 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
                     responseType: 'arraybuffer',
                     transformRequest: null
                 });
-                requestPromise = $http.post(url, requestData, options);
+                requestPromise = httpService.post(url, requestData, options);
             } catch (e) {
-                requestPromise = $q.reject(e);
+                requestPromise = queryService.reject(e);
             }
             return requestPromise.then(
                 function (result) {
                     if (!result.data || !result.data.byteLength) {
-                        return $q.reject(baseError);
+                        return queryService.reject(baseError);
                     }
                     return result;
                 },
@@ -608,7 +608,7 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
                     if (!error.message && !error.type) {
                         error = extend(baseError, {type: 'NETWORK_BAD_REQUEST', originalError: error});
                     }
-                    return $q.reject(error);
+                    return queryService.reject(error);
                 }
             );
         });
@@ -714,9 +714,9 @@ function MtpNetworkerFactoryModule(MtpSecureRandom, MtpTimeManager, Storage, Cry
             return false;
         }
 
-        $timeout.cancel(this.nextReqPromise);
+        timeoutService.cancel(this.nextReqPromise);
         if (delay > 0) {
-            this.nextReqPromise = $timeout(this.performSheduledRequest.bind(this), delay || 0);
+            this.nextReqPromise = timeoutService(this.performSheduledRequest.bind(this), delay || 0);
         } else {
             setZeroTimeout(this.performSheduledRequest.bind(this))
         }
@@ -952,8 +952,8 @@ MtpNetworkerFactoryModule.dependencies = [
     'Storage',
     'CryptoWorker',
     'MtpDcConfigurator',
-    '$timeout',
-    '$interval',
-    '$q',
-    '$http'
+    'timeoutService',
+    'intervalService',
+    'queryService',
+    'httpService'
 ];

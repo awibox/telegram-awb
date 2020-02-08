@@ -1,4 +1,4 @@
-function AppProfileManagerModule(AppChatsManager, AppUsersManager, MtpApiManager, $q) {
+function AppProfileManagerModule(AppChatsManager, AppUsersManager, MtpApiManager, queryService) {
     var chatsFull = {};
     var chatFullPromises = {};
 
@@ -10,7 +10,7 @@ function AppProfileManagerModule(AppChatsManager, AppUsersManager, MtpApiManager
             var chat = AppChatsManager.getChat(id);
             if (chat.version == chatsFull[id].participants.version ||
                 chat.pFlags.left) {
-                return $q.when(chatsFull[id]);
+                return queryService.when(chatsFull[id]);
             }
         }
         if (chatFullPromises[id] !== undefined) {
@@ -92,7 +92,7 @@ function AppProfileManagerModule(AppChatsManager, AppUsersManager, MtpApiManager
 
     function getChannelFull(id, force) {
         if (chatsFull[id] !== undefined && !force) {
-            return $q.when(chatsFull[id]);
+            return queryService.when(chatsFull[id]);
         }
         if (chatFullPromises[id] !== undefined) {
             return chatFullPromises[id];
@@ -117,7 +117,7 @@ function AppProfileManagerModule(AppChatsManager, AppUsersManager, MtpApiManager
                     error.handled = true;
                 });
             } else {
-                participantsPromise = $q.when();
+                participantsPromise = queryService.when();
             }
             return participantsPromise.then(function () {
                 delete chatFullPromises[id];
@@ -126,7 +126,7 @@ function AppProfileManagerModule(AppChatsManager, AppUsersManager, MtpApiManager
                 return fullChannel;
             });
         }, function (error) {
-            return $q.reject(error);
+            return queryService.reject(error);
         });
     }
 
@@ -139,5 +139,5 @@ AppProfileManagerModule.dependencies = [
     'AppChatsManager',
     'AppUsersManager',
     'MtpApiManager',
-    '$q'
+    'queryService'
 ];

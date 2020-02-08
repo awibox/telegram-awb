@@ -1,4 +1,4 @@
-function MtpApiFileManagerModule(MtpApiManager, $q) {
+function MtpApiFileManagerModule(MtpApiManager, queryService) {
     var cachedFs = false;
     var cachedFsPromise = false;
     var cachedSavePromises = {};
@@ -14,7 +14,7 @@ function MtpApiFileManagerModule(MtpApiManager, $q) {
             downloadActives[dcID] = 0
         }
         var downloadPull = downloadPulls[dcID];
-        var deferred = $q.defer();
+        var deferred = queryService.defer();
         downloadPull.push({cb: cb, deferred: deferred, activeDelta: activeDelta});
         setZeroTimeout(function () {
             downloadCheck(dcID);
@@ -64,7 +64,7 @@ function MtpApiFileManagerModule(MtpApiManager, $q) {
             activeDelta = 2;
 
         if (!fileSize) {
-            return $q.reject({type: 'EMPTY_FILE'});
+            return queryService.reject({type: 'EMPTY_FILE'});
         }
 
         if (fileSize > 67108864) {
@@ -78,11 +78,11 @@ function MtpApiFileManagerModule(MtpApiManager, $q) {
         var totalParts = Math.ceil(fileSize / partSize);
 
         if (totalParts > 3000) {
-            return $q.reject({type: 'FILE_TOO_BIG'});
+            return queryService.reject({type: 'FILE_TOO_BIG'});
         }
 
         var fileID = [nextRandomInt(0xFFFFFFFF), nextRandomInt(0xFFFFFFFF)],
-            deferred = $q.defer(),
+            deferred = queryService.defer(),
             errorHandler = function (error) {
                 // console.error('Up Error', error);
                 deferred.reject(error);
@@ -103,7 +103,7 @@ function MtpApiFileManagerModule(MtpApiManager, $q) {
         for (offset = 0; offset < fileSize; offset += partSize) {
             (function (offset, part) {
                 downloadRequest('upload', function () {
-                    var uploadDeferred = $q.defer();
+                    var uploadDeferred = queryService.defer();
 
                     var reader = new FileReader();
                     var blob = file.slice(offset, offset + partSize);
@@ -161,5 +161,5 @@ function MtpApiFileManagerModule(MtpApiManager, $q) {
 
 MtpApiFileManagerModule.dependencies = [
     'MtpApiManager',
-    '$q'
+    'queryService'
 ];
