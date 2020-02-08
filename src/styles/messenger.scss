@@ -384,7 +384,7 @@ $topBarHeight: 60px;
   margin: 0 auto;
   &__item {
     padding: 0 10px;
-    margin: 10px 0;
+    margin-bottom: 5px;
     position: relative;
     display: flex;
     overflow: hidden;
@@ -400,6 +400,12 @@ $topBarHeight: 60px;
             box-shadow: -11px 9px 0 4px #f1fee1;
           }
         }
+      }
+    }
+    &_arrow {
+      margin-bottom: 10px;
+      .messages__item-text:after {
+        display: block;
       }
     }
     &-text {
@@ -419,6 +425,7 @@ $topBarHeight: 60px;
         bottom: -1px;
         border-radius: 0 0 22px 0;
         box-shadow: 11px 9px 0 4px #fff;
+        display: none;
       }
     }
     &-time {
