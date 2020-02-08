@@ -14,11 +14,12 @@ import Registration from 'modules/Registration';
 class App {
   constructor() {
     this.router = {};
-    this.client = 'telegramApi';
+    this.api = telegramApi;
+    this.isAuth = storage.getObject('user_auth');
   }
 
   init() {
-    telegramApi.setConfig(apiConfig);
+    this.api.setConfig(apiConfig);
     this.router = new Router([
       new Route('login', 'login.html'),
       new Route('confirm', 'confirm.html'),
@@ -26,23 +27,17 @@ class App {
       new Route('password', 'password.html'),
       new Route('im', 'im.html'),
     ]);
-    const self = this;
-    telegramApi.getUserInfo().then((user) => {
-      console.log('user', user, self);
-      if (user.id) {
-        self.router.goToRoute('im.html', () => {
-          const messenger = new Messenger();
-          messenger.render();
-        });
-      } else {
-        self.router.goToRoute('login.html', () => {
-          const login = new Login(self.router);
-          login.render();
-        });
-      }
-    }).catch((error) => {
-      console.log('error', error);
-    });
+    if (this.isAuth) {
+      this.router.goToRoute('im.html', () => {
+        const messenger = new Messenger();
+        messenger.render();
+      });
+    } else {
+      this.router.goToRoute('login.html', () => {
+        const login = new Login(this.router);
+        login.render();
+      });
+    }
   }
 }
 
