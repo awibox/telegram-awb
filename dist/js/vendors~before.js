@@ -1063,317 +1063,6 @@ AppUsersManagerModule.dependencies = [
     'MtpApiManager'
 ];
 
-function CryptoWorkerModule(timeoutService) {
-    return {
-        sha1Hash: function (bytes) {
-            return timeoutService(function () {
-                return sha1HashSync(bytes);
-            });
-        },
-        sha256Hash: function (bytes) {
-            return timeoutService(function () {
-                return sha256HashSync(bytes);
-            });
-        },
-        aesEncrypt: function (bytes, keyBytes, ivBytes) {
-            return timeoutService(function () {
-                return convertToArrayBuffer(aesEncryptSync(bytes, keyBytes, ivBytes));
-            });
-        },
-        aesDecrypt: function (encryptedBytes, keyBytes, ivBytes) {
-            return timeoutService(function () {
-                return convertToArrayBuffer(aesDecryptSync(encryptedBytes, keyBytes, ivBytes));
-            });
-        },
-        factorize: function (bytes) {
-            bytes = convertToByteArray(bytes);
-
-            return timeoutService(function () {
-                return pqPrimeFactorization(bytes);
-            });
-        },
-        modPow: function (x, y, m) {
-            return timeoutService(function () {
-                return bytesModPow(x, y, m);
-            });
-        }
-    };
-}
-
-CryptoWorkerModule.dependencies = [
-    'timeoutService'
-];
-
-function FileSaverModule(timeoutService) {
-    function save(bytes, fileName) {
-        // TODO: Improve
-        var a = document.createElement('a');
-        var blob = new Blob(bytes, {type: 'octet/stream'});
-
-        if (window.navigator && window.navigator.msSaveBlob) {
-            window.navigator.msSaveBlob(blob, fileName);
-            return;
-        }
-
-        document.body.appendChild(a);
-
-        a.style = 'display: none';
-        a.href = window.URL.createObjectURL(blob);
-        a.download = fileName;
-        a.click();
-
-        timeoutService(function() {
-            window.URL.revokeObjectURL(a.href);
-            a.remove();
-        }, 100);
-    }
-
-    return {
-        save: save
-    };
-}
-
-FileSaverModule.dependencies = [
-    'timeoutService'
-];
-
-function forEach(obj, iterator, context) {
-    if (!obj) {
-        return;
-    }
-
-    if (isArray(obj)) {
-        if (obj.forEach) {
-            obj.forEach(iterator, context, obj);
-        } else {
-            for (var i = 0; i < obj.length; i++) {
-                iterator.call(context, obj[i], i, obj);
-            }
-        }
-    } else if (isObject(obj)) {
-        for (var key in obj) {
-            iterator.call(context, obj[key], key, obj);
-        }
-    }
-}
-
-function isObject(value) {
-    return value !== null && typeof value === 'object';
-}
-
-function isString(value) {
-    return typeof value == 'string';
-}
-
-function isArray(value) {
-    return Array.isArray(value);
-}
-
-function isFunction(value) {
-    return typeof value == 'function';
-}
-
-function extend() {
-    var objects = toArray(arguments);
-    var obj = objects[0];
-
-    for (var i = 1; i < objects.length; i++) {
-        for (var key in objects[i]) {
-            obj[key] = objects[i][key];
-        }
-    }
-
-    return obj;
-}
-
-function map(array, iterator) {
-    var result = [];
-
-    forEach(array, function (obj) {
-        result.push(iterator(obj));
-    });
-
-    return result;
-}
-
-function min(array) {
-    var min = array[0];
-
-    forEach(array, function (obj) {
-        if (obj < min) {
-            min = obj;
-        }
-    });
-
-    return min;
-}
-function toArray(obj) {
-    return Array.prototype.slice.call(obj);
-}
-
-function noop() {
-
-}
-
-function IdleManagerModule(rootService, timeoutService) {
-    rootService.idle = {isIDLE: false};
-
-    var toPromise, started = false;
-    var hidden = 'hidden';
-    var visibilityChange = 'visibilitychange';
-
-    if (typeof document.hidden !== 'undefined') {
-        // default
-    } else if (typeof document.mozHidden !== 'undefined') {
-        hidden = 'mozHidden';
-        visibilityChange = 'mozvisibilitychange';
-    } else if (typeof document.msHidden !== 'undefined') {
-        hidden = 'msHidden';
-        visibilityChange = 'msvisibilitychange';
-    } else if (typeof document.webkitHidden !== 'undefined') {
-        hidden = 'webkitHidden';
-        visibilityChange = 'webkitvisibilitychange';
-    }
-
-    return {
-        start: start
-    };
-
-    function start() {
-        if (!started) {
-            started = true;
-            window.addEventListener(visibilityChange, () => onEvent, false);
-            window.addEventListener('blur', () => onEvent);
-            window.addEventListener('focus', () => onEvent);
-            window.addEventListener('keydown', () => onEvent);
-            window.addEventListener('mousedown', () => onEvent);
-            window.addEventListener('touchstart', () => onEvent);
-
-            setTimeout(function () {
-                onEvent({type: 'blur'});
-            }, 0);
-        }
-    }
-
-    function onEvent(e) {
-        if (e.type == 'mousemove') {
-            var e = e.originalEvent || e;
-            if (e && e.movementX === 0 && e.movementY === 0) {
-                return;
-            }
-            window.removeEventListener('mousemove', onEvent);
-        }
-
-        var isIDLE = e.type == 'blur' || e.type == 'timeout' ? true : false;
-        if (hidden && document[hidden]) {
-            isIDLE = true;
-        }
-
-        timeoutService.cancel(toPromise);
-        if (!isIDLE) {
-            toPromise = timeoutService(function () {
-                onEvent({type: 'timeout'});
-            }, 30000);
-        }
-
-        if (isIDLE && e.type == 'timeout') {
-            window.addEventListener('mousemove', onEvent);
-        }
-    }
-}
-
-IdleManagerModule.dependencies = [
-    'rootService',
-    'timeoutService',
-];
-
-function StorageModule(queryService) {
-    var methods = {};
-
-    forEach(['get', 'set', 'remove'], function (methodName) {
-        if(Config.Modes.test) {
-            ConfigStorage.prefix('t_');
-        }
-        methods[methodName] = function () {
-            var deferred = queryService.defer(),
-                args = toArray(arguments);
-
-            args.push(function (result) {
-                deferred.resolve(result);
-            });
-
-            ConfigStorage[methodName].apply(ConfigStorage, args);
-
-            return deferred.promise;
-        };
-    });
-
-    return methods;
-}
-
-StorageModule.dependencies = [
-    'queryService'
-];
-
-function TelegramMeWebServiceModule(Storage) {
-    var disabled = Config.Modes.test || location.protocol != 'http:' && location.protocol != 'https:';
-
-    function sendAsyncRequest(canRedirect) {
-        if (disabled) {
-            return false;
-        }
-
-        Storage.get('tgme_sync').then(function (curValue) {
-            var ts = tsNow(true);
-            if (canRedirect &&
-                curValue &&
-                curValue.canRedirect == canRedirect &&
-                curValue.ts + 86400 > ts) {
-                return false;
-            }
-            Storage.set({tgme_sync: {canRedirect: canRedirect, ts: ts}});
-
-            var script = document.createElement('script');
-            script.src = '//telegram.me/_websync_?authed=' + (canRedirect ? '1' : '0');
-            script.onerror = () => {
-                document.body.removeChild(script);
-            };
-            document.body.append(script);
-        });
-    }
-
-    return {
-        setAuthorized: sendAsyncRequest
-    };
-}
-
-TelegramMeWebServiceModule.dependencies = [
-    'Storage',
-];
-
-function qSyncModule() {
-    return {
-        when: function (result) {
-            return {
-                then: function (cb) {
-                    return cb(result);
-                }
-            };
-        },
-        reject: function (result) {
-            return {
-                then: function (cb, badcb) {
-                    if (badcb) {
-                        return badcb(result);
-                    }
-                }
-            };
-        }
-    };
-}
-
-qSyncModule.dependencies = [];
-
 /*!
  * Webogram v0.5.3 - messaging web application for MTProto
  * https://github.com/zhukov/webogram
@@ -2948,6 +2637,317 @@ function safeReplaceObject (wasObject, newObject) {
   }
 }
 
+function CryptoWorkerModule(timeoutService) {
+    return {
+        sha1Hash: function (bytes) {
+            return timeoutService(function () {
+                return sha1HashSync(bytes);
+            });
+        },
+        sha256Hash: function (bytes) {
+            return timeoutService(function () {
+                return sha256HashSync(bytes);
+            });
+        },
+        aesEncrypt: function (bytes, keyBytes, ivBytes) {
+            return timeoutService(function () {
+                return convertToArrayBuffer(aesEncryptSync(bytes, keyBytes, ivBytes));
+            });
+        },
+        aesDecrypt: function (encryptedBytes, keyBytes, ivBytes) {
+            return timeoutService(function () {
+                return convertToArrayBuffer(aesDecryptSync(encryptedBytes, keyBytes, ivBytes));
+            });
+        },
+        factorize: function (bytes) {
+            bytes = convertToByteArray(bytes);
+
+            return timeoutService(function () {
+                return pqPrimeFactorization(bytes);
+            });
+        },
+        modPow: function (x, y, m) {
+            return timeoutService(function () {
+                return bytesModPow(x, y, m);
+            });
+        }
+    };
+}
+
+CryptoWorkerModule.dependencies = [
+    'timeoutService'
+];
+
+function FileSaverModule(timeoutService) {
+    function save(bytes, fileName) {
+        // TODO: Improve
+        var a = document.createElement('a');
+        var blob = new Blob(bytes, {type: 'octet/stream'});
+
+        if (window.navigator && window.navigator.msSaveBlob) {
+            window.navigator.msSaveBlob(blob, fileName);
+            return;
+        }
+
+        document.body.appendChild(a);
+
+        a.style = 'display: none';
+        a.href = window.URL.createObjectURL(blob);
+        a.download = fileName;
+        a.click();
+
+        timeoutService(function() {
+            window.URL.revokeObjectURL(a.href);
+            a.remove();
+        }, 100);
+    }
+
+    return {
+        save: save
+    };
+}
+
+FileSaverModule.dependencies = [
+    'timeoutService'
+];
+
+function forEach(obj, iterator, context) {
+    if (!obj) {
+        return;
+    }
+
+    if (isArray(obj)) {
+        if (obj.forEach) {
+            obj.forEach(iterator, context, obj);
+        } else {
+            for (var i = 0; i < obj.length; i++) {
+                iterator.call(context, obj[i], i, obj);
+            }
+        }
+    } else if (isObject(obj)) {
+        for (var key in obj) {
+            iterator.call(context, obj[key], key, obj);
+        }
+    }
+}
+
+function isObject(value) {
+    return value !== null && typeof value === 'object';
+}
+
+function isString(value) {
+    return typeof value == 'string';
+}
+
+function isArray(value) {
+    return Array.isArray(value);
+}
+
+function isFunction(value) {
+    return typeof value == 'function';
+}
+
+function extend() {
+    var objects = toArray(arguments);
+    var obj = objects[0];
+
+    for (var i = 1; i < objects.length; i++) {
+        for (var key in objects[i]) {
+            obj[key] = objects[i][key];
+        }
+    }
+
+    return obj;
+}
+
+function map(array, iterator) {
+    var result = [];
+
+    forEach(array, function (obj) {
+        result.push(iterator(obj));
+    });
+
+    return result;
+}
+
+function min(array) {
+    var min = array[0];
+
+    forEach(array, function (obj) {
+        if (obj < min) {
+            min = obj;
+        }
+    });
+
+    return min;
+}
+function toArray(obj) {
+    return Array.prototype.slice.call(obj);
+}
+
+function noop() {
+
+}
+
+function IdleManagerModule(rootService, timeoutService) {
+    rootService.idle = {isIDLE: false};
+
+    var toPromise, started = false;
+    var hidden = 'hidden';
+    var visibilityChange = 'visibilitychange';
+
+    if (typeof document.hidden !== 'undefined') {
+        // default
+    } else if (typeof document.mozHidden !== 'undefined') {
+        hidden = 'mozHidden';
+        visibilityChange = 'mozvisibilitychange';
+    } else if (typeof document.msHidden !== 'undefined') {
+        hidden = 'msHidden';
+        visibilityChange = 'msvisibilitychange';
+    } else if (typeof document.webkitHidden !== 'undefined') {
+        hidden = 'webkitHidden';
+        visibilityChange = 'webkitvisibilitychange';
+    }
+
+    return {
+        start: start
+    };
+
+    function start() {
+        if (!started) {
+            started = true;
+            window.addEventListener(visibilityChange, () => onEvent, false);
+            window.addEventListener('blur', () => onEvent);
+            window.addEventListener('focus', () => onEvent);
+            window.addEventListener('keydown', () => onEvent);
+            window.addEventListener('mousedown', () => onEvent);
+            window.addEventListener('touchstart', () => onEvent);
+
+            setTimeout(function () {
+                onEvent({type: 'blur'});
+            }, 0);
+        }
+    }
+
+    function onEvent(e) {
+        if (e.type == 'mousemove') {
+            var e = e.originalEvent || e;
+            if (e && e.movementX === 0 && e.movementY === 0) {
+                return;
+            }
+            window.removeEventListener('mousemove', onEvent);
+        }
+
+        var isIDLE = e.type == 'blur' || e.type == 'timeout' ? true : false;
+        if (hidden && document[hidden]) {
+            isIDLE = true;
+        }
+
+        timeoutService.cancel(toPromise);
+        if (!isIDLE) {
+            toPromise = timeoutService(function () {
+                onEvent({type: 'timeout'});
+            }, 30000);
+        }
+
+        if (isIDLE && e.type == 'timeout') {
+            window.addEventListener('mousemove', onEvent);
+        }
+    }
+}
+
+IdleManagerModule.dependencies = [
+    'rootService',
+    'timeoutService',
+];
+
+function StorageModule(queryService) {
+    var methods = {};
+
+    forEach(['get', 'set', 'remove'], function (methodName) {
+        if(Config.Modes.test) {
+            ConfigStorage.prefix('t_');
+        }
+        methods[methodName] = function () {
+            var deferred = queryService.defer(),
+                args = toArray(arguments);
+
+            args.push(function (result) {
+                deferred.resolve(result);
+            });
+
+            ConfigStorage[methodName].apply(ConfigStorage, args);
+
+            return deferred.promise;
+        };
+    });
+
+    return methods;
+}
+
+StorageModule.dependencies = [
+    'queryService'
+];
+
+function TelegramMeWebServiceModule(Storage) {
+    var disabled = Config.Modes.test || location.protocol != 'http:' && location.protocol != 'https:';
+
+    function sendAsyncRequest(canRedirect) {
+        if (disabled) {
+            return false;
+        }
+
+        Storage.get('tgme_sync').then(function (curValue) {
+            var ts = tsNow(true);
+            if (canRedirect &&
+                curValue &&
+                curValue.canRedirect == canRedirect &&
+                curValue.ts + 86400 > ts) {
+                return false;
+            }
+            Storage.set({tgme_sync: {canRedirect: canRedirect, ts: ts}});
+
+            var script = document.createElement('script');
+            script.src = '//telegram.me/_websync_?authed=' + (canRedirect ? '1' : '0');
+            script.onerror = () => {
+                document.body.removeChild(script);
+            };
+            document.body.append(script);
+        });
+    }
+
+    return {
+        setAuthorized: sendAsyncRequest
+    };
+}
+
+TelegramMeWebServiceModule.dependencies = [
+    'Storage',
+];
+
+function qSyncModule() {
+    return {
+        when: function (result) {
+            return {
+                then: function (cb) {
+                    return cb(result);
+                }
+            };
+        },
+        reject: function (result) {
+            return {
+                then: function (cb, badcb) {
+                    if (badcb) {
+                        return badcb(result);
+                    }
+                }
+            };
+        }
+    };
+}
+
+qSyncModule.dependencies = [];
+
 function MtpApiFileManagerModule(MtpApiManager, queryService) {
     var cachedFs = false;
     var cachedFsPromise = false;
@@ -3222,126 +3222,158 @@ function MtpApiManagerModule(MtpSingleInstanceService, MtpNetworkerFactory, MtpA
         });
     }
 
+    // function mtpInvokeApi(method, params, options) {
+    //     options = options || {};
+    //
+    //     var deferred = queryService.defer(),
+    //         rejectPromise = function (error) {
+    //             // if (!error) {
+    //             //     error = {type: 'ERROR_EMPTY'};
+    //             // } else if (!isObject(error)) {
+    //             //     error = {message: error};
+    //             // }
+    //             deferred.reject(error);
+    //
+    //             // if (!options.noErrorBox) {
+    //             //     error.input = method;
+    //             //     error.stack = error.originalError && error.originalError.stack || error.stack || (new Error()).stack;
+    //             //     setTimeout(function () {
+    //             //         if (!error.handled) {
+    //             //             if (error.code == 401) {
+    //             //                 mtpLogOut();
+    //             //             }
+    //             //             error.handled = true;
+    //             //         }
+    //             //     }, 100);
+    //             // }
+    //         },
+    //         dcID,
+    //         networkerPromise;
+    //
+    //     var cachedNetworker;
+    //     var stack = (new Error()).stack;
+    //     if (!stack) {
+    //         try {
+    //             window.unexistingFunction();
+    //         } catch (e) {
+    //             stack = e.stack || '';
+    //         }
+    //     }
+    //     var performRequest = function (networker) {
+    //         return (cachedNetworker = networker).wrapApiCall(method, params, options).then(
+    //             function (result) {
+    //                 deferred.resolve(result);
+    //             },
+    //             function (error) {
+    //                 console.error(dT(), 'Error', error.code, error.type, baseDcID, dcID);
+    //                 if (error.code == 401 && baseDcID == dcID) {
+    //                     Storage.remove('dc', 'user_auth');
+    //                     telegramMeNotify(false);
+    //                     rejectPromise(error);
+    //                 }
+    //                 else if (error.code == 401 && baseDcID && dcID != baseDcID) {
+    //                     if (cachedExportPromise[dcID] === undefined) {
+    //                         var exportDeferred = queryService.defer();
+    //
+    //                         mtpInvokeApi('auth.exportAuthorization', {dc_id: dcID}, {noErrorBox: true}).then(function (exportedAuth) {
+    //                             mtpInvokeApi('auth.importAuthorization', {
+    //                                 id: exportedAuth.id,
+    //                                 bytes: exportedAuth.bytes
+    //                             }, {dcID: dcID, noErrorBox: true}).then(function () {
+    //                                 exportDeferred.resolve();
+    //                             }, function (e) {
+    //                                 exportDeferred.reject(e);
+    //                             })
+    //                         }, function (e) {
+    //                             exportDeferred.reject(e)
+    //                         });
+    //
+    //                         cachedExportPromise[dcID] = exportDeferred.promise;
+    //                     }
+    //
+    //                     cachedExportPromise[dcID].then(function () {
+    //                         (cachedNetworker = networker).wrapApiCall(method, params, options).then(function (result) {
+    //                             deferred.resolve(result);
+    //                         }, rejectPromise);
+    //                     }, rejectPromise);
+    //                 }
+    //                 else if (error.code == 303) {
+    //                     var newDcID = error.type.match(/^(PHONE_MIGRATE_|NETWORK_MIGRATE_|USER_MIGRATE_)(\d+)/)[2];
+    //                     if (newDcID != dcID) {
+    //                         if (options.dcID) {
+    //                             options.dcID = newDcID;
+    //                         } else {
+    //                             Storage.set({dc: baseDcID = newDcID});
+    //                         }
+    //
+    //                         mtpGetNetworker(newDcID, options).then(function (networker) {
+    //                             networker.wrapApiCall(method, params, options).then(function (result) {
+    //                                 deferred.resolve(result);
+    //                             }, rejectPromise);
+    //                         }, rejectPromise);
+    //                     }
+    //                 }
+    //                 else if (!options.rawError && error.code == 420) {
+    //                     var waitTime = error.type.match(/^FLOOD_WAIT_(\d+)/)[1] || 10;
+    //                     if (waitTime > (options.timeout || 60)) {
+    //                         return rejectPromise(error);
+    //                     }
+    //                     setTimeout(function () {
+    //                         performRequest(cachedNetworker);
+    //                     }, waitTime * 1000);
+    //                 }
+    //                 else if (!options.rawError && (error.code == 500 || error.type == 'MSG_WAIT_FAILED')) {
+    //                     var now = tsNow();
+    //                     if (options.stopTime) {
+    //                         if (now >= options.stopTime) {
+    //                             return rejectPromise(error);
+    //                         }
+    //                     } else {
+    //                         options.stopTime = now + (options.timeout !== undefined ? options.timeout : 10) * 1000;
+    //                     }
+    //                     options.waitTime = options.waitTime ? Math.min(60, options.waitTime * 1.5) : 1;
+    //                     setTimeout(function () {
+    //                         performRequest(cachedNetworker);
+    //                     }, options.waitTime * 1000);
+    //                 }
+    //                 else {
+    //                     rejectPromise(error);
+    //                 }
+    //             });
+    //     };
+    //
+    //     if (dcID = (options.dcID || baseDcID)) {
+    //         mtpGetNetworker(dcID, options).then(performRequest, rejectPromise);
+    //     } else {
+    //         Storage.get('dc').then(function (baseDcID) {
+    //             mtpGetNetworker(dcID = baseDcID || 2, options).then(performRequest, rejectPromise);
+    //         });
+    //     }
+    //
+    //     return deferred.promise;
+    // }
+
     function mtpInvokeApi(method, params, options) {
         options = options || {};
+        var dcID;
+        var deferred = queryService.defer();
 
-        var deferred = queryService.defer(),
-            rejectPromise = function (error) {
-                // if (!error) {
-                //     error = {type: 'ERROR_EMPTY'};
-                // } else if (!isObject(error)) {
-                //     error = {message: error};
-                // }
-                deferred.reject(error);
-
-                // if (!options.noErrorBox) {
-                //     error.input = method;
-                //     error.stack = error.originalError && error.originalError.stack || error.stack || (new Error()).stack;
-                //     setTimeout(function () {
-                //         if (!error.handled) {
-                //             if (error.code == 401) {
-                //                 mtpLogOut();
-                //             }
-                //             error.handled = true;
-                //         }
-                //     }, 100);
-                // }
-            },
-            dcID,
-            networkerPromise;
-
-        var cachedNetworker;
-        var stack = (new Error()).stack;
-        if (!stack) {
-            try {
-                window.unexistingFunction();
-            } catch (e) {
-                stack = e.stack || '';
-            }
-        }
-        var performRequest = function (networker) {
-            return (cachedNetworker = networker).wrapApiCall(method, params, options).then(
-                function (result) {
-                    deferred.resolve(result);
-                },
-                function (error) {
-                    console.error(dT(), 'Error', error.code, error.type, baseDcID, dcID);
-                    if (error.code == 401 && baseDcID == dcID) {
-                        Storage.remove('dc', 'user_auth');
-                        telegramMeNotify(false);
-                        rejectPromise(error);
-                    }
-                    else if (error.code == 401 && baseDcID && dcID != baseDcID) {
-                        if (cachedExportPromise[dcID] === undefined) {
-                            var exportDeferred = queryService.defer();
-
-                            mtpInvokeApi('auth.exportAuthorization', {dc_id: dcID}, {noErrorBox: true}).then(function (exportedAuth) {
-                                mtpInvokeApi('auth.importAuthorization', {
-                                    id: exportedAuth.id,
-                                    bytes: exportedAuth.bytes
-                                }, {dcID: dcID, noErrorBox: true}).then(function () {
-                                    exportDeferred.resolve();
-                                }, function (e) {
-                                    exportDeferred.reject(e);
-                                })
-                            }, function (e) {
-                                exportDeferred.reject(e)
-                            });
-
-                            cachedExportPromise[dcID] = exportDeferred.promise;
-                        }
-
-                        cachedExportPromise[dcID].then(function () {
-                            (cachedNetworker = networker).wrapApiCall(method, params, options).then(function (result) {
-                                deferred.resolve(result);
-                            }, rejectPromise);
-                        }, rejectPromise);
-                    }
-                    else if (error.code == 303) {
-                        var newDcID = error.type.match(/^(PHONE_MIGRATE_|NETWORK_MIGRATE_|USER_MIGRATE_)(\d+)/)[2];
-                        if (newDcID != dcID) {
-                            if (options.dcID) {
-                                options.dcID = newDcID;
-                            } else {
-                                Storage.set({dc: baseDcID = newDcID});
-                            }
-
-                            mtpGetNetworker(newDcID, options).then(function (networker) {
-                                networker.wrapApiCall(method, params, options).then(function (result) {
-                                    deferred.resolve(result);
-                                }, rejectPromise);
-                            }, rejectPromise);
-                        }
-                    }
-                    else if (!options.rawError && error.code == 420) {
-                        var waitTime = error.type.match(/^FLOOD_WAIT_(\d+)/)[1] || 10;
-                        if (waitTime > (options.timeout || 60)) {
-                            return rejectPromise(error);
-                        }
-                        setTimeout(function () {
-                            performRequest(cachedNetworker);
-                        }, waitTime * 1000);
-                    }
-                    else if (!options.rawError && (error.code == 500 || error.type == 'MSG_WAIT_FAILED')) {
-                        var now = tsNow();
-                        if (options.stopTime) {
-                            if (now >= options.stopTime) {
-                                return rejectPromise(error);
-                            }
-                        } else {
-                            options.stopTime = now + (options.timeout !== undefined ? options.timeout : 10) * 1000;
-                        }
-                        options.waitTime = options.waitTime ? Math.min(60, options.waitTime * 1.5) : 1;
-                        setTimeout(function () {
-                            performRequest(cachedNetworker);
-                        }, options.waitTime * 1000);
-                    }
-                    else {
-                        rejectPromise(error);
-                    }
-                });
+        var rejectPromise = function (error) {
+            deferred.reject(error);
         };
 
+        var performRequest = function (networker) {
+            var performRequestPromise = (networker).wrapApiCall(method, params, options);
+
+            return performRequestPromise.then(
+              function (result) {
+                  deferred.resolve(result);
+              },
+              function (error) {
+                  rejectPromise(error);
+              });
+        };
+        // mtpGetNetworker(baseDcID || 2, options).then(performRequest, rejectPromise);
         if (dcID = (options.dcID || baseDcID)) {
             mtpGetNetworker(dcID, options).then(performRequest, rejectPromise);
         } else {
