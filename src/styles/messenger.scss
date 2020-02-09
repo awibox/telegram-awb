@@ -66,6 +66,7 @@ $topBarHeight: 60px;
   &__info {
     width: 100%;
     height: $topBarHeight;
+    margin-bottom: 2px;
     &-container {
       height: $topBarHeight;
       background: #fff;
@@ -93,7 +94,7 @@ $topBarHeight: 60px;
           text-overflow: ellipsis;
         }
       }
-      &-avatar {
+      .chats__item-avatar {
         background-color: #d2d2d2;
         background-position: 50% 50%;
         background-repeat: no-repeat;
