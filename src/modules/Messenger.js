@@ -26,6 +26,24 @@ class Messenger {
    * BASE FUNCTIONS
    */
 
+  placeCaretAtEnd(el) {
+    el.focus();
+    if (typeof window.getSelection != "undefined"
+      && typeof document.createRange != "undefined") {
+      var range = document.createRange();
+      range.selectNodeContents(el);
+      range.collapse(false);
+      var sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    } else if (typeof document.body.createTextRange != "undefined") {
+      var textRange = document.body.createTextRange();
+      textRange.moveToElementText(el);
+      textRange.collapse(false);
+      textRange.select();
+    }
+  }
+
   getTextForSendInput(element) {
     let firstTag = element.firstChild.nodeName;
     let keyTag = new RegExp(
@@ -57,9 +75,11 @@ class Messenger {
       e.preventDefault();
       this.sendMessage();
     }
-    if(e.key === 'Enter' && !e.ctrlKey) {
-      
+    if(e.key === 'Enter' && e.ctrlKey) {
+      const input = document.getElementById('sendInput');
       e.preventDefault();
+      input.innerHTML = input.innerHTML + '<br/><br/>';
+      this.placeCaretAtEnd(input);
     }
   }
 
