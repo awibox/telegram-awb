@@ -14,8 +14,8 @@ gulp.task('js', function () {
         'src/telegramApi.js',
         'src/IoC.js'
     ])
-        .pipe(gulpLoadPlugin.concat('mtproto.js'))
-        .pipe(gulp.dest('../dist'));
+        .pipe(gulpLoadPlugin.concat('vendors~before.js'))
+        .pipe(gulp.dest('../dist/js'));
 });
 
 gulp.task('build', ['js']);
