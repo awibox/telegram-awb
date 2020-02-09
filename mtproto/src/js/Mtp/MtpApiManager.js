@@ -237,31 +237,6 @@ function MtpApiManagerModule(MtpSingleInstanceService, MtpNetworkerFactory, MtpA
         return deferred.promise;
     }
 
-    // function mtpInvokeApi(method, params, options) {
-    //     options = options || {};
-    //
-    //     var deferred = queryService.defer();
-    //
-    //     var rejectPromise = function (error) {
-    //         deferred.reject(error);
-    //     };
-    //
-    //     var performRequest = function (networker) {
-    //         var performRequestPromise = (networker).wrapApiCall(method, params, options);
-    //
-    //         return performRequestPromise.then(
-    //           function (result) {
-    //               deferred.resolve(result);
-    //           },
-    //           function (error) {
-    //               rejectPromise(error);
-    //           });
-    //     };
-    //     mtpGetNetworker(baseDcID || 2, options).then(performRequest, rejectPromise);
-    //
-    //     return deferred.promise;
-    // }
-
     function mtpGetUserID() {
         return Storage.get('user_auth').then(function (auth) {
             telegramMeNotify(auth && auth.id > 0 || false);
