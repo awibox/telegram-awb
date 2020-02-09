@@ -1,10 +1,11 @@
 # compiled output
-/dist/js
+/dist/js/*
 /dist/css
 /dist/assets
 /dist/index.html
 /tmp
 /out-tsc
+!/dist/js/vendors~before.js
 
 # dependencies
 /node_modules
