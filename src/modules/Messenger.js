@@ -26,11 +26,42 @@ class Messenger {
    * BASE FUNCTIONS
    */
 
+  placeCaretAtEnd(el) {
+    el.focus();
+    if (typeof window.getSelection != "undefined"
+      && typeof document.createRange != "undefined") {
+      var range = document.createRange();
+      range.selectNodeContents(el);
+      range.collapse(false);
+      var sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    } else if (typeof document.body.createTextRange != "undefined") {
+      var textRange = document.body.createTextRange();
+      textRange.moveToElementText(el);
+      textRange.collapse(false);
+      textRange.select();
+    }
+  }
+
+  getTextForSendInput(element) {
+    let firstTag = element.firstChild.nodeName;
+    let keyTag = new RegExp(
+      firstTag === '#text' ? '<br' : '</' + firstTag,
+      'i'
+    );
+    let tmp = document.createElement('div');
+    tmp.innerHTML = element.innerHTML
+      .replace(/<[^>]+>/g, (m, i) => (keyTag.test(m) ? '{ß®}' : ''))
+      .replace(/{ß®}$/, '');
+    return tmp.innerText.replace(/{ß®}/g, '\r\n');
+  }
+
   sendMessage() {
     const self = this;
     if(this.currentChatId) {
       if(document.getElementById('sendInput').innerHTML) {
-        this.api.sendMessage(this.currentChatId, document.getElementById('sendInput').innerHTML).then(function(response) {
+        this.api.sendMessage(this.currentChatId, this.getTextForSendInput(document.getElementById('sendInput'))).then(function(response) {
           document.getElementById('sendInput').innerHTML = '';
           self.onUpdate(response);
         });
@@ -38,11 +69,17 @@ class Messenger {
     }
   }
 
-  onKeyUpInput(e) {
+  onKeyDownInput(e) {
     console.log(e);
-    e.preventDefault();
-    if(e.key === 'Enter') {
+    if(e.key === 'Enter' && !e.ctrlKey) {
+      e.preventDefault();
       this.sendMessage();
+    }
+    if(e.key === 'Enter' && e.ctrlKey) {
+      const input = document.getElementById('sendInput');
+      e.preventDefault();
+      input.innerHTML = input.innerHTML + '<br/><br/>';
+      this.placeCaretAtEnd(input);
     }
   }
 
@@ -579,7 +616,7 @@ class Messenger {
     document.getElementById('chatsScroll').onscroll = () => this.scrollChats();
     document.getElementById('messagesScroll').onscroll = () => this.scrollMessages();
     document.getElementById('sendButton').addEventListener('click', () => this.sendMessage());
-    document.getElementById('sendInput').addEventListener('keyup', (e) => this.onKeyUpInput(e))
+    document.getElementById('sendInput').addEventListener('keydown', (e) => this.onKeyDownInput(e))
   }
 }
 export default Messenger;
