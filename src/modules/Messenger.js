@@ -55,7 +55,7 @@ class Messenger {
     <div class="im__info-container">
       <div id="chatInfoItem" class="im__info-item">
       <div class="im__info-item-title">
-      <div class="im__info-item-title-text">${chat.title ? chat.title : 'Deleted account'}</div>
+      <div class="im__info-item-title-text">${chat.title ? chat.title : ''}</div>
       </div>
       <div class="im__info-item-status">Online</div>
       </div>
@@ -266,6 +266,9 @@ class Messenger {
             chat.myChat = true;
             chat.title = 'Saved Messages';
           }
+          if(user.pFlags.deleted) {
+            chat.title = 'Deleted Account';
+          }
         }
       });
     } else {
@@ -427,7 +430,7 @@ class Messenger {
     chatView.innerHTML = `
     ${chat.avatarNode ? '' : `<div id='${chatPhotoId}' class="chats__item-avatar${chat.myChat ? ' chats__item-avatar_saved' : ''}"></div>`}
     <div class="chats__item-title">
-        <div class="chats__item-title-text" title="${chat.title}">${chat.title ? chat.title : 'Deleted Account'}</div>
+        <div class="chats__item-title-text" title="${chat.title}">${chat.title ? chat.title : ''}</div>
         ${chat.mute ? `<div class="chats__item-mute-icon"></div>` : ''}
     </div>
     <div class="chats__item-last">${chat.arrow ? 'You: ' : ''}${this.getMessage(chat.message)}</div>
