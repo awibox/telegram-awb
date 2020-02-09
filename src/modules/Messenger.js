@@ -279,6 +279,9 @@ class Messenger {
           chat.isChannel = true;
           chat.avatar = channel.photo ? channel.photo.photo_small : '';
           chat.type = !!item.peer.channel_id ? 'channel' : 'chat';
+          if(channel.pFlags.deactivated) {
+            chat.id = 0;
+          }
         }
       });
     }
@@ -286,27 +289,29 @@ class Messenger {
       chat.avatarNode = document.getElementById(`avatar-${chat.id}`).cloneNode();
       chat.avatarNode.innerHTML = document.getElementById(`avatar-${chat.id}`).innerHTML;
     }
-    this.addChat(chat, update);
-    if (!update || !!document.getElementById(`avatar-${chat.id}`)) {
-      if (chat.avatar) {
-        console.log('chat.avatar', chat.avatar)
-        const inputLocation = chat.avatar;
-        inputLocation._ = 'inputFileLocation';
-        this.api.invokeApi('upload.getFile', {
-          location: inputLocation,
-          offset: 0,
-          limit: 1024 * 1024,
-        }).then((response) => {
-          const base64 = `data:image/jpeg;base64,${btoa(String.fromCharCode.apply(null, response.bytes))}`;
-          document.getElementById(`avatar-${chat.id}`).style.backgroundImage = `url(${base64})`;
-        }).catch((error) => {
-          console.error(error);
+    if(chat.id) {
+      this.addChat(chat, update);
+      if (!update || !!document.getElementById(`avatar-${chat.id}`)) {
+        if (chat.avatar) {
+          console.log('chat.avatar', chat.avatar)
+          const inputLocation = chat.avatar;
+          inputLocation._ = 'inputFileLocation';
+          this.api.invokeApi('upload.getFile', {
+            location: inputLocation,
+            offset: 0,
+            limit: 1024 * 1024,
+          }).then((response) => {
+            const base64 = `data:image/jpeg;base64,${btoa(String.fromCharCode.apply(null, response.bytes))}`;
+            document.getElementById(`avatar-${chat.id}`).style.backgroundImage = `url(${base64})`;
+          }).catch((error) => {
+            console.error(error);
+            document.getElementById(`avatar-${chat.id}`).innerHTML = this.getDefaultAvatarText(chat.title);
+            document.getElementById(`avatar-${chat.id}`).style.backgroundColor = this.getRandomColor();
+          });
+        } else {
           document.getElementById(`avatar-${chat.id}`).innerHTML = this.getDefaultAvatarText(chat.title);
           document.getElementById(`avatar-${chat.id}`).style.backgroundColor = this.getRandomColor();
-        });
-      } else {
-        document.getElementById(`avatar-${chat.id}`).innerHTML = this.getDefaultAvatarText(chat.title);
-        document.getElementById(`avatar-${chat.id}`).style.backgroundColor = this.getRandomColor();
+        }
       }
     }
   }
