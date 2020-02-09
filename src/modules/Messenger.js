@@ -244,6 +244,7 @@ class Messenger {
       date: '',
       timestamp: '',
       type: '',
+      myChat: false,
       unread_count: item.unread_count,
     });
 
@@ -263,6 +264,10 @@ class Messenger {
           chat.access_hash = user.access_hash ? user.access_hash : '';
           chat.avatar = user.photo ? user.photo.photo_small : '';
           chat.type = 'user';
+          if(user.pFlags.self) {
+            chat.myChat = true;
+            chat.title = 'Saved Messages';
+          }
         }
       });
     } else {
@@ -285,26 +290,28 @@ class Messenger {
     }
     if(chat.id) {
       this.addChat(chat, update);
-      if (!update || !!document.getElementById(`avatar-${chat.id}`)) {
-        if (chat.avatar) {
-          console.log('chat.avatar', chat.avatar)
-          const inputLocation = chat.avatar;
-          inputLocation._ = 'inputFileLocation';
-          this.api.invokeApi('upload.getFile', {
-            location: inputLocation,
-            offset: 0,
-            limit: 1024 * 1024,
-          }).then((response) => {
-            const base64 = `data:image/jpeg;base64,${btoa(String.fromCharCode.apply(null, response.bytes))}`;
-            document.getElementById(`avatar-${chat.id}`).style.backgroundImage = `url(${base64})`;
-          }).catch((error) => {
-            console.error(error);
+      if(!chat.myChat) {
+        if (!update || !!document.getElementById(`avatar-${chat.id}`)) {
+          if (chat.avatar) {
+            console.log('chat.avatar', chat.avatar)
+            const inputLocation = chat.avatar;
+            inputLocation._ = 'inputFileLocation';
+            this.api.invokeApi('upload.getFile', {
+              location: inputLocation,
+              offset: 0,
+              limit: 1024 * 1024,
+            }).then((response) => {
+              const base64 = `data:image/jpeg;base64,${btoa(String.fromCharCode.apply(null, response.bytes))}`;
+              document.getElementById(`avatar-${chat.id}`).style.backgroundImage = `url(${base64})`;
+            }).catch((error) => {
+              console.error(error);
+              document.getElementById(`avatar-${chat.id}`).innerHTML = this.getDefaultAvatarText(chat.title);
+              document.getElementById(`avatar-${chat.id}`).style.backgroundColor = this.getRandomColor();
+            });
+          } else {
             document.getElementById(`avatar-${chat.id}`).innerHTML = this.getDefaultAvatarText(chat.title);
             document.getElementById(`avatar-${chat.id}`).style.backgroundColor = this.getRandomColor();
-          });
-        } else {
-          document.getElementById(`avatar-${chat.id}`).innerHTML = this.getDefaultAvatarText(chat.title);
-          document.getElementById(`avatar-${chat.id}`).style.backgroundColor = this.getRandomColor();
+          }
         }
       }
     }
@@ -420,9 +427,9 @@ class Messenger {
     chatView.className = 'chats__item';
     chatView.id = `chat-${chat.id}`;
     chatView.innerHTML = `
-    ${chat.avatarNode ? '' : `<div id='${chatPhotoId}' class="chats__item-avatar"></div>`}
+    ${chat.avatarNode ? '' : `<div id='${chatPhotoId}' class="chats__item-avatar${chat.myChat ? ' chats__item-avatar_saved' : ''}"></div>`}
     <div class="chats__item-title">
-        <div class="chats__item-title-text" title="${chat.title}">${chat.title}</div>
+        <div class="chats__item-title-text" title="${chat.title}">${chat.title ? chat.title : 'Deleted Account'}</div>
         ${chat.mute ? `<div class="chats__item-mute-icon"></div>` : ''}
     </div>
     <div class="chats__item-last">${chat.arrow ? 'You: ' : ''}${this.getMessage(chat.message)}</div>
