@@ -49,20 +49,18 @@ class Messenger {
   setChatInfo(chat) {
     const avatarId = `avatar-${chat.id}`;
     const avatarElement = document.getElementById(avatarId);
-    const avatar = avatarElement.style.backgroundImage ? `background-image: ${avatarElement.style.backgroundImage}` : '';
-    const bgColor = avatarElement.style.backgroundColor ? `background-color: ${avatarElement.style.backgroundColor}` : '';
+    const avatar = avatarElement.cloneNode();
+    avatar.innerHTML = avatarElement.innerHTML;
     document.getElementById('chatInfo').innerHTML = `
     <div class="im__info-container">
-      <div class="im__info-item">
-      <div class="im__info-item-avatar" style='${avatar ? avatar : bgColor}'>
-        ${!avatar ? avatarElement.innerText : ''}
-      </div>
+      <div id="chatInfoItem" class="im__info-item">
       <div class="im__info-item-title">
       <div class="im__info-item-title-text">${chat.title ? chat.title : 'Deleted account'}</div>
       </div>
       <div class="im__info-item-status">Online</div>
       </div>
     </div>`;
+    document.getElementById('chatInfoItem').prepend(avatar);
   }
 
   setActiveChat(chat) {
