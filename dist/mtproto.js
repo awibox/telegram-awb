@@ -1063,317 +1063,6 @@ AppUsersManagerModule.dependencies = [
     'MtpApiManager'
 ];
 
-function CryptoWorkerModule(timeoutService) {
-    return {
-        sha1Hash: function (bytes) {
-            return timeoutService(function () {
-                return sha1HashSync(bytes);
-            });
-        },
-        sha256Hash: function (bytes) {
-            return timeoutService(function () {
-                return sha256HashSync(bytes);
-            });
-        },
-        aesEncrypt: function (bytes, keyBytes, ivBytes) {
-            return timeoutService(function () {
-                return convertToArrayBuffer(aesEncryptSync(bytes, keyBytes, ivBytes));
-            });
-        },
-        aesDecrypt: function (encryptedBytes, keyBytes, ivBytes) {
-            return timeoutService(function () {
-                return convertToArrayBuffer(aesDecryptSync(encryptedBytes, keyBytes, ivBytes));
-            });
-        },
-        factorize: function (bytes) {
-            bytes = convertToByteArray(bytes);
-
-            return timeoutService(function () {
-                return pqPrimeFactorization(bytes);
-            });
-        },
-        modPow: function (x, y, m) {
-            return timeoutService(function () {
-                return bytesModPow(x, y, m);
-            });
-        }
-    };
-}
-
-CryptoWorkerModule.dependencies = [
-    'timeoutService'
-];
-
-function FileSaverModule(timeoutService) {
-    function save(bytes, fileName) {
-        // TODO: Improve
-        var a = document.createElement('a');
-        var blob = new Blob(bytes, {type: 'octet/stream'});
-
-        if (window.navigator && window.navigator.msSaveBlob) {
-            window.navigator.msSaveBlob(blob, fileName);
-            return;
-        }
-
-        document.body.appendChild(a);
-
-        a.style = 'display: none';
-        a.href = window.URL.createObjectURL(blob);
-        a.download = fileName;
-        a.click();
-
-        timeoutService(function() {
-            window.URL.revokeObjectURL(a.href);
-            a.remove();
-        }, 100);
-    }
-
-    return {
-        save: save
-    };
-}
-
-FileSaverModule.dependencies = [
-    'timeoutService'
-];
-
-function forEach(obj, iterator, context) {
-    if (!obj) {
-        return;
-    }
-
-    if (isArray(obj)) {
-        if (obj.forEach) {
-            obj.forEach(iterator, context, obj);
-        } else {
-            for (var i = 0; i < obj.length; i++) {
-                iterator.call(context, obj[i], i, obj);
-            }
-        }
-    } else if (isObject(obj)) {
-        for (var key in obj) {
-            iterator.call(context, obj[key], key, obj);
-        }
-    }
-}
-
-function isObject(value) {
-    return value !== null && typeof value === 'object';
-}
-
-function isString(value) {
-    return typeof value == 'string';
-}
-
-function isArray(value) {
-    return Array.isArray(value);
-}
-
-function isFunction(value) {
-    return typeof value == 'function';
-}
-
-function extend() {
-    var objects = toArray(arguments);
-    var obj = objects[0];
-
-    for (var i = 1; i < objects.length; i++) {
-        for (var key in objects[i]) {
-            obj[key] = objects[i][key];
-        }
-    }
-
-    return obj;
-}
-
-function map(array, iterator) {
-    var result = [];
-
-    forEach(array, function (obj) {
-        result.push(iterator(obj));
-    });
-
-    return result;
-}
-
-function min(array) {
-    var min = array[0];
-
-    forEach(array, function (obj) {
-        if (obj < min) {
-            min = obj;
-        }
-    });
-
-    return min;
-}
-function toArray(obj) {
-    return Array.prototype.slice.call(obj);
-}
-
-function noop() {
-
-}
-
-function IdleManagerModule(rootService, timeoutService) {
-    rootService.idle = {isIDLE: false};
-
-    var toPromise, started = false;
-    var hidden = 'hidden';
-    var visibilityChange = 'visibilitychange';
-
-    if (typeof document.hidden !== 'undefined') {
-        // default
-    } else if (typeof document.mozHidden !== 'undefined') {
-        hidden = 'mozHidden';
-        visibilityChange = 'mozvisibilitychange';
-    } else if (typeof document.msHidden !== 'undefined') {
-        hidden = 'msHidden';
-        visibilityChange = 'msvisibilitychange';
-    } else if (typeof document.webkitHidden !== 'undefined') {
-        hidden = 'webkitHidden';
-        visibilityChange = 'webkitvisibilitychange';
-    }
-
-    return {
-        start: start
-    };
-
-    function start() {
-        if (!started) {
-            started = true;
-            window.addEventListener(visibilityChange, () => onEvent, false);
-            window.addEventListener('blur', () => onEvent);
-            window.addEventListener('focus', () => onEvent);
-            window.addEventListener('keydown', () => onEvent);
-            window.addEventListener('mousedown', () => onEvent);
-            window.addEventListener('touchstart', () => onEvent);
-
-            setTimeout(function () {
-                onEvent({type: 'blur'});
-            }, 0);
-        }
-    }
-
-    function onEvent(e) {
-        if (e.type == 'mousemove') {
-            var e = e.originalEvent || e;
-            if (e && e.movementX === 0 && e.movementY === 0) {
-                return;
-            }
-            window.removeEventListener('mousemove', onEvent);
-        }
-
-        var isIDLE = e.type == 'blur' || e.type == 'timeout' ? true : false;
-        if (hidden && document[hidden]) {
-            isIDLE = true;
-        }
-
-        timeoutService.cancel(toPromise);
-        if (!isIDLE) {
-            toPromise = timeoutService(function () {
-                onEvent({type: 'timeout'});
-            }, 30000);
-        }
-
-        if (isIDLE && e.type == 'timeout') {
-            window.addEventListener('mousemove', onEvent);
-        }
-    }
-}
-
-IdleManagerModule.dependencies = [
-    'rootService',
-    'timeoutService',
-];
-
-function StorageModule(queryService) {
-    var methods = {};
-
-    forEach(['get', 'set', 'remove'], function (methodName) {
-        if(Config.Modes.test) {
-            ConfigStorage.prefix('t_');
-        }
-        methods[methodName] = function () {
-            var deferred = queryService.defer(),
-                args = toArray(arguments);
-
-            args.push(function (result) {
-                deferred.resolve(result);
-            });
-
-            ConfigStorage[methodName].apply(ConfigStorage, args);
-
-            return deferred.promise;
-        };
-    });
-
-    return methods;
-}
-
-StorageModule.dependencies = [
-    'queryService'
-];
-
-function TelegramMeWebServiceModule(Storage) {
-    var disabled = Config.Modes.test || location.protocol != 'http:' && location.protocol != 'https:';
-
-    function sendAsyncRequest(canRedirect) {
-        if (disabled) {
-            return false;
-        }
-
-        Storage.get('tgme_sync').then(function (curValue) {
-            var ts = tsNow(true);
-            if (canRedirect &&
-                curValue &&
-                curValue.canRedirect == canRedirect &&
-                curValue.ts + 86400 > ts) {
-                return false;
-            }
-            Storage.set({tgme_sync: {canRedirect: canRedirect, ts: ts}});
-
-            var script = document.createElement('script');
-            script.src = '//telegram.me/_websync_?authed=' + (canRedirect ? '1' : '0');
-            script.onerror = () => {
-                document.body.removeChild(script);
-            };
-            document.body.append(script);
-        });
-    }
-
-    return {
-        setAuthorized: sendAsyncRequest
-    };
-}
-
-TelegramMeWebServiceModule.dependencies = [
-    'Storage',
-];
-
-function qSyncModule() {
-    return {
-        when: function (result) {
-            return {
-                then: function (cb) {
-                    return cb(result);
-                }
-            };
-        },
-        reject: function (result) {
-            return {
-                then: function (cb, badcb) {
-                    if (badcb) {
-                        return badcb(result);
-                    }
-                }
-            };
-        }
-    };
-}
-
-qSyncModule.dependencies = [];
-
 /*!
  * Webogram v0.5.3 - messaging web application for MTProto
  * https://github.com/zhukov/webogram
@@ -2948,6 +2637,317 @@ function safeReplaceObject (wasObject, newObject) {
   }
 }
 
+function CryptoWorkerModule(timeoutService) {
+    return {
+        sha1Hash: function (bytes) {
+            return timeoutService(function () {
+                return sha1HashSync(bytes);
+            });
+        },
+        sha256Hash: function (bytes) {
+            return timeoutService(function () {
+                return sha256HashSync(bytes);
+            });
+        },
+        aesEncrypt: function (bytes, keyBytes, ivBytes) {
+            return timeoutService(function () {
+                return convertToArrayBuffer(aesEncryptSync(bytes, keyBytes, ivBytes));
+            });
+        },
+        aesDecrypt: function (encryptedBytes, keyBytes, ivBytes) {
+            return timeoutService(function () {
+                return convertToArrayBuffer(aesDecryptSync(encryptedBytes, keyBytes, ivBytes));
+            });
+        },
+        factorize: function (bytes) {
+            bytes = convertToByteArray(bytes);
+
+            return timeoutService(function () {
+                return pqPrimeFactorization(bytes);
+            });
+        },
+        modPow: function (x, y, m) {
+            return timeoutService(function () {
+                return bytesModPow(x, y, m);
+            });
+        }
+    };
+}
+
+CryptoWorkerModule.dependencies = [
+    'timeoutService'
+];
+
+function FileSaverModule(timeoutService) {
+    function save(bytes, fileName) {
+        // TODO: Improve
+        var a = document.createElement('a');
+        var blob = new Blob(bytes, {type: 'octet/stream'});
+
+        if (window.navigator && window.navigator.msSaveBlob) {
+            window.navigator.msSaveBlob(blob, fileName);
+            return;
+        }
+
+        document.body.appendChild(a);
+
+        a.style = 'display: none';
+        a.href = window.URL.createObjectURL(blob);
+        a.download = fileName;
+        a.click();
+
+        timeoutService(function() {
+            window.URL.revokeObjectURL(a.href);
+            a.remove();
+        }, 100);
+    }
+
+    return {
+        save: save
+    };
+}
+
+FileSaverModule.dependencies = [
+    'timeoutService'
+];
+
+function forEach(obj, iterator, context) {
+    if (!obj) {
+        return;
+    }
+
+    if (isArray(obj)) {
+        if (obj.forEach) {
+            obj.forEach(iterator, context, obj);
+        } else {
+            for (var i = 0; i < obj.length; i++) {
+                iterator.call(context, obj[i], i, obj);
+            }
+        }
+    } else if (isObject(obj)) {
+        for (var key in obj) {
+            iterator.call(context, obj[key], key, obj);
+        }
+    }
+}
+
+function isObject(value) {
+    return value !== null && typeof value === 'object';
+}
+
+function isString(value) {
+    return typeof value == 'string';
+}
+
+function isArray(value) {
+    return Array.isArray(value);
+}
+
+function isFunction(value) {
+    return typeof value == 'function';
+}
+
+function extend() {
+    var objects = toArray(arguments);
+    var obj = objects[0];
+
+    for (var i = 1; i < objects.length; i++) {
+        for (var key in objects[i]) {
+            obj[key] = objects[i][key];
+        }
+    }
+
+    return obj;
+}
+
+function map(array, iterator) {
+    var result = [];
+
+    forEach(array, function (obj) {
+        result.push(iterator(obj));
+    });
+
+    return result;
+}
+
+function min(array) {
+    var min = array[0];
+
+    forEach(array, function (obj) {
+        if (obj < min) {
+            min = obj;
+        }
+    });
+
+    return min;
+}
+function toArray(obj) {
+    return Array.prototype.slice.call(obj);
+}
+
+function noop() {
+
+}
+
+function IdleManagerModule(rootService, timeoutService) {
+    rootService.idle = {isIDLE: false};
+
+    var toPromise, started = false;
+    var hidden = 'hidden';
+    var visibilityChange = 'visibilitychange';
+
+    if (typeof document.hidden !== 'undefined') {
+        // default
+    } else if (typeof document.mozHidden !== 'undefined') {
+        hidden = 'mozHidden';
+        visibilityChange = 'mozvisibilitychange';
+    } else if (typeof document.msHidden !== 'undefined') {
+        hidden = 'msHidden';
+        visibilityChange = 'msvisibilitychange';
+    } else if (typeof document.webkitHidden !== 'undefined') {
+        hidden = 'webkitHidden';
+        visibilityChange = 'webkitvisibilitychange';
+    }
+
+    return {
+        start: start
+    };
+
+    function start() {
+        if (!started) {
+            started = true;
+            window.addEventListener(visibilityChange, () => onEvent, false);
+            window.addEventListener('blur', () => onEvent);
+            window.addEventListener('focus', () => onEvent);
+            window.addEventListener('keydown', () => onEvent);
+            window.addEventListener('mousedown', () => onEvent);
+            window.addEventListener('touchstart', () => onEvent);
+
+            setTimeout(function () {
+                onEvent({type: 'blur'});
+            }, 0);
+        }
+    }
+
+    function onEvent(e) {
+        if (e.type == 'mousemove') {
+            var e = e.originalEvent || e;
+            if (e && e.movementX === 0 && e.movementY === 0) {
+                return;
+            }
+            window.removeEventListener('mousemove', onEvent);
+        }
+
+        var isIDLE = e.type == 'blur' || e.type == 'timeout' ? true : false;
+        if (hidden && document[hidden]) {
+            isIDLE = true;
+        }
+
+        timeoutService.cancel(toPromise);
+        if (!isIDLE) {
+            toPromise = timeoutService(function () {
+                onEvent({type: 'timeout'});
+            }, 30000);
+        }
+
+        if (isIDLE && e.type == 'timeout') {
+            window.addEventListener('mousemove', onEvent);
+        }
+    }
+}
+
+IdleManagerModule.dependencies = [
+    'rootService',
+    'timeoutService',
+];
+
+function StorageModule(queryService) {
+    var methods = {};
+
+    forEach(['get', 'set', 'remove'], function (methodName) {
+        if(Config.Modes.test) {
+            ConfigStorage.prefix('t_');
+        }
+        methods[methodName] = function () {
+            var deferred = queryService.defer(),
+                args = toArray(arguments);
+
+            args.push(function (result) {
+                deferred.resolve(result);
+            });
+
+            ConfigStorage[methodName].apply(ConfigStorage, args);
+
+            return deferred.promise;
+        };
+    });
+
+    return methods;
+}
+
+StorageModule.dependencies = [
+    'queryService'
+];
+
+function TelegramMeWebServiceModule(Storage) {
+    var disabled = Config.Modes.test || location.protocol != 'http:' && location.protocol != 'https:';
+
+    function sendAsyncRequest(canRedirect) {
+        if (disabled) {
+            return false;
+        }
+
+        Storage.get('tgme_sync').then(function (curValue) {
+            var ts = tsNow(true);
+            if (canRedirect &&
+                curValue &&
+                curValue.canRedirect == canRedirect &&
+                curValue.ts + 86400 > ts) {
+                return false;
+            }
+            Storage.set({tgme_sync: {canRedirect: canRedirect, ts: ts}});
+
+            var script = document.createElement('script');
+            script.src = '//telegram.me/_websync_?authed=' + (canRedirect ? '1' : '0');
+            script.onerror = () => {
+                document.body.removeChild(script);
+            };
+            document.body.append(script);
+        });
+    }
+
+    return {
+        setAuthorized: sendAsyncRequest
+    };
+}
+
+TelegramMeWebServiceModule.dependencies = [
+    'Storage',
+];
+
+function qSyncModule() {
+    return {
+        when: function (result) {
+            return {
+                then: function (cb) {
+                    return cb(result);
+                }
+            };
+        },
+        reject: function (result) {
+            return {
+                then: function (cb, badcb) {
+                    if (badcb) {
+                        return badcb(result);
+                    }
+                }
+            };
+        }
+    };
+}
+
+qSyncModule.dependencies = [];
+
 function MtpApiFileManagerModule(MtpApiManager, queryService) {
     var cachedFs = false;
     var cachedFsPromise = false;
@@ -3797,7 +3797,7 @@ function MtpDcConfiguratorModule() {
     var chosenServers = {};
 
     function chooseServer(dcID, upload) {
-        var dcOptions = Config.Modes.test ? Config.Server.Test : Config.Server.Production;
+        var dcOptions = Config.Modes.test ? Config.Server.Test : chooseProtocol() === 'https:' ? Config.Server.Https : Config.Server.Production;
 
         if (chosenServers[dcID] === undefined) {
             var chosenServer = false,
@@ -3806,7 +3806,7 @@ function MtpDcConfiguratorModule() {
             for (i = 0; i < dcOptions.length; i++) {
                 dcOption = dcOptions[i];
                 if (dcOption.id == dcID) {
-                    chosenServer = chooseProtocol() + '//' + (chooseProtocol() === 'https' ? dcOption.host : 'venus.web.telegram.org') + (dcOption.port != 80 ? ':' + dcOption.port : '') + '/apiw1';
+                    chosenServer = chooseProtocol() + '//' + dcOption.host + (dcOption.port != 80 ? ':' + dcOption.port : '') + '/apiw1';
                     break;
                 }
             }
@@ -5230,6 +5230,7 @@ function TelegramApiModule(MtpApiManager, AppPeersManager, MtpApiFileManager, Ap
 
         Config.Server.Test = config.server.test;
         Config.Server.Production = config.server.production;
+        Config.Server.Https = config.server.https;
 
         MtpApiManager.getNetworker(options.dcID, {createNetworker: true});
     }
