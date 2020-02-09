@@ -301,6 +301,9 @@ $topBarHeight: 60px;
       top: 10px;
       left: $defaultIndent;
       text-transform: uppercase;
+      &_saved {
+        background-image: url(img/savedMessages.png)
+      }
     }
     &-info {
       width: auto;
