@@ -442,11 +442,15 @@ class Messenger {
       chatView.prepend(chat.avatarNode);
     }
     if (update) {
-
-      this.deleteChat(chat.id);
       if (chat.pinned) {
-        document.getElementById('pinnedChats').prepend(chatView);
+        debugger;
+        if(document.getElementById(`chat-${chat.id}`)) {
+          document.getElementById(`chat-${chat.id}`).innerHTML = chatView.innerHTML;
+        } else {
+          document.getElementById('pinnedChats').prepend(chatView);
+        }
       } else {
+        this.deleteChat(chat.id);
         document.getElementById('chats').prepend(chatView);
       }
     } else {
