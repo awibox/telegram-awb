@@ -19,6 +19,7 @@ class Messenger {
     this.messagesWereLoaded = true;
     this.chatsOffset = 0;
     this.chatsWereLoaded = false;
+    this.lastReadId = 0;
   }
 
   /**
@@ -80,7 +81,8 @@ class Messenger {
       type: chat.type
     };
     this.currentChatId = params.id;
-    this.loadMessages(params, true, chat.lastReadId);
+    this.lastReadId = chat.lastReadId;
+    this.loadMessages(params, true);
     document.getElementById('sendMessage').style.display = 'flex';
   }
 
@@ -100,7 +102,7 @@ class Messenger {
     }
   }
 
-  addMessage(item, update = false, firstLoad = false, lastReadId) {
+  addMessage(item, update = false, firstLoad = false) {
     console.log('item', item);
     const message = new Object({
       id: item.id,
@@ -124,7 +126,7 @@ class Messenger {
       ${message.message}
       </span>  
       <span class="messages__item-time">
-        ${message.is_outgoing ? `${lastReadId >= item.id ? `<div class="arrow-read"></div>` : '<div class="arrow"></div>'}` : ''}
+        ${message.is_outgoing ? `${this.lastReadId >= item.id ? `<div class="arrow-read"></div>` : '<div class="arrow"></div>'}` : ''}
         ${message.date}
       </span>
     </div>`;
@@ -144,7 +146,7 @@ class Messenger {
     }
   }
 
-  loadMessages(params, firstLoad = false, lastReadId) {
+  loadMessages(params, firstLoad = false) {
     if(firstLoad) {
       this.offset = 0;
       document.getElementById('messages').innerHTML = '';
@@ -169,7 +171,7 @@ class Messenger {
           item.arrow = true;
           fromId = item.from_id;
         }
-        this.addMessage(item, false, firstLoad, lastReadId);
+        this.addMessage(item, false, firstLoad);
       });
       if (firstLoad) {
           this.messagesWereLoaded = false;
@@ -189,6 +191,7 @@ class Messenger {
     }
     this.api.getDialogs(chatsOffset, this.limit).then((response) => {
       const { result, offset } = response;
+      console.log('getChats', response)
       const {
         dialogs, messages, chats, users,
       } = result;
@@ -208,7 +211,6 @@ class Messenger {
           }
         }
       });
-      console.log('ENDDD!!!!!!');
       this.setChatLoader(false);
     }).catch((error) => {
       this.setChatLoader(false);
@@ -229,7 +231,7 @@ class Messenger {
     const chat = new Object({
       arrow: '',
       arrowClass: item.read_outbox_max_id >= item.top_message ? 'arrow-read' : 'arrow',
-      lastReadId: item.read_outbox_max_id,
+      lastReadId: item.read_outbox_max_id >= item.read_inbox_max_id ? item.read_outbox_max_id : item.read_inbox_max_id,
       id: '',
       access_hash: '',
       avatar: '',
@@ -283,6 +285,7 @@ class Messenger {
     this.addChat(chat, update);
     if (!update || !!document.getElementById(`avatar-${chat.id}`)) {
       if (chat.avatar) {
+        console.log('chat.avatar', chat.avatar)
         const inputLocation = chat.avatar;
         inputLocation._ = 'inputFileLocation';
         this.api.invokeApi('upload.getFile', {
