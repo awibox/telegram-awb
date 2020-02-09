@@ -70,10 +70,14 @@ class Messenger {
   }
 
   setActiveChat(chat) {
-    console.log('setActiveChat', chat)
+    console.log('setActiveChat', chat);
     if (document.querySelector('.chats__item_active')) {
       document.querySelector('.chats__item_active').classList.remove('chats__item_active');
     }
+    if (document.getElementById('messages')) {
+      document.getElementById('messages').innerHTML = '';
+    }
+    this.messagesWereLoaded = true;
     const chatElement = document.getElementById(`chat-${chat.id}`);
     chatElement.classList.add('chats__item_active');
     const params = {
@@ -149,7 +153,6 @@ class Messenger {
   loadMessages(params, firstLoad = false) {
     if(firstLoad) {
       this.offset = 0;
-      document.getElementById('messages').innerHTML = '';
     }
     params.take = this.limit;
     this.params = params;
@@ -159,7 +162,6 @@ class Messenger {
       if(messages.length < this.limit) {
         this.messagesWereLoaded = true;
       }
-      this.offset = this.offset + this.limit;
       if(!!messages[0].id) {
         this.scrollMessageId = messages[0].id;
       }
@@ -178,6 +180,7 @@ class Messenger {
           const messagesScroll = document.getElementById('messagesScroll');
           messagesScroll.scrollTop = messagesScroll.scrollHeight;
       }
+      this.offset = this.offset + this.limit;
     });
   }
 
@@ -228,10 +231,11 @@ class Messenger {
   }
 
   configureChat(item, messages, chats, users, update = false) {
+    const readMaxId = item.read_outbox_max_id >= item.read_inbox_max_id ? item.read_outbox_max_id : item.read_inbox_max_id;
     const chat = new Object({
       arrow: '',
-      arrowClass: item.read_outbox_max_id >= item.top_message ? 'arrow-read' : 'arrow',
-      lastReadId: item.read_outbox_max_id >= item.read_inbox_max_id ? item.read_outbox_max_id : item.read_inbox_max_id,
+      arrowClass: readMaxId >= item.top_message ? 'arrow-read' : 'arrow',
+      lastReadId: readMaxId,
       id: '',
       access_hash: '',
       avatar: '',
