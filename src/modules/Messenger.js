@@ -249,7 +249,6 @@ class Messenger {
       timestamp: '',
       type: '',
       unread_count: item.unread_count,
-      isChannel: false,
     });
 
     messages.forEach((message) => {
@@ -276,7 +275,6 @@ class Messenger {
           chat.id = channel.id;
           chat.title = channel.title;
           chat.access_hash = channel.access_hash ? channel.access_hash : '';
-          chat.isChannel = true;
           chat.avatar = channel.photo ? channel.photo.photo_small : '';
           chat.type = !!item.peer.channel_id ? 'channel' : 'chat';
           if(channel.pFlags.deactivated) {
@@ -504,14 +502,14 @@ class Messenger {
         }
         break;
       }
-      case "updateEditChannelMessage" : {
-        const { to_id } = update.message;
-        this.getChats(0, to_id.channel_id);
-        if(-this.currentChatId === to_id.channel_id) {
-          this.addMessage(update.message, true);
-        }
-        break;
-      }
+      // case "updateEditChannelMessage" : {
+      //   const { to_id } = update.message;
+      //   this.getChats(0, to_id.channel_id);
+      //   if(-this.currentChatId === to_id.channel_id) {
+      //     this.addMessage(update.message, true);
+      //   }
+      //   break;
+      // }
       case 'updateNewChannelMessage' : {
         const { to_id } = update.message;
         this.getChats(0, to_id.channel_id);
