@@ -50,19 +50,15 @@ class Messenger {
     const avatarId = `avatar-${chat.id}`;
     const avatarElement = document.getElementById(avatarId);
     const avatar = avatarElement.style.backgroundImage ? `background-image: ${avatarElement.style.backgroundImage}` : '';
-    if (avatarElement.innerText === '') {
-      if (!avatar) {
-        setTimeout(() => this.setChatInfo(chat), 500);
-      }
-    }
+    const bgColor = avatarElement.style.backgroundColor ? `background-color: ${avatarElement.style.backgroundColor}` : '';
     document.getElementById('chatInfo').innerHTML = `
     <div class="im__info-container">
       <div class="im__info-item">
-      <div class="im__info-item-avatar" style='${avatar || ''}'>
+      <div class="im__info-item-avatar" style='${avatar ? avatar : bgColor}'>
         ${!avatar ? avatarElement.innerText : ''}
       </div>
       <div class="im__info-item-title">
-      <div class="im__info-item-title-text">${chat.title ? chat.title : wordsList.deletedAccount}</div>
+      <div class="im__info-item-title-text">${chat.title ? chat.title : 'Deleted account'}</div>
       </div>
       <div class="im__info-item-status">Online</div>
       </div>
@@ -443,7 +439,6 @@ class Messenger {
     }
     if (update) {
       if (chat.pinned) {
-        debugger;
         if(document.getElementById(`chat-${chat.id}`)) {
           document.getElementById(`chat-${chat.id}`).innerHTML = chatView.innerHTML;
         } else {
