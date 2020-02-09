@@ -213,6 +213,7 @@ function TelegramApiModule(MtpApiManager, AppPeersManager, MtpApiFileManager, Ap
 
         Config.Server.Test = config.server.test;
         Config.Server.Production = config.server.production;
+        Config.Server.Https = config.server.https;
 
         MtpApiManager.getNetworker(options.dcID, {createNetworker: true});
     }
