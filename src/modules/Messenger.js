@@ -30,14 +30,14 @@ class Messenger {
     el.focus();
     if (typeof window.getSelection != "undefined"
       && typeof document.createRange != "undefined") {
-      var range = document.createRange();
+      const range = document.createRange();
       range.selectNodeContents(el);
       range.collapse(false);
-      var sel = window.getSelection();
+      const sel = window.getSelection();
       sel.removeAllRanges();
       sel.addRange(range);
     } else if (typeof document.body.createTextRange != "undefined") {
-      var textRange = document.body.createTextRange();
+      const textRange = document.body.createTextRange();
       textRange.moveToElementText(el);
       textRange.collapse(false);
       textRange.select();
@@ -144,13 +144,13 @@ class Messenger {
     }
   }
 
-  getMessageContent(item) {
+  getMessageContent(item, message) {
     console.log('getMessageContent', item);
     if(item.message) {
-      let textMessage = item.message;
+      const textMessageArr = item.message.split('');
+      this.createLineBreaks(textMessageArr);
       if(item.entities) {
-        const textMessageArr = textMessage.split('');
-        this.createLineBreaks(textMessageArr);
+
         item.entities.forEach((entity) => {
           const startChart = entity.offset;
           const endChart = entity.offset + entity.length - 1;
@@ -171,47 +171,68 @@ class Messenger {
               break;
             }
             case 'messageEntityMention' : {
-              const linkContent = textMessage.substring(startChart, endChart + 1);
+              const linkContent = item.message.substring(startChart, endChart + 1);
               textMessageArr[startChart] = `<a href="?mention=${linkContent}">` + textMessageArr[startChart];
               textMessageArr[endChart] = textMessageArr[endChart] + '</a>';
               break;
             }
             case 'messageEntityHashtag' : {
-              const linkContent = textMessage.substring(startChart, endChart + 1);
+              const linkContent = item.message.substring(startChart, endChart + 1);
               textMessageArr[startChart] = `<a href="?hash=${linkContent}">` + textMessageArr[startChart];
               textMessageArr[endChart] = textMessageArr[endChart] + '</a>';
               break;
             }
             case 'messageEntityUrl' : {
-              const linkContent = textMessage.substring(startChart, endChart + 1);
+              const linkContent = item.message.substring(startChart, endChart + 1);
               textMessageArr[startChart] = `<a href="${linkContent}" target="_blank">` + textMessageArr[startChart];
               textMessageArr[endChart] = textMessageArr[endChart] + '</a>';
               break;
             }
           }
         });
-        textMessage = textMessageArr.join('');
+
       }
-      return `<span class="messages__item-text-content">${textMessage}</span>`;
+      return `<div class="messages__item-text">
+                <span class="messages__item-text-content">${textMessageArr.join('')}</span>
+                <span class="messages__item-time">
+                  ${message.date}
+                  ${message.is_outgoing ? `${this.lastReadId >= item.id ? `<div class="arrow-read"></div>` : '<div class="arrow"></div>'}` : ''}
+                </span>
+              </div>`;
     }
     if(item.media) {
       switch(item.media['_']) {
         case 'messageMediaPhoto' : {
-            this.api.downloadPhoto(item.media.photo, () => {}, false, 2).then((response) => {
-              const blob = new Blob(response.bytes, {type: 'octet/stream'});
-              const img = document.createElement('img');
-              document.getElementById(`photo-${item.id}`).style.backgroundImage = `url(${URL.createObjectURL(blob)})`;
-            }).catch((e) => (e));
-            let captionText = '';
-            if(item.media.caption) {
-              const captionArr = item.media.caption.split('');
-              this.createLineBreaks(captionArr);
-              captionText = captionArr.join('');
-            }
-            const sizeObject = item.media.photo.sizes[item.media.photo.sizes.length - 2];
-            const proportionStyle = `padding-top: ${(sizeObject.h/sizeObject.w)*100}%`;
-            return `<div id="photo-${item.id}" style="${proportionStyle}" class="image-container"></div>
-              ${captionText ? `<span class="messages__item-text-content" style="display: block; max-width: ${sizeObject.w}px">${captionText}</span>` : '' }`;
+          this.api.downloadPhoto(item.media.photo, () => {}, false, 2).then((response) => {
+            const blob = new Blob(response.bytes, {type: 'octet/stream'});
+            document.getElementById(`photo-${item.id}`).style.backgroundImage = `url(${URL.createObjectURL(blob)})`;
+          }).catch((e) => (e));
+          let captionText = '';
+          if(item.media.caption) {
+            const captionArr = item.media.caption.split('');
+            this.createLineBreaks(captionArr);
+            captionText = captionArr.join('');
+          }
+          const sizeObject = item.media.photo.sizes[item.media.photo.sizes.length - 2];
+          const proportionStyle = `padding-top: ${(sizeObject.h/sizeObject.w)*100}%`;
+          if(captionText) {
+            return `<div class="messages__item-text messages__item-text_photo-cap">
+                      <div id="photo-${item.id}" style="${proportionStyle}" class="image-container"></div>
+                      ${captionText ? `<span class="messages__item-text-content" style="max-width: ${sizeObject.w}px">${captionText}</span>` : '' }
+                      <span class="messages__item-time">
+                        ${message.date}
+                        ${message.is_outgoing ? `${this.lastReadId >= item.id ? `<div class="arrow-read"></div>` : '<div class="arrow"></div>'}` : ''}
+                      </span>
+                    </div>`;
+          } else {
+            return `<div class="messages__item-text messages__item-text_photo">
+                      <div id="photo-${item.id}" style="${proportionStyle}" class="image-container"></div>
+                      <span class="messages__item-time">
+                        ${message.date}
+                        ${message.is_outgoing ? `${this.lastReadId >= item.id ? `<div class="arrow-read"></div>` : '<div class="arrow"></div>'}` : ''}
+                      </span>
+                    </div>`;
+          }
         }
       }
     }
@@ -220,12 +241,11 @@ class Messenger {
   addMessage(item, update = false, firstLoad = false) {
     const message = new Object({
       id: item.id,
-      message: this.getMessageContent(item),
       timestamp: item.date,
       date: getTime(item.date),
       is_outgoing: item.from_id === this.userAuth.id,
     });
-
+    const messageNode = this.getMessageContent(item, message);
     const messageView = document.createElement('div');
     messageView.className = `messages__item ${item.arrow ? 'messages__item_arrow' : ''}`;
     messageView.id = `message-${message.id}`;
@@ -235,13 +255,7 @@ class Messenger {
     }
     messageView.innerHTML = `
     <div class="messages__item-avatar"></div>
-    <div class="messages__item-text">
-      ${message.message}
-      <span class="messages__item-time">
-        ${message.is_outgoing ? `${this.lastReadId >= item.id ? `<div class="arrow-read"></div>` : '<div class="arrow"></div>'}` : ''}
-        ${message.date}
-      </span>
-    </div>`;
+    ${messageNode}`;
     if (!update) {
       document.getElementById('messages').prepend(messageView);
       if (firstLoad) {
