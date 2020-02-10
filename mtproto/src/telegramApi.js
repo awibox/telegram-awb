@@ -580,8 +580,9 @@ function TelegramApiModule(MtpApiManager, AppPeersManager, MtpApiFileManager, Ap
         return MtpApiManager.invokeApi('messages.getFullChat', {chat_id: chat_id});
     }
 
-    function downloadPhoto(photo, progress, autosave) {
-        var photoSize = photo.sizes[photo.sizes.length - 1];
+    function downloadPhoto(photo, progress, autosave, sizeOffset) {
+        var sizeOffset = sizeOffset ? sizeOffset : 1;
+        var photoSize = photo.sizes[photo.sizes.length - sizeOffset];
         var location = {
             _: 'inputFileLocation',
             local_id: photoSize.location.local_id,

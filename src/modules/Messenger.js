@@ -151,7 +151,6 @@ class Messenger {
       if(item.entities) {
         const textMessageArr = textMessage.split('');
         this.createLineBreaks(textMessageArr);
-        console.log('textMessageArr', textMessageArr)
         item.entities.forEach((entity) => {
           const startChart = entity.offset;
           const endChart = entity.offset + entity.length - 1;
@@ -177,6 +176,12 @@ class Messenger {
               textMessageArr[endChart] = textMessageArr[endChart] + '</a>';
               break;
             }
+            case 'messageEntityHashtag' : {
+              const linkContent = textMessage.substring(startChart, endChart + 1);
+              textMessageArr[startChart] = `<a href="?hash=${linkContent}">` + textMessageArr[startChart];
+              textMessageArr[endChart] = textMessageArr[endChart] + '</a>';
+              break;
+            }
             case 'messageEntityUrl' : {
               const linkContent = textMessage.substring(startChart, endChart + 1);
               textMessageArr[startChart] = `<a href="${linkContent}" target="_blank">` + textMessageArr[startChart];
@@ -187,9 +192,29 @@ class Messenger {
         });
         textMessage = textMessageArr.join('');
       }
-      return textMessage;
+      return `<span class="messages__item-text-content">${textMessage}</span>`;
     }
-
+    if(item.media) {
+      switch(item.media['_']) {
+        case 'messageMediaPhoto' : {
+            this.api.downloadPhoto(item.media.photo, () => {}, false, 2).then((response) => {
+              const blob = new Blob(response.bytes, {type: 'octet/stream'});
+              const img = document.createElement('img');
+              document.getElementById(`photo-${item.id}`).style.backgroundImage = `url(${URL.createObjectURL(blob)})`;
+            }).catch((e) => (e));
+            let captionText = '';
+            if(item.media.caption) {
+              const captionArr = item.media.caption.split('');
+              this.createLineBreaks(captionArr);
+              captionText = captionArr.join('');
+            }
+            const sizeObject = item.media.photo.sizes[item.media.photo.sizes.length - 2];
+            const proportionStyle = `padding-top: ${(sizeObject.h/sizeObject.w)*100}%`;
+            return `<div id="photo-${item.id}" style="${proportionStyle}" class="image-container"></div>
+              ${captionText ? `<span class="messages__item-text-content" style="display: block; max-width: ${sizeObject.w}px">${captionText}</span>` : '' }`;
+        }
+      }
+    }
   }
 
   addMessage(item, update = false, firstLoad = false) {
@@ -211,9 +236,7 @@ class Messenger {
     messageView.innerHTML = `
     <div class="messages__item-avatar"></div>
     <div class="messages__item-text">
-      <span class="messages__item-text-content">
       ${message.message}
-      </span>  
       <span class="messages__item-time">
         ${message.is_outgoing ? `${this.lastReadId >= item.id ? `<div class="arrow-read"></div>` : '<div class="arrow"></div>'}` : ''}
         ${message.date}
@@ -385,7 +408,6 @@ class Messenger {
       if(!chat.myChat) {
         if (!update || !!document.getElementById(`avatar-${chat.id}`)) {
           if (chat.avatar) {
-            console.log('chat.avatar', chat.avatar)
             const inputLocation = chat.avatar;
             inputLocation._ = 'inputFileLocation';
             this.api.invokeApi('upload.getFile', {
@@ -462,7 +484,7 @@ class Messenger {
           break;
         }
         default:
-          console.log('MEDIAA', message);
+          break;
       }
       return mediaType;
     }
