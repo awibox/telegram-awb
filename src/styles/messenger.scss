@@ -446,6 +446,9 @@ $topBarHeight: 60px;
         box-shadow: 11px 9px 0 4px #fff;
         display: none;
       }
+      img {
+        width: 100%;
+      }
     }
     &-time {
       position: relative;
@@ -536,4 +539,12 @@ only screen and (min-resolution: 144dpi)  {
     }
   }
 
+}
+
+.image-container {
+  width: 100%;
+  padding-top: 56.25%;
+  background-repeat: no-repeat;
+  background-size: contain;
+  margin-bottom: 10px;
 }
