@@ -137,11 +137,65 @@ class Messenger {
     }
   }
 
+  createLineBreaks(arr) {
+    if(arr.indexOf('\n') > 0) {
+      arr[arr.indexOf('\n')] = '<br/>';
+      this.createLineBreaks(arr);
+    }
+  }
+
+  getMessageContent(item) {
+    console.log('getMessageContent', item);
+    if(item.message) {
+      let textMessage = item.message;
+      if(item.entities) {
+        const textMessageArr = textMessage.split('');
+        this.createLineBreaks(textMessageArr);
+        console.log('textMessageArr', textMessageArr)
+        item.entities.forEach((entity) => {
+          const startChart = entity.offset;
+          const endChart = entity.offset + entity.length - 1;
+          switch (entity['_']) {
+            case 'messageEntityBold' : {
+              textMessageArr[startChart] = '<b>' + textMessageArr[startChart];
+              textMessageArr[endChart] = textMessageArr[endChart] + '</b>';
+              break;
+            }
+            case 'messageEntityItalic' : {
+              textMessageArr[startChart] = '<i>' + textMessageArr[startChart];
+              textMessageArr[endChart] = textMessageArr[endChart] + '</i>';
+              break;
+            }
+            case 'messageEntityTextUrl' : {
+              textMessageArr[startChart] = `<a href="${entity.url}" target="_blank">` + textMessageArr[startChart];
+              textMessageArr[endChart] = textMessageArr[endChart] + '</a>';
+              break;
+            }
+            case 'messageEntityMention' : {
+              const linkContent = textMessage.substring(startChart, endChart + 1);
+              textMessageArr[startChart] = `<a href="?mention=${linkContent}">` + textMessageArr[startChart];
+              textMessageArr[endChart] = textMessageArr[endChart] + '</a>';
+              break;
+            }
+            case 'messageEntityUrl' : {
+              const linkContent = textMessage.substring(startChart, endChart + 1);
+              textMessageArr[startChart] = `<a href="${linkContent}" target="_blank">` + textMessageArr[startChart];
+              textMessageArr[endChart] = textMessageArr[endChart] + '</a>';
+              break;
+            }
+          }
+        });
+        textMessage = textMessageArr.join('');
+      }
+      return textMessage;
+    }
+
+  }
+
   addMessage(item, update = false, firstLoad = false) {
-    console.log('item', item);
     const message = new Object({
       id: item.id,
-      message: item.message,
+      message: this.getMessageContent(item),
       timestamp: item.date,
       date: getTime(item.date),
       is_outgoing: item.from_id === this.userAuth.id,
