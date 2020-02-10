@@ -150,7 +150,6 @@ class Messenger {
       const textMessageArr = item.message.split('');
       this.createLineBreaks(textMessageArr);
       if(item.entities) {
-
         item.entities.forEach((entity) => {
           const startChart = entity.offset;
           const endChart = entity.offset + entity.length - 1;
@@ -229,9 +228,39 @@ class Messenger {
                       <div id="photo-${item.id}" style="${proportionStyle}" class="image-container"></div>
                       <span class="messages__item-time">
                         ${message.date}
-                        ${message.is_outgoing ? `${this.lastReadId >= item.id ? `<div class="arrow-read"></div>` : '<div class="arrow"></div>'}` : ''}
+                        ${message.is_outgoing ? `${this.lastReadId >= item.id ? `<div class="arrow-read arrow-read_white"></div>` : '<div class="arrow arrow_white"></div>'}` : ''}
                       </span>
                     </div>`;
+          }
+        }
+        case 'messageMediaDocument' : {
+          if(!!item.media.document.attributes[1]) {
+            if(item.media.document.attributes[1]['_'] === 'documentAttributeSticker') {
+              let base64;
+              if(!!item.media.document.thumb.bytes) {
+                base64 = `data:image/jpeg;base64,${btoa(String.fromCharCode.apply(null, item.media.document.thumb.bytes))}`;
+              } else {
+                const inputLocation = item.media.document.thumb.location;
+                inputLocation._ = 'inputFileLocation';
+                this.api.invokeApi('upload.getFile', {
+                  location: inputLocation,
+                  offset: 0,
+                  limit: 1024 * 1024,
+                }).then((response) => {
+                  console.log('response', response);
+                  const base64 = `data:image/jpeg;base64,${btoa(String.fromCharCode.apply(null, response.bytes))}`;
+                  document.getElementById(`sticker-${item.id}`).style.backgroundImage = `url(${base64})`;
+                });
+              }
+              return `
+                <div id="sticker-${item.id}" class="sticker-container" 
+                style="background-image: url(${base64}); width: ${item.media.document.thumb.w}px; height: ${item.media.document.thumb.h}px">
+                  <span class="messages__item-time">
+                    ${message.date}
+                    ${message.is_outgoing ? `${this.lastReadId >= item.id ? `<div class="arrow-read arrow-read_white"></div>` : '<div class="arrow arrow_white"></div>'}` : ''}
+                  </span>
+                </div>`;
+            }
           }
         }
       }
