@@ -173,11 +173,25 @@ $topBarHeight: 60px;
     outline: none;
     padding-top: 20px;
     margin-bottom: 20px;
+    font-size: 13px;
     line-height: 15px;
     box-sizing: border-box;
     max-height: 190px;
     overflow: auto;
     padding-right: 55px;
+    &:focus {
+      &:before {
+        display: none;
+      }
+    }
+    &:before {
+      content: attr(placeholder);
+      color: #9aa2ab;
+      display: block;
+      margin-top: -1px;
+      margin-left: 1px;
+      pointer-events: none;
+    }
   }
   &__files {
     background-image: url('img/icons/attach_svg.svg');
