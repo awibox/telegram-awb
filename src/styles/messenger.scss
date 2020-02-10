@@ -179,15 +179,15 @@ $topBarHeight: 60px;
     max-height: 190px;
     overflow: auto;
     padding-right: 55px;
-    &:focus {
+    &:empty {
       &:before {
-        display: none;
+        display: block;
       }
     }
     &:before {
       content: attr(placeholder);
       color: #9aa2ab;
-      display: block;
+      display: none;
       margin-top: -1px;
       margin-left: 1px;
       pointer-events: none;
