@@ -61,7 +61,8 @@ input {
   background-size: contain;
   width: 19px;
   height: 14px;
-  display: inline-flex;
+  display: inline-block;
+  margin-bottom: -3px;
 }
 
 .arrow-read {
@@ -71,7 +72,8 @@ input {
   background-size: contain;
   width: 19px;
   height: 14px;
-  display: inline-flex;
+  display: inline-block;
+  margin-bottom: -3px;
 }
 
 @media 	only screen and (-webkit-min-device-pixel-ratio: 1.5),
