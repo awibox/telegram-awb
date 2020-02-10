@@ -419,6 +419,9 @@ $topBarHeight: 60px;
             box-shadow: -5px 9px 0 4px #f1fee1;
           }
         }
+        &-time {
+          color: #60b458;
+        }
       }
     }
     &_arrow {
@@ -432,9 +435,15 @@ $topBarHeight: 60px;
       width: auto;
       background-color: #fff;
       border-radius: 10px;
+      font-size: 14px;
+      line-height: 18px;
       display: inline-block;
       padding: 10px;
       word-break: break-word;
+      a {
+        color: #4592e4;
+        text-decoration: none;
+      }
       &_photo-cap {
         padding: 0;
         .messages__item-text-content {
@@ -461,8 +470,11 @@ $topBarHeight: 60px;
           left: auto;
           top: auto;
           bottom: 3px;
-          right: 7px;
+          right: 3px;
           color: #fff;
+          padding: 1px 5px;
+          background: rgba(0, 0, 0, 0.3);
+          border-radius: 6px;
         }
       }
       &:after {
@@ -482,10 +494,12 @@ $topBarHeight: 60px;
       left: 0;
       top: 8px;
       display: inline-block;
-      color: #bbc0c4;
+      color: #99a1ac;
       pointer-events: none;
+      font-size: 11px;
       float: right;
       z-index: 10;
+      padding-left: 7px;
     }
   }
 }
@@ -574,4 +588,49 @@ only screen and (min-resolution: 144dpi)  {
   background-repeat: no-repeat;
   background-size: cover;
   background-color: #bbc0c4;
+}
+
+.sticker-container {
+  background-size: cover;
+  background-repeat: no-repeat;
+  position: relative;
+  .messages__item-time {
+    left: auto;
+    top: auto;
+    bottom: 0;
+    right: 0;
+    color: #fff;
+    position: absolute;
+    padding: 1px 5px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 6px;
+  }
+}
+
+.arrow {
+  background-image: url('img/icons/1check_svg.svg');
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  background-size: contain;
+  width: 18px;
+  height: 14px;
+  display: inline-block;
+  margin-bottom: -2px;
+  &_white {
+    background-image: url('img/icons/1check_svg_white.svg');
+  }
+}
+
+.arrow-read {
+  background-image: url('img/icons/2checks_svg.svg');
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  background-size: contain;
+  width: 18px;
+  height: 14px;
+  display: inline-block;
+  margin-bottom: -2px;
+  &_white {
+    background-image: url('img/icons/2checks_svg_white.svg');
+  }
 }
