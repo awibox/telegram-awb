@@ -173,10 +173,10 @@ $topBarHeight: 60px;
     outline: none;
     padding-top: 20px;
     margin-bottom: 20px;
-    font-size: 13px;
     line-height: 15px;
     box-sizing: border-box;
     max-height: 190px;
+    font-size: 14px;
     overflow: auto;
     padding-right: 55px;
     &:empty {
@@ -430,6 +430,17 @@ $topBarHeight: 60px;
         display: block;
       }
     }
+    &_channel {
+      width: 100%;
+      min-width: 100%;
+      max-width: 100%;
+      .messages__item-text {
+        width: 100%;
+        min-width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+    }
     &-text {
       max-width: 75%;
       width: auto;
@@ -591,9 +602,13 @@ only screen and (min-resolution: 144dpi)  {
 }
 
 .sticker-container {
-  background-size: cover;
+  background-size: contain;
+  background-position: 50% 50%;
   background-repeat: no-repeat;
   position: relative;
+  max-width: 128px;
+  min-width: 128px;
+  max-height: 128px;
   .messages__item-time {
     left: auto;
     top: auto;
