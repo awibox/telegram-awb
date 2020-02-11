@@ -20,6 +20,7 @@ class Messenger {
     this.chatsOffset = 0;
     this.chatsWereLoaded = false;
     this.lastReadId = 0;
+    this.currentChatType = '';
   }
 
   /**
@@ -116,6 +117,7 @@ class Messenger {
       type: chat.type
     };
     this.currentChatId = params.id;
+    this.currentChatType = chat.type;
     this.lastReadId = chat.lastReadId;
     this.loadMessages(params, true);
     document.getElementById('sendMessage').style.display = 'flex';
@@ -276,11 +278,11 @@ class Messenger {
     });
     const messageNode = this.getMessageContent(item, message);
     const messageView = document.createElement('div');
-    messageView.className = `messages__item ${item.arrow ? 'messages__item_arrow' : ''}`;
+    messageView.className = `messages__item ${item.arrow ? 'messages__item_arrow' : ''} ${this.currentChatType === 'channel' ? 'messages__item_channel' : ''}`;
     messageView.id = `message-${message.id}`;
     const isOutgoing = message.is_outgoing;
     if (isOutgoing) {
-      messageView.className = `messages__item messages__item_out ${item.arrow ? 'messages__item_arrow' : ''}`;
+      messageView.className = `messages__item messages__item_out ${item.arrow ? 'messages__item_arrow' : ''} ${this.currentChatType === 'channel' ? 'messages__item_channel' : ''}`;
     }
     messageView.innerHTML = `
     <div class="messages__item-avatar"></div>
