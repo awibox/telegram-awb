@@ -90,6 +90,7 @@ class Messenger {
     const avatar = avatarElement.cloneNode();
     const infoPageAvatar = avatarElement.cloneNode();
     avatar.innerHTML = avatarElement.innerHTML;
+    infoPageAvatar.innerHTML = avatarElement.innerHTML;
     document.getElementById('chatInfo').innerHTML = `
     <div class="im__info-container">
       <div id="chatInfoItem" class="chat-panel__item">
