@@ -120,7 +120,7 @@ class Messenger {
     this.currentChatType = chat.type;
     this.lastReadId = chat.lastReadId;
     this.loadMessages(params, true);
-    if(chat.type !== 'channel') {
+    if(chat.allowSend) {
       document.getElementById('sendMessage').style.display = 'flex';
     } else {
       document.getElementById('sendMessage').style.display = 'none';
@@ -287,7 +287,6 @@ class Messenger {
                 fileSize.size = (fileSize.size / 1024).toFixed(2);
                 fileSize.type = 'Gb';
               }
-
               return `<div class="messages__item-text">
                 <span class="messages__item-text-content">
                   <div id="file-${item.id}" class="file">
@@ -433,6 +432,7 @@ class Messenger {
     const chat = new Object({
       arrow: '',
       arrowClass: readMaxId >= item.top_message ? 'arrow-read' : 'arrow',
+      allowSend: false,
       lastReadId: readMaxId,
       id: '',
       access_hash: '',
@@ -466,6 +466,7 @@ class Messenger {
           chat.access_hash = user.access_hash ? user.access_hash : '';
           chat.avatar = user.photo ? user.photo.photo_small : '';
           chat.type = 'user';
+          chat.allowSend = true;
           if(user.pFlags.self) {
             chat.myChat = true;
             chat.title = 'Saved Messages';
@@ -485,6 +486,9 @@ class Messenger {
           chat.type = !!item.peer.channel_id ? 'channel' : 'chat';
           if(channel.pFlags.deactivated) {
             chat.id = 0;
+          }
+          if(channel.pFlags.creator || channel.pFlags.democracy) {
+            chat.allowSend = true;
           }
         }
       });
@@ -667,7 +671,6 @@ class Messenger {
         document.getElementById('chats').append(chatView);
       }
     }
-    console.log('RENDER CHAT')
   }
 
   deleteChat(id) {
