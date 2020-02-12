@@ -1,4 +1,4 @@
-import { getTime, transformDate } from 'utils/index';
+import { addClass, deleteClass, getTime, transformDate } from 'utils/index';
 import storage from 'utils/storage';
 import 'styles/messenger.scss';
 
@@ -88,6 +88,7 @@ class Messenger {
     const avatarId = `avatar-${chat.id}`;
     const avatarElement = document.getElementById(avatarId);
     const avatar = avatarElement.cloneNode();
+    const infoPageAvatar = avatarElement.cloneNode();
     avatar.innerHTML = avatarElement.innerHTML;
     document.getElementById('chatInfo').innerHTML = `
     <div class="im__info-container">
@@ -99,7 +100,7 @@ class Messenger {
       </div>
       ${chat.type === 'channel' || chat.type === 'chat' ? `
         ${chat.mute ? `
-        <div id="chatMute" class="chat-panel__icon">
+        <div id="chatMute" class="icon">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
             <g fill="none" fill-rule="evenodd">
               <polygon points="0 0 24 0 24 24 0 24"/>
@@ -108,7 +109,7 @@ class Messenger {
           </svg>
         </div>
         ` : `
-        <div id="chatMute" class="chat-panel__icon">
+        <div id="chatMute" class="icon">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
             <g fill="none" fill-rule="evenodd">
               <polygon points="0 0 24 0 24 24 0 24"/>
@@ -116,7 +117,7 @@ class Messenger {
             </g>
           </svg>
         </div>`}` : ''}
-      <div id="chatSearch" class="chat-panel__icon">
+      <div id="chatSearch" class="icon">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
           <g fill="none" fill-rule="evenodd">
             <polygon points="0 0 24 0 24 24 0 24"/>
@@ -124,7 +125,7 @@ class Messenger {
           </g>
         </svg>
       </div>
-      <div id="chatMore" class="chat-panel__icon">
+      <div id="chatMore" class="icon">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
           <g fill="none" fill-rule="evenodd">
             <polygon points="0 0 24 0 24 24 0 24"/>
@@ -133,7 +134,21 @@ class Messenger {
         </svg>
       </div>
     </div>`;
-    document.getElementById('chatInfoItem').prepend(avatar);
+    const chatInfoItem = document.getElementById('chatInfoItem');
+    const rightBar = document.getElementById('rightBar');
+    const infoPage = document.getElementById('infoPageAvatar');
+    const infoPageTitle = document.getElementById('infoPageTitle');
+    chatInfoItem.prepend(avatar);
+    chatInfoItem.addEventListener('click', () => {
+      rightBar.className = addClass(rightBar.className, 'im__rightBar_open');
+    });
+    setTimeout(() => {
+      infoPageAvatar.className = 'info-page__avatar';
+      infoPage.innerHTML = '';
+      infoPage.prepend(infoPageAvatar);
+      infoPageTitle.innerHTML = chat.title;
+    }, 500);
+
   }
 
   setActiveChat(chat) {
@@ -160,6 +175,8 @@ class Messenger {
     } else {
       document.getElementById('sendMessage').style.display = 'none';
     }
+    const rightBar = document.getElementById('rightBar');
+    rightBar.className = deleteClass(rightBar.className, 'im__rightBar_open');
   }
 
   /**

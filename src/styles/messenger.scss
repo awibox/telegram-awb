@@ -40,7 +40,12 @@ $topBarHeight: 60px;
   }
   &__rightBar {
     width: 0;
+    transition: width 0.5s;
     position: relative;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.24);
+    &_open {
+      width: 360px;
+    }
   }
   &__chats {
     @extend %layout;
@@ -132,20 +137,6 @@ $topBarHeight: 60px;
       top: 8px;
       left: $defaultIndent;
       text-transform: uppercase;
-    }
-  }
-  &__icon {
-    width: 42px;
-    height: 42px;
-    flex: 0 1 auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.5s;
-    border-radius: 50%;
-    cursor: pointer;
-    &:hover {
-      background-color: rgba(112, 117, 121, 0.08);
     }
   }
 }
@@ -710,5 +701,57 @@ only screen and (min-resolution: 144dpi)  {
   }
   &__size {
     color: #9aa2ab;
+  }
+}
+
+.right-bar {
+  min-width: 360px;
+  &__top {
+    display: flex;
+    flex-flow: row;
+    flex-wrap: nowrap;
+    height: 60px;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 0 15px;
+    justify-content: space-between;
+    &-title {
+      font-size: 18px;
+      width: 100%;
+      padding: 0 20px;
+    }
+  }
+}
+
+.info-page {
+  display: flex;
+  justify-content: center;
+  flex-flow: column;
+  align-items: center;
+  &__avatar {
+    width: 120px;
+    height: 120px;
+    background-size: cover;
+    border-radius: 50%;
+    margin-bottom: 25px;
+  }
+  &__title {
+    font-size: 20px;
+  }
+}
+
+.icon {
+  width: 42px;
+  min-width: 42px;
+  height: 42px;
+  flex: 0 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.5s;
+  border-radius: 50%;
+  cursor: pointer;
+  &:hover {
+    background-color: rgba(112, 117, 121, 0.08);
   }
 }
