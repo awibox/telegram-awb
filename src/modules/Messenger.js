@@ -120,7 +120,11 @@ class Messenger {
     this.currentChatType = chat.type;
     this.lastReadId = chat.lastReadId;
     this.loadMessages(params, true);
-    document.getElementById('sendMessage').style.display = 'flex';
+    if(chat.type !== 'channel') {
+      document.getElementById('sendMessage').style.display = 'flex';
+    } else {
+      document.getElementById('sendMessage').style.display = 'none';
+    }
   }
 
   /**
@@ -204,7 +208,7 @@ class Messenger {
     if(item.media) {
       switch(item.media['_']) {
         case 'messageMediaPhoto' : {
-          this.api.downloadPhoto(item.media.photo, () => {}, false, 2).then((response) => {
+          this.api.downloadPhoto(item.media.photo, () => {}, false, 1).then((response) => {
             const blob = new Blob(response.bytes, {type: 'octet/stream'});
             document.getElementById(`photo-${item.id}`).style.backgroundImage = `url(${URL.createObjectURL(blob)})`;
           }).catch((e) => (e));
@@ -264,9 +268,50 @@ class Messenger {
                 </div>`;
             }
           }
+          if(!!item.media.document.attributes[0]) {
+            if(item.media.document.attributes[0]['_'] === 'documentAttributeFilename') {
+              const fileName = item.media.document.attributes[0].file_name;
+              let fileSize = {
+                size: item.media.document.size,
+                type: 'B'
+              };
+              if(fileSize.size > 10240) {
+                fileSize.size = (fileSize.size / 1024).toFixed(2);
+                fileSize.type = 'Kb';
+              }
+              if(fileSize.size > 1024) {
+                fileSize.size = (fileSize.size / 1024).toFixed(2);
+                fileSize.type = 'Mb';
+              }
+              if(fileSize.size > 1024) {
+                fileSize.size = (fileSize.size / 1024).toFixed(2);
+                fileSize.type = 'Gb';
+              }
+
+              return `<div class="messages__item-text">
+                <span class="messages__item-text-content">
+                  <div id="file-${item.id}" class="file">
+                    <div class="file__icon"></div>
+                    <div>
+                      <div class="file__title">${fileName}</div> 
+                      <div class="file__size">${fileSize.size}${fileSize.type}</div> 
+                    </div>
+                  </div>
+                </span>
+                <span class="messages__item-time" style="margin-top: -18px">
+                  ${message.date}
+                  ${message.is_outgoing ? `${this.lastReadId >= item.id ? `<div class="arrow-read"></div>` : '<div class="arrow"></div>'}` : ''}
+                </span>
+              </div>`;
+            }
+          }
         }
       }
     }
+  }
+
+  downloadFile(doc) {
+    console.log('downloadFile', doc);
   }
 
   addMessage(item, update = false, firstLoad = false) {
@@ -455,11 +500,12 @@ class Messenger {
           if (chat.avatar) {
             const inputLocation = chat.avatar;
             inputLocation._ = 'inputFileLocation';
+            // debugger;
             this.api.invokeApi('upload.getFile', {
               location: inputLocation,
               offset: 0,
               limit: 1024 * 1024,
-            }).then((response) => {
+            }, {dcID: 2, createNetworker: true}).then((response) => {
               const base64 = `data:image/jpeg;base64,${btoa(String.fromCharCode.apply(null, response.bytes))}`;
               document.getElementById(`avatar-${chat.id}`).style.backgroundImage = `url(${base64})`;
             }).catch((error) => {

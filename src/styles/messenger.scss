@@ -119,7 +119,6 @@ $topBarHeight: 60px;
     width: 100%;
     min-height: 95px;
     max-height: 300px;
-    display: flex;
     justify-content: center;
     box-sizing: border-box;
     padding: 20px 70px;
@@ -457,12 +456,22 @@ $topBarHeight: 60px;
       }
       &_photo-cap {
         padding: 0;
+        position: relative;
         .messages__item-text-content {
-          padding: 10px;
           display: inline-block;
+          padding: 10px 10px 20px;
         }
         .image-container {
           border-radius: 10px 10px 0 0;
+        }
+        .messages__item-time {
+          position: absolute;
+          left: auto;
+          top: auto;
+          bottom: 3px;
+          right: 4px;
+          padding: 1px 5px;
+          border-radius: 6px;
         }
       }
       &_photo {
@@ -550,7 +559,6 @@ only screen and (min-resolution: 144dpi)  {
   right: 0;
   bottom: 0;
   z-index: 10;
-  display: flex;
   align-items: center;
   justify-content: center;
   background: rgba(255,255,255,0.5);
@@ -647,5 +655,30 @@ only screen and (min-resolution: 144dpi)  {
   margin-bottom: -2px;
   &_white {
     background-image: url('img/icons/2checks_svg_white.svg');
+  }
+}
+
+.file {
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+  cursor: pointer;
+  &__icon {
+    background-color: #4ba3e2;
+    background-image: url(img/icons/document_svg.svg);
+    background-size: 24px;
+    background-position: 55% 50%;
+    background-repeat: no-repeat;
+    border-radius: 50%;
+    box-sizing: border-box;
+    width: 48px;
+    height: 48px;
+    margin-right: 10px;
+  }
+  &__title {
+    font-weight: bold;
+  }
+  &__size {
+    color: #9aa2ab;
   }
 }
