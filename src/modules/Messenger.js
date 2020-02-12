@@ -537,6 +537,7 @@ class Messenger {
           chat.access_hash = channel.access_hash ? channel.access_hash : '';
           chat.avatar = channel.photo ? channel.photo.photo_small : '';
           chat.type = !!item.peer.channel_id ? 'channel' : 'chat';
+          chat.allowSend = !!item.peer.chat_id;
           if(channel.pFlags.deactivated) {
             chat.id = 0;
           }
