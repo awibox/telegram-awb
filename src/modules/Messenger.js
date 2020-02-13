@@ -1,6 +1,7 @@
-import { addClass, deleteClass, getTime, transformDate } from 'utils/index';
+import { addClass, deleteClass, getTime, numberStabilization, transformDate } from 'utils/index';
 import storage from 'utils/storage';
 import 'styles/messenger.scss';
+import { getMessageDate } from 'utils';
 
 class Messenger {
   constructor() {
@@ -21,6 +22,8 @@ class Messenger {
     this.chatsWereLoaded = false;
     this.lastReadId = 0;
     this.currentChatType = '';
+    this.currentDate = new Date();
+    this.months = ['January', 'February', 'March', 'April', 'May', 'June', 'July','August','September','October','November','December'];
   }
 
   /**
@@ -181,6 +184,7 @@ class Messenger {
     };
     this.currentChatId = params.id;
     this.currentChatType = chat.type;
+    this.currentDate = new Date();
     this.lastReadId = chat.lastReadId;
     this.loadMessages(params, true);
     if(chat.allowSend) {
@@ -397,6 +401,13 @@ class Messenger {
     <div class="messages__item-avatar"></div>
     ${messageNode}`;
     if (!update) {
+      const messageDate = this.getMessageDate(this.currentDate, item.date);
+      if(!!messageDate) {
+        const messageDateObj = document.createElement('div');
+        messageDateObj.className = 'messages__date';
+        messageDateObj.innerHTML = `<span>${messageDate}</span>`;
+        document.getElementById('messages').prepend(messageDateObj);
+      }
       document.getElementById('messages').prepend(messageView);
       if (firstLoad) {
           const messagesScroll = document.getElementById('messagesScroll');
@@ -409,6 +420,27 @@ class Messenger {
       document.getElementById('messages').append(messageView);
       const messagesScroll = document.getElementById('messagesScroll');
       messagesScroll.scrollTop = messagesScroll.scrollHeight;
+    }
+  }
+
+  getMessageDate(firstDate, secondDate) {
+    const lastDate = new Date(firstDate);
+    const currentDate = new Date(secondDate*1000);
+    const newDate = new Date();
+    const lastDateIso = `${numberStabilization(lastDate.getDate())}.${numberStabilization(lastDate.getMonth() + 1)}.${lastDate.getFullYear()}`;
+    const currentDateIso = `${numberStabilization(currentDate.getDate())}.${numberStabilization(currentDate.getMonth() + 1)}.${currentDate.getFullYear()}`;
+    const newDateIso = `${numberStabilization(newDate.getDate())}.${numberStabilization(newDate.getMonth() + 1)}.${newDate.getFullYear()}`;
+    if(lastDateIso !== currentDateIso) {
+      this.currentDate = currentDate;
+      const newDateArray = newDateIso.split('.');
+      const currentDateArray = lastDateIso.split('.');
+      if(newDateArray[2] === currentDateArray[2] && newDateArray[1] === currentDateArray[1] && newDateArray[0] === currentDateArray[0]) {
+        return 'Today';
+      } else if (newDateArray[2] === currentDateArray[2] && newDateArray[1] === currentDateArray[1] && newDateArray[0] - currentDateArray[0] === 1) {
+        return 'Yesterday';
+      } else {
+        return `${currentDateArray[0]} ${this.months[(currentDateArray[1] - 1)]}`
+      }
     }
   }
 
@@ -672,7 +704,7 @@ class Messenger {
       }
       return mediaType;
     }
-    // TODO Indetify users
+    // TODO Identify users
     if (message['_'] === 'messageService') {
       let messageService;
       switch (message.action['_']) {
