@@ -39,6 +39,8 @@ class Confirm {
                 password.render();
               });
             });
+          } else if (error.type === 'PHONE_NUMBER_UNOCCUPIED') {
+
           } else {
             console.error(error);
             if(error.code !== 420) {
