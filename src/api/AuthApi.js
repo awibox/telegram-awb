@@ -21,11 +21,11 @@ class AuthApi {
     return this.client.invokeApi('auth.sendCode', request, this.options);
   }
   checkConfirmCode(phoneNumber, phoneCodeHash, phoneCode) {
-    return this.client.signIn(phoneNumber, phoneCodeHash, phoneCode).then((data) => {
-      console.log("signIn success", data);
-    }, (error) => {
-      console.log('Sign In error', error);
-    });
+    return this.client.signIn(phoneNumber, phoneCodeHash, phoneCode)
+  }
+
+  getPasswordState() {
+    return this.client.invokeApi('account.getPassword', {}, this.options);
   }
 
   checkPassword(salt, password) {
