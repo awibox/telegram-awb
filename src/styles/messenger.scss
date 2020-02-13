@@ -421,6 +421,19 @@ $topBarHeight: 60px;
   min-height: 100%;
   box-sizing: border-box;
   margin: 0 auto;
+  &__date {
+    display: block;
+    text-align: center;
+    padding: 10px;
+    span {
+      padding: 3px 8px;
+      background: rgba(0,0,0,0.4);
+      border-radius: 10px;
+      font-size: 13px;
+      display: inline-block;
+      color: #fff;
+    }
+  }
   &__item {
     padding: 0 10px;
     margin-bottom: 5px;
