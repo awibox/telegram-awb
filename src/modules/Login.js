@@ -1,7 +1,6 @@
 import AuthApi from 'api/AuthApi';
 import Confirm from 'modules/Confirm';
 import { Countries, addClass, deleteClass } from 'utils/index';
-import storage from 'utils/storage';
 import 'styles/login.scss';
 
 class Login {
@@ -28,12 +27,6 @@ class Login {
         this.state.phoneNumberSendButton.innerText = 'NEXT';
       }, 3000);
       this.api.sendCode(phoneNumber).then((response) => {
-        console.log(response);
-        true;
-        'd3043ff46db65c1a81';
-        3600;
-        false;
-        console.log('phone_registered', response.phone_registered);
         const phoneCodeHash = response.phone_code_hash;
         const answerType = response._;
         this.router.goToRoute('confirm.html', () => {

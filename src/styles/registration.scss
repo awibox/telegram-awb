@@ -43,7 +43,7 @@ $titleSize: 32px;
     width: 100%;
     box-sizing: border-box;
     border-radius: 7px;
-    border: 2px solid #4ea4f7;
+    border: 2px solid #cfd1d7;
     position: relative;
     margin-bottom: 25px;
     &-label {
@@ -51,7 +51,7 @@ $titleSize: 32px;
       font-size: 12px;
       top: -16px;
       left: 15px;
-      color: #4ea4f7;
+      color: #cfd1d7;
       font-weight: 600;
       background: #fff;
       padding: 0 3px;
@@ -70,9 +70,14 @@ $titleSize: 32px;
       box-sizing: border-box;
     }
     &_active {
-      border-color: #4ea4f7;
       .registration__input-label {
         display: block;
+      }
+    }
+    &_focused {
+      border-color: #4ea4f7;
+      .registration__input-label {
+        color: #4ea4f7;
       }
     }
     &_error {

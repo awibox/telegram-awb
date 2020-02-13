@@ -1,19 +1,23 @@
-import * as storage from 'utils/storage';
+import storage from 'utils/storage';
 import 'styles/registration.scss';
+import { addClass, deleteClass } from 'utils';
+import Messenger from 'modules/Messenger';
 
 class Registration {
-  constructor(client, state) {
-    this.client = client;
-    this.state = state;
+  constructor(router, phoneNumber, phoneCodeHash, confirmCode) {
+    this.client = telegramApi;
+    this.router = router;
+    this.phoneNumber = phoneNumber;
+    this.phoneCodeHash = phoneCodeHash;
+    this.confirmCode = confirmCode;
     this.isReadyForSending = true;
-    this.invalid = false;
   }
 
   onChangeName(name, nameContainer) {
     if (name.length > 0) {
-      nameContainer.className = `registration__input registration__input_active ${this.invalid ? 'registration__input_error' : ''}`;
+      nameContainer.className = addClass(nameContainer.className, 'registration__input_active');
     } else {
-      nameContainer.className = `registration__input ${this.invalid ? 'registration__input_error' : ''}`;
+      nameContainer.className = deleteClass(nameContainer.className, 'registration__input_active');
     }
   }
 
@@ -25,15 +29,26 @@ class Registration {
         this.isReadyForSending = true;
         registrationSendButton.innerText = 'Start Messaging';
       }, 3000);
-      this.client.send({
-        '@type': 'registerUser',
-        first_name: registrationNameInput.value,
-        last_name: registrationLastNameInput.value,
-      }).catch(() => {
-        registrationName.className = 'registration__input registration__input_error';
-        this.invalid = true;
+      this.client.signUp(this.phoneNumber, this.phoneCodeHash, this.confirmCode, registrationNameInput.value, registrationLastNameInput.value).then(() => {
+        this.router.goToRoute('im.html', () => {
+          const messenger = new Messenger();
+          messenger.render();
+        });
+      }).catch((error) => {
+        console.error(error);
+        registrationName.className = addClass(registrationName, 'registration__input_error');
       });
     }
+  }
+
+  onFocusName(registrationNameInput, registrationLastNameInput) {
+    registrationNameInput.className = addClass(registrationNameInput.className, 'registration__input_focused');
+    registrationLastNameInput.className = deleteClass(registrationLastNameInput.className, 'registration__input_focused');
+  }
+
+  onFocusLastName(registrationNameInput, registrationLastNameInput) {
+    registrationNameInput.className = deleteClass(registrationNameInput.className, 'registration__input_focused');
+    registrationLastNameInput.className = addClass(registrationLastNameInput.className, 'registration__input_focused');
   }
 
   render() {
@@ -45,6 +60,8 @@ class Registration {
     registrationNameInput.addEventListener('keyup', () => this.onChangeName(registrationNameInput.value, registrationName));
     registrationLastNameInput.addEventListener('keyup', () => this.onChangeName(registrationLastNameInput.value, registrationLastName));
     registrationSendButton.addEventListener('click', () => this.sendData(registrationSendButton, registrationName, registrationNameInput, registrationLastNameInput));
+    registrationName.addEventListener('focusin', () => this.onFocusName(registrationName, registrationLastName));
+    registrationLastName.addEventListener('focusin', () => this.onFocusLastName(registrationName, registrationLastName));
   }
 }
 export default Registration;

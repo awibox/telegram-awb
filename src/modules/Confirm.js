@@ -1,5 +1,6 @@
 import AuthApi from 'api/AuthApi';
 import Password from 'modules/Password';
+import Registration from 'modules/Registration';
 import { addClass, deleteClass } from 'utils/index';
 import 'styles/confirm.scss';
 import Messenger from 'modules/Messenger';
@@ -25,8 +26,7 @@ class Confirm {
     }
     if (confirmCode.length === 5) {
       this.api.checkConfirmCode(this.phoneNumber, this.phoneCodeHash, confirmCode)
-        .then((response) => {
-          console.log('response', response);
+        .then(() => {
           this.router.goToRoute('im.html', () => {
             const messenger = new Messenger();
             messenger.render();
@@ -40,7 +40,10 @@ class Confirm {
               });
             });
           } else if (error.type === 'PHONE_NUMBER_UNOCCUPIED') {
-
+            this.router.goToRoute('registration.html', () => {
+              const registration = new Registration(this.router, this.phoneNumber, this.phoneCodeHash, confirmCode);
+              registration.render();
+            });
           } else {
             console.error(error);
             if(error.code !== 420) {
