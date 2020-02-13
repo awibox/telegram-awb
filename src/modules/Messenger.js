@@ -883,6 +883,12 @@ class Messenger {
       } else {
         chatsPanelDropDown.style.display = 'none';
       }
+    });
+    document.getElementById('logOut').addEventListener('click', () => {
+      this.api.logOut().then((response) => {
+        console.log('logOut', response);
+        storage.remove('user_auth');
+      })
     })
   }
 }
