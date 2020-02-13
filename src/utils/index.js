@@ -29,7 +29,7 @@ export function transformDate(date) {
     const month = numberStabilization(dateObj.getMonth() + 1);
     const day = numberStabilization(dateObj.getDate());
     const year = (`${dateObj.getFullYear()}`).replace('20', '');
-    dateView = `${month}/${day}/${year}`;
+    dateView = `${day}.${month}.${year}`;
   }
   return dateView;
 }

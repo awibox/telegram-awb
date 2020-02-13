@@ -91,13 +91,21 @@ class Messenger {
     const infoPageAvatar = avatarElement.cloneNode();
     avatar.innerHTML = avatarElement.innerHTML;
     infoPageAvatar.innerHTML = avatarElement.innerHTML;
+    let status;
+    if(chat.type === 'user') {
+      status = chat.status ? chat.status : 'service notifications';
+    } else if (chat.type === 'chat') {
+      status = chat.members ? `${chat.members} members` : 'chat';
+    } else {
+      status = 'channel';
+    }
     document.getElementById('chatInfo').innerHTML = `
     <div class="im__info-container">
       <div id="chatInfoItem" class="chat-panel__item">
       <div class="chat-panel__item-title">
         <div class="chat-panel__item-title-text">${chat.title ? chat.title : ''}</div>
       </div>
-      <div class="chat-panel__item-status">Online</div>
+      ${status ? `<div class="chat-panel__item-status">${status}</div>` : ''}
       </div>
       ${chat.type === 'channel' || chat.type === 'chat' ? `
         ${chat.mute ? `
@@ -484,6 +492,20 @@ class Messenger {
     }
   }
 
+  getStatus(status) {
+    switch (status['_']) {
+      case 'userStatusOffline' : {
+        return `last seen ${transformDate(status.was_online)}`
+      }
+      case 'userStatusRecently' : {
+        return 'last seen recently'
+      }
+      case 'userStatusOnline' : {
+        return '<span>online</span>'
+      }
+    }
+  }
+
   configureChat(item, messages, chats, users, update = false) {
     const readMaxId = item.read_outbox_max_id >= item.read_inbox_max_id ? item.read_outbox_max_id : item.read_inbox_max_id;
     const chat = new Object({
@@ -505,6 +527,10 @@ class Messenger {
       type: '',
       myChat: false,
       unread_count: item.unread_count,
+      phone: '',
+      status: '',
+      members: '',
+      username: ''
     });
 
     messages.forEach((message) => {
@@ -523,6 +549,9 @@ class Messenger {
           chat.access_hash = user.access_hash ? user.access_hash : '';
           chat.avatar = user.photo ? user.photo.photo_small : '';
           chat.type = 'user';
+          chat.phone = user.phone ? user.phone : '';
+          chat.username = user.username ? user.username : '';
+          chat.status = user.status ? this.getStatus(user.status) : '';
           chat.allowSend = true;
           if(user.pFlags.self) {
             chat.myChat = true;
@@ -542,6 +571,8 @@ class Messenger {
           chat.avatar = channel.photo ? channel.photo.photo_small : '';
           chat.type = !!item.peer.channel_id ? 'channel' : 'chat';
           chat.allowSend = !!item.peer.chat_id;
+          chat.members = channel.participants_count ? channel.participants_count : '';
+          chat.username = channel.username ? channel.username : '';
           if(channel.pFlags.deactivated) {
             chat.id = 0;
           }
