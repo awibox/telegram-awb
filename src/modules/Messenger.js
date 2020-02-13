@@ -143,6 +143,10 @@ class Messenger {
     chatInfoItem.addEventListener('click', () => {
       rightBar.className = addClass(rightBar.className, 'im__rightBar_open');
     });
+    const closeRightBar = document.getElementById('closeRightBar');
+    closeRightBar.addEventListener('click', () => {
+      rightBar.className = deleteClass(rightBar.className, 'im__rightBar_open');
+    });
     setTimeout(() => {
       infoPageAvatar.className = 'info-page__avatar';
       infoPage.innerHTML = '';
