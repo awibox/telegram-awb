@@ -252,19 +252,14 @@ $topBarHeight: 60px;
   height: $topBarHeight;
   display: flex;
   flex-flow: row;
-  &__menu {
-    background-image: url(img/icons/menu_1x.png);
-    background-repeat: no-repeat;
-    background-size: 24px;
-    background-position: 50% 50%;
-    width: 24px;
-    height: 24px;
-    padding: 18px 20px;
+  align-items: center;
+  flex-wrap: nowrap;
+  .icon {
+    margin: 0 10px;
   }
   &__search {
     height: 42px;
     width: 100%;
-    margin-top: 8px;
     margin-right: 20px;
     background: #F4F4F5;
     border-radius: 21px;
@@ -761,8 +756,39 @@ only screen and (min-resolution: 144dpi)  {
   justify-content: center;
   transition: background-color 0.5s;
   border-radius: 50%;
+  position: relative;
   cursor: pointer;
   &:hover {
     background-color: rgba(112, 117, 121, 0.08);
+  }
+}
+.dropdown {
+  position: absolute;
+  width: 218px;
+  top: 52px;
+  left: 0;
+  z-index: 99;
+  flex-flow: column;
+  flex-wrap: nowrap;
+  background: #fff;
+  border-radius: 5px;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.24);
+  transition: background-color 0.3s;
+  display: none;
+  &__item {
+    display: flex;
+    flex-flow: row;
+    flex-wrap: nowrap;
+    padding: 14px;
+    user-select: none;
+    align-items: center;
+    &-title {
+      padding-left: 14px;
+      font-size: 16px;
+      color: #000;
+    }
+    &:hover {
+      background-color: #f1f3f4;
+    }
   }
 }
