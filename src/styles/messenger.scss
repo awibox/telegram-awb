@@ -22,6 +22,7 @@ $topBarHeight: 60px;
   flex-wrap: nowrap;
   justify-content: space-between;
   height: 100%;
+  overflow: hidden;
   &__leftBar {
     width: $chatListWidth;
     min-width: $chatListWidth;
@@ -81,6 +82,9 @@ $topBarHeight: 60px;
       flex-wrap: nowrap;
       align-items: center;
       justify-content: space-between;
+      .icon {
+        margin-right: 10px;
+      }
     }
   }
   &__send-messages {
@@ -115,9 +119,13 @@ $topBarHeight: 60px;
         font-weight: bold;
         white-space: nowrap;
         overflow: hidden;
-        font-size: 13px;
+        font-size: 14px;
         text-overflow: ellipsis;
       }
+    }
+    &-status {
+      color: #666b6e;
+      font-size: 13px;
     }
     .chats__item-avatar {
       background-color: #d2d2d2;
@@ -703,7 +711,6 @@ only screen and (min-resolution: 144dpi)  {
     color: #9aa2ab;
   }
 }
-
 .right-bar {
   min-width: 360px;
   &__top {
