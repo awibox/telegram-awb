@@ -6,9 +6,6 @@ import apiConfig from 'config/api';
 
 import Messenger from 'modules/Messenger';
 import Login from 'modules/Login';
-import Confirm from 'modules/Confirm';
-import Password from 'modules/Password';
-import Registration from 'modules/Registration';
 
 
 class App {
