@@ -876,6 +876,14 @@ class Messenger {
     document.getElementById('messagesScroll').onscroll = () => this.scrollMessages();
     document.getElementById('sendButton').addEventListener('click', () => this.sendMessage());
     document.getElementById('sendInput').addEventListener('keydown', (e) => this.onKeyDownInput(e))
+    const chatsPanelDropDown = document.getElementById('chatsPanelDropDown');
+    document.getElementById('chatsPanelMenu').addEventListener('click', () => {
+      if(chatsPanelDropDown.style.display === 'none' || chatsPanelDropDown.style.display === '') {
+        chatsPanelDropDown.style.display = 'flex';
+      } else {
+        chatsPanelDropDown.style.display = 'none';
+      }
+    })
   }
 }
 export default Messenger;
