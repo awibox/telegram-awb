@@ -1,10 +1,11 @@
 import { addClass, deleteClass, getTime, numberStabilization, transformDate } from 'utils/index';
 import storage from 'utils/storage';
 import 'styles/messenger.scss';
-import { getMessageDate } from 'utils';
+import Login from 'modules/Login';
 
 class Messenger {
-  constructor() {
+  constructor(router) {
+    this.router = router;
     // API
     this.api = telegramApi;
     // Storage
@@ -907,7 +908,7 @@ class Messenger {
     document.getElementById('chatsScroll').onscroll = () => this.scrollChats();
     document.getElementById('messagesScroll').onscroll = () => this.scrollMessages();
     document.getElementById('sendButton').addEventListener('click', () => this.sendMessage());
-    document.getElementById('sendInput').addEventListener('keydown', (e) => this.onKeyDownInput(e))
+    document.getElementById('sendInput').addEventListener('keydown', (e) => this.onKeyDownInput(e));
     const chatsPanelDropDown = document.getElementById('chatsPanelDropDown');
     document.getElementById('chatsPanelMenu').addEventListener('click', () => {
       if(chatsPanelDropDown.style.display === 'none' || chatsPanelDropDown.style.display === '') {
@@ -918,8 +919,11 @@ class Messenger {
     });
     document.getElementById('logOut').addEventListener('click', () => {
       this.api.logOut().then((response) => {
-        console.log('logOut', response);
         storage.remove('user_auth');
+        this.router.goToRoute('login.html', () => {
+          const login = new Login(this.router);
+          login.render();
+        });
       })
     })
   }

@@ -28,7 +28,7 @@ class Confirm {
       this.api.checkConfirmCode(this.phoneNumber, this.phoneCodeHash, confirmCode)
         .then(() => {
           this.router.goToRoute('im.html', () => {
-            const messenger = new Messenger();
+            const messenger = new Messenger(this.router);
             messenger.render();
           });
         }).catch((error) => {
