@@ -26,7 +26,7 @@ class App {
     ]);
     if (this.isAuth) {
       this.router.goToRoute('im.html', () => {
-        const messenger = new Messenger();
+        const messenger = new Messenger(this.router);
         messenger.render();
       });
     } else {
