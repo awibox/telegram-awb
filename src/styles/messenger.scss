@@ -103,7 +103,7 @@ $topBarHeight: 60px;
   &__item {
     $avatarSize: 44px;
     min-height: $topBarHeight;
-    padding: 10px 70px;
+    padding: 10px 10px 10px 70px;
     box-sizing: border-box;
     margin: 0 8px;
     position: relative;
@@ -743,7 +743,7 @@ only screen and (min-resolution: 144dpi)  {
   justify-content: center;
   flex-flow: column;
   align-items: center;
-  &__avatar {
+  .chats__item-avatar {
     width: 120px;
     height: 120px;
     background-size: cover;
@@ -753,9 +753,12 @@ only screen and (min-resolution: 144dpi)  {
     text-align: center;
     color: #fff;
     font-size: 48px;
+    position: static;
   }
   &__title {
     font-size: 20px;
+    padding: 0 35px;
+    text-align: center;
   }
 }
 
