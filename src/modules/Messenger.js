@@ -436,7 +436,11 @@ class Messenger {
       const newDateArray = newDateIso.split('.');
       const currentDateArray = lastDateIso.split('.');
       if(newDateArray[2] === currentDateArray[2] && newDateArray[1] === currentDateArray[1] && newDateArray[0] === currentDateArray[0]) {
-        return 'Today';
+        if(document.getElementById('messages').children.length) {
+          return 'Today';
+        } else {
+          return ''
+        }
       } else if (newDateArray[2] === currentDateArray[2] && newDateArray[1] === currentDateArray[1] && newDateArray[0] - currentDateArray[0] === 1) {
         return 'Yesterday';
       } else {
