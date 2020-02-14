@@ -15,7 +15,7 @@ class Password {
     this.api.checkPassword(this.salt, passwordCode).then((response) => {
       console.log('this.api.checkPassword !!!!!!!!!!!', response);
       this.router.goToRoute('im.html', () => {
-        const messenger = new Messenger();
+        const messenger = new Messenger(this.router);
         messenger.render();
       });
     }).catch((error) => {

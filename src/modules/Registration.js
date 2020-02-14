@@ -31,7 +31,7 @@ class Registration {
       }, 3000);
       this.client.signUp(this.phoneNumber, this.phoneCodeHash, this.confirmCode, registrationNameInput.value, registrationLastNameInput.value).then(() => {
         this.router.goToRoute('im.html', () => {
-          const messenger = new Messenger();
+          const messenger = new Messenger(this.router);
           messenger.render();
         });
       }).catch((error) => {
