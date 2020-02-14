@@ -160,7 +160,6 @@ class Messenger {
       rightBar.className = deleteClass(rightBar.className, 'im__rightBar_open');
     });
     setTimeout(() => {
-      infoPageAvatar.className = 'info-page__avatar';
       infoPage.innerHTML = '';
       infoPage.prepend(infoPageAvatar);
       infoPageTitle.innerHTML = chat.title;
