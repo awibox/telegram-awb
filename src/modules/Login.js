@@ -45,7 +45,7 @@ class Login {
     } else {
       this.state.phoneNumberInput.className = deleteClass(this.state.phoneNumberInput.className, 'login__input_active');
     }
-    if (phoneNumber.length > 2) {
+    if (phoneNumber.length > 10) {
       this.state.phoneNumberSendButton.className = addClass(this.state.phoneNumberSendButton.className, 'show');
     } else {
       this.state.phoneNumberSendButton.className = deleteClass(this.state.phoneNumberSendButton.className, 'show');
