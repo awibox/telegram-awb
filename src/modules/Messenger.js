@@ -208,8 +208,6 @@ class Messenger {
     this.loadMessages(params, true);
     if(chat.allowSend) {
       document.getElementById('sendMessage').style.display = 'flex';
-      document.getElementById('sendFile').removeEventListener('change', () => this.uploadFile(params));
-      document.getElementById('sendFile').addEventListener('change', () => this.uploadFile(params));
     } else {
       document.getElementById('sendMessage').style.display = 'none';
     }
@@ -217,11 +215,11 @@ class Messenger {
     rightBar.className = deleteClass(rightBar.className, 'im__rightBar_open');
   }
 
-  uploadFile(params) {
+  uploadFile() {
     const file = document.getElementById('sendFile').files[0];
     this.api.sendFile({
-      id: params.id,
-      type: params.type,
+      id: this.params.id,
+      type: this.params.type,
       file: file,
       caption: ''
     }).then((response) => {
@@ -852,13 +850,15 @@ class Messenger {
           self.checkUpdate(item)
         }
       })
+    } else if(update['_'] === "rpc_result") {
+      this.onUpdate(update.result);
     } else {
       self.checkUpdate(update)
     }
   }
 
   checkUpdate(update) {
-    // console.log('checkUpdate', update);
+    console.log('checkUpdate', update);
     switch (update['_']) {
       case 'updateNewMessage' : {
         const { from_id, to_id } = update.message;
@@ -876,14 +876,6 @@ class Messenger {
         }
         break;
       }
-      // case "updateEditChannelMessage" : {
-      //   const { to_id } = update.message;
-      //   this.getChats(0, to_id.channel_id);
-      //   if(-this.currentChatId === to_id.channel_id) {
-      //     this.addMessage(update.message, true);
-      //   }
-      //   break;
-      // }
       case 'updateNewChannelMessage' : {
         const { to_id } = update.message;
         this.getChats(0, to_id.channel_id);
@@ -940,7 +932,7 @@ class Messenger {
         storage.setObject('user_auth', result.user);
         self.userAuth = result.user;
         self.getChats();
-        self.api.subscribe(result.user.id, (update) => selt.onUpdate(update));
+        self.api.subscribe(result.user.id, (update) => self.onUpdate(update));
       });
     }
     document.getElementById('chatsScroll').onscroll = () => this.scrollChats();
@@ -963,7 +955,8 @@ class Messenger {
           login.render();
         });
       })
-    })
+    });
+    document.getElementById('sendFile').addEventListener('change', () => this.uploadFile());
   }
 }
 export default Messenger;
