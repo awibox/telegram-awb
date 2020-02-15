@@ -730,6 +730,11 @@ $topBarHeight: 60px;
   flex-flow: row;
   align-items: center;
   cursor: pointer;
+  &_downloaded {
+    .file__icon {
+      background-image: url(img/icons/download_svg.svg);
+    }
+  }
   &__icon {
     background-color: #4ba3e2;
     background-image: url(img/icons/document_svg.svg);
@@ -739,6 +744,7 @@ $topBarHeight: 60px;
     border-radius: 50%;
     box-sizing: border-box;
     width: 48px;
+    min-width: 48px;
     height: 48px;
     margin-right: 10px;
   }
