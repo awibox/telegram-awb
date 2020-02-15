@@ -22,9 +22,13 @@ $titleSize: 32px;
     min-height: $imgSize;
     width: $imgSize;
     min-width: $imgSize;
-    background-image: url(img/registration__img@1x.png);
-    background-size: contain;
     margin-bottom: 45px;
+    background-color: #2590FD;
+    background-image: url('img/icons/cameraadd_svg.svg');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 48px;
+    border-radius: 50%;
   }
   &__title {
     font-size: $titleSize;
@@ -106,17 +110,5 @@ $titleSize: 32px;
     text-align: center;
     user-select: none;
     margin-bottom: 25px;
-  }
-}
-
-@media 	only screen and (-webkit-min-device-pixel-ratio: 1.5),
-only screen and (min--moz-device-pixel-ratio: 1.5),
-only screen and (-o-min-device-pixel-ratio: 3/2),
-only screen and (min-resolution: 1.5dppx),
-only screen and (min-resolution: 144dpi)  {
-  .registration {
-    &__img {
-      background-image: url(img/registration__img@2x.png);
-    }
   }
 }
