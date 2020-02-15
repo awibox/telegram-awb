@@ -864,8 +864,6 @@ class Messenger {
           self.checkUpdate(item)
         }
       })
-    } else if(update['_'] === "rpc_result") {
-      this.onUpdate(update.result);
     } else {
       self.checkUpdate(update)
     }
@@ -949,10 +947,11 @@ class Messenger {
         self.api.subscribe(result.user.id, (update) => self.onUpdate(update));
       });
     }
+    const sendInput = document.getElementById('sendInput');
     document.getElementById('chatsScroll').onscroll = () => this.scrollChats();
     document.getElementById('messagesScroll').onscroll = () => this.scrollMessages();
     document.getElementById('sendButton').addEventListener('click', () => this.sendMessage());
-    document.getElementById('sendInput').addEventListener('keydown', (e) => this.onKeyDownInput(e));
+    sendInput.addEventListener('keydown', (e) => this.onKeyDownInput(e));
     const chatsPanelDropDown = document.getElementById('chatsPanelDropDown');
     document.getElementById('chatsPanelMenu').addEventListener('click', () => {
       if(chatsPanelDropDown.style.display === 'none' || chatsPanelDropDown.style.display === '') {
@@ -970,7 +969,21 @@ class Messenger {
         });
       })
     });
+    const smilesDom = document.getElementById('smiles');
     document.getElementById('sendFile').addEventListener('change', () => this.uploadFile());
+    document.getElementById('smileButton').addEventListener('mouseover', () => {
+      smilesDom.style.visibility = 'visible';
+    });
+    document.getElementById('sendMessage').addEventListener('click', () => {
+      smilesDom.style.visibility = 'hidden';
+    });
+    const smileArr = document.getElementsByClassName('smile-item');
+    Array.from(smileArr).forEach(function(element) {
+      element.addEventListener('click', (e) => {
+        sendInput.innerHTML = sendInput.innerHTML + e.toElement.innerHTML;
+        smilesDom.style.visibility = 'hidden';
+      });
+    });
   }
 }
 export default Messenger;
