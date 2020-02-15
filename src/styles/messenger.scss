@@ -267,7 +267,6 @@ $topBarHeight: 60px;
     flex-flow: row;
     cursor: not-allowed;
     &-icon {
-      background-image: url(img/icons/search_1x.png);
       background-repeat: no-repeat;
       background-size: 24px;
       background-position: 50% 50%;
@@ -577,18 +576,6 @@ $topBarHeight: 60px;
   background-repeat: no-repeat;
 }
 
-@media 	only screen and (-webkit-min-device-pixel-ratio: 1.5),
-only screen and (min--moz-device-pixel-ratio: 1.5),
-only screen and (-o-min-device-pixel-ratio: 3/2),
-only screen and (min-resolution: 1.5dppx),
-only screen and (min-resolution: 144dpi)  {
-  .chatsPanel__menu {
-    background-image: url(img/icons/menu_2x.png);
-  }
-  .chatsPanel__search-icon {
-    background-image: url(img/icons/search_2x.png);
-  }
-}
 .loader-chat {
   position: absolute;
   top: 0;
@@ -805,6 +792,9 @@ only screen and (min-resolution: 144dpi)  {
   border-radius: 50%;
   position: relative;
   cursor: pointer;
+  background-size: 24px;
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
   &:hover {
     background-color: rgba(112, 117, 121, 0.08);
   }
@@ -838,4 +828,11 @@ only screen and (min-resolution: 144dpi)  {
       background-color: #f1f3f4;
     }
   }
+}
+
+.search-icon {
+  background-image: url(img/icons/search_svg.svg);
+}
+.more-icon {
+  background-image: url(img/icons/more_svg.svg);
 }
