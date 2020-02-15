@@ -332,13 +332,15 @@ class Messenger {
                       </span>
                     </div>`;
           } else {
-            return `<div class="messages__item-text messages__item-text_photo">
-                      <div id="photo-${item.id}" style="${proportionStyle}" class="image-container"></div>
-                      <span class="messages__item-time">
-                        ${message.date}
-                        ${message.is_outgoing ? `${this.lastReadId >= item.id ? `<div class="arrow-read arrow-read_white"></div>` : '<div class="arrow arrow_white"></div>'}` : ''}
-                      </span>
-                    </div>`;
+            const photoElement = document.createElement('div');
+            photoElement.className = 'messages__item-text messages__item-text_photo';
+            photoElement.addEventListener('click', () => this.showPhoto(item.media.photo))
+            photoElement.innerHTML = `<div id="photo-${item.id}" style="${proportionStyle}" class="image-container"></div>
+            <span class="messages__item-time">
+              ${message.date}
+              ${message.is_outgoing ? `${this.lastReadId >= item.id ? `<div class="arrow-read arrow-read_white"></div>` : '<div class="arrow arrow_white"></div>'}` : ''}
+            </span>`;
+            return photoElement;
           }
         }
         case 'messageMediaDocument' : {
@@ -412,6 +414,10 @@ class Messenger {
         }
       }
     }
+  }
+
+  showPhoto(photo) {
+    console.log('showPhoto', photo);
   }
 
   downloadFile(doc) {
