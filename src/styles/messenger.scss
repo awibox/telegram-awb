@@ -237,6 +237,7 @@ $topBarHeight: 60px;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    overflow: hidden;
     svg g path{
       fill: #9aa2ab;
     }
@@ -244,6 +245,15 @@ $topBarHeight: 60px;
       svg g path{
         fill: #4ea4f7;
       }
+    }
+    input[type='file'] {
+      position: absolute;
+      top: -100px;
+      left: -100px;
+      bottom: 0;
+      right: 0;
+      opacity: 0;
+      cursor: pointer;
     }
   }
   %sendButton {
