@@ -372,9 +372,9 @@ class Messenger {
                 </div>`;
             }
           }
-          if(!!item.media.document.attributes[0]) {
-            if(item.media.document.attributes[0]['_'] === 'documentAttributeFilename') {
-              const fileName = item.media.document.attributes[0].file_name;
+          if(!!item.media.document.attributes[0] || !!item.media.document.attributes[1] || !!item.media.document.attributes[2]) {
+            if(item.media.document.attributes[0]['_'] === 'documentAttributeFilename' || item.media.document.attributes[1]['_'] === 'documentAttributeFilename' || item.media.document.attributes[2]['_'] === 'documentAttributeFilename') {
+              const fileName = item.media.document.attributes[0].file_name || item.media.document.attributes[1].file_name || item.media.document.attributes[2].file_name;
               let fileSize = {
                 size: item.media.document.size,
                 type: 'B'
