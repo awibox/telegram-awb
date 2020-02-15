@@ -208,11 +208,27 @@ class Messenger {
     this.loadMessages(params, true);
     if(chat.allowSend) {
       document.getElementById('sendMessage').style.display = 'flex';
+      document.getElementById('sendFile').removeEventListener('change', () => this.uploadFile(params));
+      document.getElementById('sendFile').addEventListener('change', () => this.uploadFile(params));
     } else {
       document.getElementById('sendMessage').style.display = 'none';
     }
     const rightBar = document.getElementById('rightBar');
     rightBar.className = deleteClass(rightBar.className, 'im__rightBar_open');
+  }
+
+  uploadFile(params) {
+    const file = document.getElementById('sendFile').files[0];
+    this.api.sendFile({
+      id: params.id,
+      type: params.type,
+      file: file,
+      caption: ''
+    }).then((response) => {
+      console.log('File uploaded')
+    }).catch((error) => {
+      console.error(error);
+    })
   }
 
   /**
