@@ -180,12 +180,23 @@ $topBarHeight: 60px;
     }
   }
   &__smiles {
-    background-image: url('img/icons/smile_svg.svg');
     background-repeat: no-repeat;
     background-position: 50% 50%;
     width: 55px;
     height: 55px;
     min-width: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    svg g path{
+      fill: #9aa2ab;
+    }
+    &:hover {
+      svg g path{
+        fill: #4ea4f7;
+      }
+    }
   }
   &__input {
     width: 100%;
@@ -214,7 +225,6 @@ $topBarHeight: 60px;
     }
   }
   &__files {
-    background-image: url('img/icons/attach_svg.svg');
     background-repeat: no-repeat;
     background-position: 50% 50%;
     width: 55px;
@@ -223,6 +233,18 @@ $topBarHeight: 60px;
     position: absolute;
     bottom: 0;
     right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    svg g path{
+      fill: #9aa2ab;
+    }
+    &:hover {
+      svg g path{
+        fill: #4ea4f7;
+      }
+    }
   }
   %sendButton {
     background-color: #fff;
@@ -234,10 +256,21 @@ $topBarHeight: 60px;
     margin-left: 8px;
     min-width: 55px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    svg g path{
+      fill: #9aa2ab;
+    }
+    &:hover {
+      svg g path{
+        fill: #4ea4f7;
+      }
+    }
   }
   &__send {
     @extend %sendButton;
-    background-image: url('img/icons/send_svg.svg');
   }
   &__voice-message {
     @extend %sendButton;
