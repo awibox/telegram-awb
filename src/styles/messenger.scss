@@ -157,6 +157,7 @@ $topBarHeight: 60px;
   flex-flow: row;
   flex-wrap: nowrap;
   align-items: flex-end;
+  position: relative;
   &__text-area {
     background: #fff;
     min-height: 55px;
@@ -189,6 +190,7 @@ $topBarHeight: 60px;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    position: relative;
     svg g path{
       fill: #9aa2ab;
     }
@@ -877,6 +879,30 @@ $topBarHeight: 60px;
     &:hover {
       background-color: #f1f3f4;
     }
+  }
+}
+
+.smiles-dropdown {
+  position: absolute;
+  bottom: 82px;
+  margin-left: -130px;
+  z-index: 99;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.24);
+  transition: background-color 0.3s;
+  display: flex;
+  flex-flow: row;
+  flex-wrap: wrap;
+  padding: 5px;
+  max-height: 305px;
+  width: 420px;
+  overflow: auto;
+  visibility: hidden;
+  .smile-item {
+    font-size: 30px;
+    padding: 6px;
+    cursor: pointer;
   }
 }
 
