@@ -389,9 +389,12 @@ class Messenger {
                 fileSize.size = (fileSize.size / 1024).toFixed(2);
                 fileSize.type = 'Gb';
               }
-              return `<div class="messages__item-text">
+              const fileTemplate = document.createElement('div');
+              fileTemplate.className = 'messages__item-text';
+              fileTemplate.addEventListener('click', () => this.downloadFile(item.media.document));
+              fileTemplate.innerHTML = `
                 <span class="messages__item-text-content">
-                  <div id="file-${item.id}" class="file">
+                  <div id="file-${item.media.document.id}" class="file">
                     <div class="file__icon"></div>
                     <div>
                       <div class="file__title">${fileName}</div> 
@@ -402,8 +405,8 @@ class Messenger {
                 <span class="messages__item-time" style="margin-top: -18px">
                   ${message.date}
                   ${message.is_outgoing ? `${this.lastReadId >= item.id ? `<div class="arrow-read"></div>` : '<div class="arrow"></div>'}` : ''}
-                </span>
-              </div>`;
+                </span>`;
+              return fileTemplate;
             }
           }
         }
@@ -412,7 +415,9 @@ class Messenger {
   }
 
   downloadFile(doc) {
-    console.log('downloadFile', doc);
+    this.api.downloadDocument(doc, () => {}, true).then(() => {
+      document.getElementById(`file-${doc.id}`).className = 'file file_downloaded';
+    })
   }
 
   addMessage(item, update = false, firstLoad = false) {
@@ -432,7 +437,10 @@ class Messenger {
     }
     messageView.innerHTML = `
     <div class="messages__item-avatar"></div>
-    ${messageNode}`;
+    ${typeof messageNode === 'string' ? messageNode : '' }`;
+    if(typeof messageNode === 'object') {
+      messageView.prepend(messageNode);
+    }
     if (!update) {
       const messageDate = this.getMessageDate(this.currentDate, item.date);
       if(!!messageDate) {
