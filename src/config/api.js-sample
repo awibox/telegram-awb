@@ -1,30 +1,28 @@
-import {getOSName, getBrowser} from 'utils';
-
-const useTestDC = false;
-
-export const apiConfig = {
-  '@type': 'tdParameters',
-  api_id: ${YOUR_API_ID},
-  api_hash: ${YOUR_API_HASH},
-  system_language_code: navigator.language || 'en',
-  device_model: getBrowser(),
-  system_version: getOSName(),
-  application_version: '1.0.0',
-  use_secret_chats: false,
-  use_message_database: true,
-  use_test_dc: useTestDC,
-  use_file_database: false,
-  database_directory: '/db',
-  files_directory: '/'
-};
-
-export const TdClientOptions = {
-  logVerbosityLevel: 1,
-  jsLogVerbosityLevel: 3,
-  mode: 'wasm',
-  prefix: useTestDC ? 'tdlib_test' : 'tdlib',
-  readOnly: false,
-  isBackground: false,
-  useDatabase: false,
-  wasmUrl: `b4b0d61282108a31908dd6b2dbd7067b.wasm?_sw-precache=b4b0d61282108a31908dd6b2dbd7067b`
+export default {
+  app: {
+    id: 0,
+    hash: 'qwertyasdfghzxcvbnqwertyasd',
+    version: '0.0.0',
+  },
+  server: {
+    test: [
+      { id: 1, host: '149.154.175.10', port: 80 },
+      { id: 2, host: '149.154.167.40', port: 443 },
+      { id: 3, host: '149.154.175.117', port: 80 },
+    ],
+    production: [
+      { id: 1, host: '149.154.175.50', port: 80 },
+      { id: 2, host: '149.154.167.50', port: 80 },
+      { id: 3, host: '149.154.175.100', port: 80 },
+      { id: 4, host: '1149.154.167.50', port: 80 },
+      { id: 5, host: '149.154.171.5', port: 80 },
+    ],
+    https: [
+      { id: 1, host: 'pluto.web.telegram.org', port: 80 },
+      { id: 2, host: 'venus.web.telegram.org', port: 80 },
+      { id: 3, host: 'aurora.web.telegram.org', port: 80 },
+      { id: 4, host: 'vesta.web.telegram.org', port: 80 },
+      { id: 5, host: 'flora.web.telegram.org', port: 80 },
+    ],
+  },
 };
